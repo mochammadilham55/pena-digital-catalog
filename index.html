@@ -392,12 +392,14 @@ function renderKatalog(items) {
 // Konversi Google Drive share link ke direct image link
 function toImgUrl(url) {
   if (!url) return url;
-  // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+  // Kalau sudah format uc?export=view, langsung pakai
+  if (url.includes('uc?export=view') || url.includes('uc&export=view')) return url;
+  // Format: https://drive.google.com/file/d/FILE_ID/view
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+  if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
   // Format: https://drive.google.com/open?id=FILE_ID
   const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w400`;
+  if (m2) return `https://drive.google.com/uc?export=view&id=${m2[1]}`;
   return url;
 }
 
