@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#1B3A6B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Pena Digital Store">
+<meta name="apple-mobile-web-app-title" content="PenaDigital">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
@@ -285,14 +285,21 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
 <!-- HEADER -->
 <header>
   <div class="logo-box">
-      <img src="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg" 
-          style="width:34px;height:34px;object-fit:contain;">
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="5" stroke="#E07B2A" stroke-width="2.2"/>
+      <path d="M12 4L9 12H12L10.5 20L18 11H13.5L16 4H12Z" fill="#1B3A6B"/>
+      <circle cx="12" cy="15.5" r="1.2" fill="#E07B2A"/>
+    </svg>
   </div>
   <div class="brand">
-    <span class="brand-name">Pena Digital Store</span>
+    <span class="brand-name">PenaDigital</span>
     <span class="brand-sub">PERANGKAT AJAR DIGITAL</span>
   </div>
   <div class="header-spacer"></div>
+  <a href="cart.html" style="position:relative;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;margin-right:6px;" id="cart-icon-link">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span id="cart-count" style="display:none;position:absolute;top:-6px;right:-6px;background:#E07B2A;color:#fff;font-size:10px;font-weight:800;width:17px;height:17px;border-radius:50%;align-items:center;justify-content:center;"></span>
+  </a>
   <a href="admin.html" class="btn-admin-link">Admin</a>
 </header>
 
@@ -351,6 +358,9 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
 <footer>
   &copy; 2025 PenaDigital &nbsp;·&nbsp;
   Butuh bantuan? <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">WhatsApp Admin</a>
+  &nbsp;·&nbsp; <a href="contact.html">Kontak</a>
+  &nbsp;·&nbsp; <a href="tnc.html">Syarat & Ketentuan</a>
+  &nbsp;·&nbsp; <a href="refund.html">Kebijakan Refund</a>
 </footer>
 
 <script>
@@ -380,7 +390,7 @@ function renderKatalog(items) {
     return;
   }
   grid.innerHTML = items.map(p => `
-    <a class="produk-card" href="${esc(p.link_co)}" target="_blank" rel="noopener">
+    <a class="produk-card" href="produk.html?id=${p.id}">
       <div class="produk-thumb-wrap">
         ${p.foto_url
           ? `<img class="produk-thumb" src="${toImgUrl(esc(p.foto_url))}" alt="${esc(p.nama)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=produk-thumb-placeholder><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/>\\x3cpath d=\\'M3 9l4-4 4 4 4-4 4 4\\'/>\\x3ccircle cx=\\'8.5\\' cy=\\'13.5\\' r=\\'1.5\\'/></svg></div>'">`
@@ -572,6 +582,16 @@ function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
 
 // Init
 loadKatalog();
+
+// Update cart badge
+(function(){
+  try {
+    const cart = JSON.parse(localStorage.getItem('pd_cart')||'[]');
+    const total = cart.reduce((s,i)=>s+(i.qty||1),0);
+    const el = document.getElementById('cart-count');
+    if (el && total > 0) { el.textContent=total; el.style.display='flex'; }
+  } catch {}
+})();
 
 // Register Service Worker (PWA)
 if ('serviceWorker' in navigator) {

@@ -297,17 +297,42 @@ header{
 
       <div class="form-group">
         <label class="form-label">URL Foto Produk *</label>
-        <input id="f-foto" class="form-input" type="url" placeholder="https://drive.google.com/file/d/..." oninput="previewFoto('f-foto','prev-foto')">
-        <div class="form-hint">Paste link Google Drive foto produk (pastikan sudah "Anyone with the link")</div>
+        <input id="f-foto" class="form-input" type="url" placeholder="https://res.cloudinary.com/..." oninput="previewFoto('f-foto','prev-foto')">
+        <div class="form-hint">Gunakan URL dari Cloudinary (bukan Google Drive)</div>
         <div class="foto-preview" id="prev-foto">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Link Produk (Shopee / Lynk.id) *</label>
+        <label class="form-label">Harga (Rp) *</label>
+        <input id="f-harga" class="form-input" type="number" placeholder="contoh: 35000" min="0" style="max-width:200px;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Deskripsi Produk</label>
+        <textarea id="f-deskripsi" class="form-input" rows="3" placeholder="Jelaskan isi produk, cocok untuk kelas berapa, kurikulum apa, dsb..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Variasi Produk</label>
+        <div class="form-hint" style="margin-bottom:8px;">Contoh: Dimensi 1 = "Mapel" dengan opsi "Matematika, IPA, IPS". Dimensi 2 = "Kelas" dengan opsi "7, 8, 9"</div>
+        <div id="variasi-builder"></div>
+        <button type="button" onclick="tambahDimensi()" style="margin-top:8px;padding:7px 14px;background:var(--g100);color:var(--navy);border:1.5px dashed var(--g300);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
+          + Tambah Dimensi Variasi
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Link Contoh Isi Produk (Opsional)</label>
+        <input id="f-contoh" class="form-input" type="url" placeholder="https://drive.google.com/file/d/... (Word/PPT)">
+        <div class="form-hint">Link Google Drive file Word atau PPT untuk preview pembeli</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Link CO (Shopee / Lynk.id) — Opsional</label>
         <input id="f-link" class="form-input" type="url" placeholder="https://shopee.co.id/... atau https://lynk.id/...">
-        <div class="form-hint">Pembeli akan diarahkan ke link ini saat klik produk</div>
+        <div class="form-hint">Link alternatif jika pembeli ingin order via marketplace</div>
       </div>
 
       <div class="form-group">
@@ -476,30 +501,78 @@ function renderList(items) {
   `).join('');
 }
 
+// ── Variasi builder ───────────────────────────────────────────────
+let variasiDims = [];
+
+function tambahDimensi() {
+  variasiDims.push({ nama: '', opsi: [] });
+  renderVariasiBuilder();
+}
+
+function hapusDimensi(idx) {
+  variasiDims.splice(idx, 1);
+  renderVariasiBuilder();
+}
+
+function renderVariasiBuilder() {
+  const container = document.getElementById('variasi-builder');
+  if (!container) return;
+  container.innerHTML = variasiDims.map((dim, i) => `
+    <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input class="form-input" style="flex:1;" type="text" placeholder="Nama dimensi (contoh: Mapel)"
+          value="${esc(dim.nama)}" oninput="variasiDims[${i}].nama=this.value">
+        <button type="button" onclick="hapusDimensi(${i})" style="padding:6px 10px;background:var(--red-bg);color:var(--red);border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:12px;">✕</button>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;">OPSI (pisahkan dengan koma):</div>
+      <input class="form-input" type="text" placeholder="contoh: Matematika, IPA, IPS, B. Indonesia"
+        value="${esc((dim.opsi||[]).join(', '))}"
+        oninput="variasiDims[${i}].opsi=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+    </div>
+  `).join('');
+}
+
+function getVariasiConfig() {
+  return variasiDims.filter(d => d.nama).map(d => ({ nama: d.nama, opsi: d.opsi }));
+}
+
+function resetVariasiBuilder() {
+  variasiDims = [];
+  renderVariasiBuilder();
+}
+
 // ════════════════════════════════════════
 // TAMBAH
 // ════════════════════════════════════════
 async function tambahProduk() {
-  const nama   = document.getElementById('f-nama').value.trim();
-  const foto   = document.getElementById('f-foto').value.trim();
-  const link   = document.getElementById('f-link').value.trim();
-  const urutan = parseInt(document.getElementById('f-urutan').value) || 0;
+  const nama    = document.getElementById('f-nama').value.trim();
+  const foto    = document.getElementById('f-foto').value.trim();
+  const harga   = parseInt(document.getElementById('f-harga').value) || 0;
+  const deskripsi = document.getElementById('f-deskripsi').value.trim();
+  const link    = document.getElementById('f-link').value.trim();
+  const contoh  = document.getElementById('f-contoh').value.trim();
+  const urutan  = parseInt(document.getElementById('f-urutan').value) || 0;
+  const varConf = getVariasiConfig();
 
-  if (!nama || !foto || !link) { toast('Nama, foto, dan link wajib diisi.', true); return; }
+  if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
 
   setBtn('btn-tambah','spin-tambah','icon-tambah', true);
   try {
     const r = await fetch(`${API}/katalog`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama, foto_url: foto, link_co: link, urutan })
+      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan })
     });
     const d = await r.json();
     if (d.status === 'ok') {
       toast('Produk berhasil ditambahkan!');
-      ['f-nama','f-foto','f-link'].forEach(id => document.getElementById(id).value = '');
+      ['f-nama','f-foto','f-harga','f-deskripsi','f-link','f-contoh'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
       document.getElementById('f-urutan').value = '0';
       document.getElementById('prev-foto').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>';
+      resetVariasiBuilder();
       loadList();
     } else { toast(d.message || 'Gagal.', true); }
   } catch { toast('Kesalahan jaringan.', true); }

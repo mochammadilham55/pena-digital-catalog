@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Produk — PenaDigital</title>
+<meta name="description" content="Detail produk perangkat ajar digital PenaDigital.">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1B3A6B">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--navy2:#2A4F8F;--orange:#E07B2A;--orange2:#F5A040;
+  --cream:#F5EFE6;--cream2:#EDE4D6;--white:#fff;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
+  --g500:#64748B;--g700:#334155;
+  --green:#16A34A;--green-bg:#DCFCE7;
+  --red:#DC2626;--red-bg:#FEE2E2;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.logo-box{width:38px;height:38px;background:var(--cream);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-box svg{width:24px;height:24px;}
+.brand-name{font-size:16px;font-weight:800;color:#fff;}
+.brand-sub{font-size:10px;color:var(--orange2);font-weight:600;display:block;letter-spacing:.5px;}
+.hspacer{flex:1;}
+.cart-btn{position:relative;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:background .15s;}
+.cart-btn:hover{background:rgba(255,255,255,.2);}
+.cart-btn svg{width:18px;height:18px;color:#fff;}
+.cart-badge{position:absolute;top:-6px;right:-6px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;display:none;}
+
+/* BREADCRUMB */
+.breadcrumb{padding:12px 20px;font-size:12px;color:var(--g500);display:flex;align-items:center;gap:6px;max-width:640px;margin:0 auto;}
+.breadcrumb a{color:var(--orange);text-decoration:none;font-weight:600;}
+.breadcrumb a:hover{text-decoration:underline;}
+
+/* MAIN */
+.main{max-width:640px;margin:0 auto;padding:0 16px 80px;}
+
+/* FOTO */
+.foto-wrap{background:var(--white);border-radius:16px;overflow:hidden;margin-bottom:16px;border:1px solid var(--cream2);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;}
+.foto-wrap img{width:100%;height:100%;object-fit:cover;}
+.foto-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--g300);}
+.foto-placeholder svg{width:48px;height:48px;}
+.foto-placeholder span{font-size:13px;}
+
+/* CARD INFO */
+.info-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);}
+.produk-nama{font-size:20px;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:8px;}
+.produk-harga{font-size:24px;font-weight:800;color:var(--orange);margin-bottom:12px;}
+.produk-harga span{font-size:13px;font-weight:500;color:var(--g500);}
+.produk-desc{font-size:14px;color:var(--g700);line-height:1.7;}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);color:var(--green);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+/* VARIASI */
+.variasi-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);}
+.variasi-title{font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.variasi-title::before{content:'';width:3px;height:14px;background:var(--orange);border-radius:2px;display:inline-block;}
+.variasi-group{margin-bottom:16px;}
+.variasi-group:last-child{margin-bottom:0;}
+.variasi-label{font-size:13px;font-weight:700;color:var(--g700);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.variasi-selected{font-size:12px;font-weight:600;color:var(--orange);background:rgba(224,123,42,.1);padding:2px 8px;border-radius:5px;}
+.variasi-opts{display:flex;flex-wrap:wrap;gap:8px;}
+.variasi-opt{
+  padding:8px 14px;border-radius:8px;
+  border:2px solid var(--g200);background:var(--g50);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:var(--g700);
+  cursor:pointer;transition:all .15s;
+}
+.variasi-opt:hover{border-color:var(--orange);color:var(--orange);}
+.variasi-opt.selected{border-color:var(--navy);background:var(--navy);color:#fff;}
+
+/* CONTOH */
+.contoh-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);}
+.btn-contoh{
+  width:100%;padding:12px;border-radius:10px;
+  background:var(--g100);color:var(--navy);
+  border:2px solid var(--g200);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .15s;
+}
+.btn-contoh:hover{background:var(--cream);border-color:var(--cream2);}
+.preview-wrap{display:none;margin-top:14px;}
+.preview-wrap.open{display:block;}
+.preview-frame{width:100%;height:420px;border:none;border-radius:10px;background:var(--g100);}
+.preview-fallback{margin-top:10px;padding:12px;background:var(--g50);border-radius:8px;border:1px solid var(--g200);font-size:13px;color:var(--g500);text-align:center;}
+.preview-fallback a{color:var(--orange);font-weight:700;text-decoration:none;}
+.preview-fallback a:hover{text-decoration:underline;}
+
+/* AKSI BAWAH — sticky */
+.aksi-bottom{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--white);border-top:1px solid var(--cream2);
+  padding:12px 16px;
+  display:flex;gap:10px;
+  z-index:50;
+  box-shadow:0 -4px 20px rgba(0,0,0,.08);
+}
+.btn-cart{
+  flex:1;padding:13px;border-radius:12px;
+  background:var(--navy);color:#fff;
+  border:none;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .15s,transform .1s;
+}
+.btn-cart:hover{background:var(--navy2);}
+.btn-cart:active{transform:scale(.98);}
+.btn-beli{
+  flex:1;padding:13px;border-radius:12px;
+  background:var(--orange);color:#fff;
+  border:none;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .15s,transform .1s;
+  box-shadow:0 2px 10px rgba(224,123,42,.35);
+}
+.btn-beli:hover{background:#C96E1F;}
+.btn-beli:active{transform:scale(.98);}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;white-space:nowrap;opacity:0;transition:opacity .25s;z-index:999;pointer-events:none;}
+#toast.show{opacity:1;}
+
+/* LOADING */
+.skeleton{background:linear-gradient(90deg,var(--cream2) 25%,var(--cream) 50%,var(--cream2) 75%);background-size:200% 100%;animation:skel 1.2s ease-in-out infinite;border-radius:10px;}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* MODAL VARIASI WARNING */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--white);border-radius:16px;padding:28px 24px;max-width:320px;width:100%;text-align:center;}
+.modal-box h3{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+.modal-box p{font-size:14px;color:var(--g500);margin-bottom:20px;line-height:1.6;}
+.btn-modal-ok{width:100%;padding:12px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#E07B2A" stroke-width="2.2"/><path d="M12 4L9 12H12L10.5 20L18 11H13.5L16 4H12Z" fill="#1B3A6B"/><circle cx="12" cy="15.5" r="1.2" fill="#E07B2A"/></svg>
+    </div>
+    <div><span class="brand-name">PenaDigital</span><span class="brand-sub">PERANGKAT AJAR DIGITAL</span></div>
+  </a>
+  <div class="hspacer"></div>
+  <a href="cart.html" class="cart-btn" id="cart-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-badge" id="cart-badge">0</span>
+  </a>
+</header>
+
+<div class="breadcrumb">
+  <a href="index.html">Beranda</a>
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  <span id="bc-nama">Detail Produk</span>
+</div>
+
+<div class="main">
+  <!-- FOTO -->
+  <div class="foto-wrap" id="foto-wrap">
+    <div class="foto-placeholder skeleton" style="width:100%;height:100%;"></div>
+  </div>
+
+  <!-- INFO -->
+  <div class="info-card" id="info-card">
+    <div class="skeleton" style="height:28px;border-radius:6px;margin-bottom:10px;"></div>
+    <div class="skeleton" style="height:20px;width:40%;border-radius:6px;margin-bottom:12px;"></div>
+    <div class="skeleton" style="height:60px;border-radius:6px;"></div>
+  </div>
+
+  <!-- VARIASI (hidden until loaded) -->
+  <div class="variasi-card" id="variasi-card" style="display:none;"></div>
+
+  <!-- CONTOH (hidden until loaded) -->
+  <div class="contoh-card" id="contoh-card" style="display:none;">
+    <button class="btn-contoh" onclick="togglePreview()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span id="btn-contoh-txt">Lihat Contoh Isi Produk</span>
+    </button>
+    <div class="preview-wrap" id="preview-wrap">
+      <iframe id="preview-frame" class="preview-frame" allowfullscreen></iframe>
+      <div class="preview-fallback">
+        Preview tidak muncul? 
+        <a href="#" id="preview-link" target="_blank" rel="noopener">Klik di sini untuk buka langsung di Google Drive</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AKSI BAWAH -->
+<div class="aksi-bottom">
+  <button class="btn-cart" onclick="tambahKeranjang()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    Keranjang
+  </button>
+  <button class="btn-beli" onclick="beliSekarang()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    Beli Sekarang
+  </button>
+</div>
+
+<!-- MODAL VARIASI -->
+<div class="modal-overlay" id="modal-variasi">
+  <div class="modal-box">
+    <h3>⚠️ Pilih Variasi</h3>
+    <p id="modal-variasi-msg">Silakan pilih semua variasi produk terlebih dahulu.</p>
+    <button class="btn-modal-ok" onclick="document.getElementById('modal-variasi').classList.remove('open')">OK, Pilih Sekarang</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = 'https://pena-digital-backend.vercel.app/api/public';
+const ADMIN_WA = '6282228225791';
+
+let produk = null;
+let variasiTerpilih = {}; // { "Mapel": "Matematika", "Kelas": "7" }
+let previewOpen = false;
+
+// ── Ambil ID dari URL ────────────────────────────────────────────
+const params  = new URLSearchParams(location.search);
+const produkId = params.get('id');
+
+if (!produkId) {
+  location.href = 'index.html';
+}
+
+// ── Load Produk ──────────────────────────────────────────────────
+async function loadProduk() {
+  try {
+    const r = await fetch(`${API}/katalog/${produkId}`);
+    const d = await r.json();
+    if (d.status !== 'ok') { location.href = 'index.html'; return; }
+    produk = d.data;
+    renderProduk(produk);
+  } catch {
+    location.href = 'index.html';
+  }
+}
+
+function renderProduk(p) {
+  document.title = `${p.nama} — PenaDigital`;
+  document.getElementById('bc-nama').textContent = p.nama;
+
+  // Foto
+  const fotoWrap = document.getElementById('foto-wrap');
+  if (p.foto_url) {
+    fotoWrap.innerHTML = `<img src="${toImgUrl(esc(p.foto_url))}" alt="${esc(p.nama)}" onerror="this.parentNode.innerHTML='<div class=foto-placeholder><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/></svg><span>Foto tidak tersedia</span></div>'">`;
+  } else {
+    fotoWrap.innerHTML = `<div class="foto-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span>Foto tidak tersedia</span></div>`;
+  }
+
+  // Info
+  const harga = p.harga ? `Rp ${parseInt(p.harga).toLocaleString('id-ID')}` : 'Hubungi Admin';
+  document.getElementById('info-card').innerHTML = `
+    <div class="badge-row">
+      <span class="badge">✅ Produk Digital</span>
+      <span class="badge">📁 Format Word & PPT</span>
+    </div>
+    <div class="produk-nama">${esc(p.nama)}</div>
+    <div class="produk-harga">${harga} <span>/ paket</span></div>
+    ${p.deskripsi ? `<div class="produk-desc">${esc(p.deskripsi).replace(/\n/g,'<br>')}</div>` : ''}
+  `;
+
+  // Variasi
+  const varCard = document.getElementById('variasi-card');
+  const varConf = typeof p.variasi_config === 'string' ? JSON.parse(p.variasi_config||'[]') : (p.variasi_config||[]);
+  if (varConf.length > 0) {
+    varCard.style.display = 'block';
+    varCard.innerHTML = `<div class="variasi-title">Pilih Variasi</div>` +
+      varConf.map((dim, di) => `
+        <div class="variasi-group">
+          <div class="variasi-label">
+            ${esc(dim.nama)}
+            <span class="variasi-selected" id="sel-${di}">Belum dipilih</span>
+          </div>
+          <div class="variasi-opts">
+            ${(dim.opsi||[]).map(opt => `
+              <button class="variasi-opt" onclick="pilihVariasi(${di},'${escA(dim.nama)}','${escA(opt)}')" data-dim="${di}" data-opt="${escA(opt)}">
+                ${esc(opt)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+  }
+
+  // Contoh
+  if (p.link_contoh) {
+    document.getElementById('contoh-card').style.display = 'block';
+    // Set iframe src nanti saat diklik
+    document.getElementById('preview-link').href = p.link_contoh;
+  }
+
+  updateCartBadge();
+}
+
+// ── Pilih Variasi ────────────────────────────────────────────────
+function pilihVariasi(dimIdx, dimNama, opsi) {
+  variasiTerpilih[dimNama] = opsi;
+
+  // Update UI tombol
+  document.querySelectorAll(`[data-dim="${dimIdx}"]`).forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.opt === opsi);
+  });
+  const selEl = document.getElementById(`sel-${dimIdx}`);
+  if (selEl) selEl.textContent = opsi;
+}
+
+function getVariasiLabel() {
+  return Object.values(variasiTerpilih).join(' - ');
+}
+
+function validasiVariasi() {
+  const varConf = typeof produk.variasi_config === 'string'
+    ? JSON.parse(produk.variasi_config||'[]')
+    : (produk.variasi_config||[]);
+  if (!varConf.length) return true;
+  const belumDipilih = varConf.filter(d => !variasiTerpilih[d.nama]);
+  if (belumDipilih.length) {
+    document.getElementById('modal-variasi-msg').textContent =
+      `Silakan pilih: ${belumDipilih.map(d=>d.nama).join(', ')}`;
+    document.getElementById('modal-variasi').classList.add('open');
+    return false;
+  }
+  return true;
+}
+
+// ── Preview Contoh ───────────────────────────────────────────────
+function togglePreview() {
+  const wrap = document.getElementById('preview-wrap');
+  previewOpen = !previewOpen;
+  wrap.classList.toggle('open', previewOpen);
+  document.getElementById('btn-contoh-txt').textContent = previewOpen ? 'Tutup Preview' : 'Lihat Contoh Isi Produk';
+
+  if (previewOpen && produk?.link_contoh) {
+    // Konversi ke embed URL
+    const frame = document.getElementById('preview-frame');
+    const embedUrl = toDriveEmbed(produk.link_contoh);
+    frame.src = embedUrl;
+  }
+}
+
+function toDriveEmbed(url) {
+  if (!url) return '';
+  // Format: https://drive.google.com/file/d/FILE_ID/view
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+  // Format: docs.google.com/document/d/...
+  if (url.includes('docs.google.com')) {
+    return url.replace('/edit','/preview').replace('/view','/preview');
+  }
+  return url;
+}
+
+// ── Keranjang ────────────────────────────────────────────────────
+function getCart() {
+  try { return JSON.parse(localStorage.getItem('pd_cart') || '[]'); } catch { return []; }
+}
+function saveCart(cart) {
+  localStorage.setItem('pd_cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+function updateCartBadge() {
+  const cart   = getCart();
+  const total  = cart.reduce((s,i) => s + (i.qty||1), 0);
+  const badge  = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+}
+
+function tambahKeranjang() {
+  if (!produk) return;
+  if (!validasiVariasi()) return;
+
+  const varLabel = getVariasiLabel();
+  const cart     = getCart();
+
+  // Cek apakah sudah ada item yang sama
+  const key      = `${produk.id}-${varLabel}`;
+  const existing = cart.find(i => i.key === key);
+  if (existing) {
+    existing.qty = (existing.qty || 1) + 1;
+  } else {
+    cart.push({
+      key,
+      produk_id: produk.id,
+      nama:      produk.nama,
+      variasi:   varLabel,
+      harga:     parseInt(produk.harga) || 0,
+      foto_url:  produk.foto_url,
+      qty:       1
+    });
+  }
+  saveCart(cart);
+  toast('✅ Ditambahkan ke keranjang!');
+}
+
+function beliSekarang() {
+  if (!produk) return;
+  if (!validasiVariasi()) return;
+  tambahKeranjang();
+  setTimeout(() => { location.href = 'cart.html'; }, 400);
+}
+
+// ── Utils ────────────────────────────────────────────────────────
+function toImgUrl(url) {
+  if (!url) return url;
+  if (url.includes('uc?export=view') || url.includes('uc&export=view')) return url;
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+  return url;
+}
+function toast(msg, err=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = err ? '#DC2626' : '#1B3A6B';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
+
+loadProduk();
+</script>
+</body>
+</html>
