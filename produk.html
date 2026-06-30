@@ -51,11 +51,11 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .foto-placeholder span{font-size:13px;}
 
 /* CARD INFO */
-.info-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);}
+.info-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);overflow:hidden;}
 .produk-nama{font-size:20px;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:8px;}
 .produk-harga{font-size:24px;font-weight:800;color:var(--orange);margin-bottom:12px;}
 .produk-harga span{font-size:13px;font-weight:500;color:var(--g500);}
-.produk-desc{font-size:14px;color:var(--g700);line-height:1.7;}
+.produk-desc{font-size:14px;color:var(--g700);line-height:1.7;word-break:break-word;overflow-wrap:break-word;max-width:100%;}
 .badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 .badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);color:var(--green);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
 
@@ -146,7 +146,10 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 <body>
 
 <header>
-  <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+  <button onclick="goBackOrHome()" style="width:34px;height:34px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  </button>
+  <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;margin-left:6px;">
     <div class="logo-box">
       <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#E07B2A" stroke-width="2.2"/><path d="M12 4L9 12H12L10.5 20L18 11H13.5L16 4H12Z" fill="#1B3A6B"/><circle cx="12" cy="15.5" r="1.2" fill="#E07B2A"/></svg>
     </div>
@@ -242,13 +245,15 @@ async function loadProduk() {
     const r = await fetch(`${API}/katalog/${produkId}`);
     const d = await r.json();
     if (d.status !== 'ok') {
-      tampilError('Produk tidak ditemukan atau belum aktif.');
+      tampilError(`Produk tidak ditemukan. (${d.message || d.status})`);
       return;
     }
     produk = d.data;
     renderProduk(produk);
   } catch(e) {
-    tampilError('Gagal memuat produk. Periksa koneksi internet Anda.');
+    // Cek apakah benar-benar tidak bisa connect atau error lain
+    tampilError(`Gagal memuat produk: ${e.message}. Coba refresh halaman.`);
+    console.error('loadProduk error:', e);
   }
 }
 
@@ -450,6 +455,14 @@ function toast(msg, err=false) {
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
+
+function goBackOrHome() {
+  if (document.referrer && document.referrer.includes(location.host)) {
+    history.back();
+  } else {
+    location.href = 'index.html';
+  }
+}
 
 loadProduk();
 </script>

@@ -304,6 +304,8 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
 </header>
 
 <!-- ══ CEK PESANAN ══ -->
+<div id="pending-banner"></div>
+
 <section class="section-pesanan">
   <div class="pesanan-inner">
     <div class="pesanan-title">Ambil Link Pesanan Anda</div>
@@ -358,6 +360,7 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
 <footer>
   &copy; 2025 PenaDigital &nbsp;·&nbsp;
   Butuh bantuan? <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">WhatsApp Admin</a>
+  &nbsp;·&nbsp; <a href="pending.html">Pembayaran Tertunda</a>
   &nbsp;·&nbsp; <a href="contact.html">Kontak</a>
   &nbsp;·&nbsp; <a href="tnc.html">Syarat & Ketentuan</a>
   &nbsp;·&nbsp; <a href="refund.html">Kebijakan Refund</a>
@@ -582,6 +585,34 @@ function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
 
 // Init
 loadKatalog();
+cekPendingOrder();
+
+// ════════════════════════════════════════
+// CEK PEMBAYARAN TERTUNDA
+// ════════════════════════════════════════
+async function cekPendingOrder() {
+  const lastOrder = localStorage.getItem('pd_last_order');
+  if (!lastOrder) return;
+
+  try {
+    const r = await fetch(`${API}/midtrans/order/${lastOrder}`);
+    const d = await r.json();
+    if (d.status !== 'ok') return;
+
+    if (d.payment_status === 'pending') {
+      document.getElementById('pending-banner').innerHTML = `
+        <div style="background:#FEFCE8;border-bottom:1px solid #FEF08A;padding:12px 20px;">
+          <a href="pending.html" style="display:flex;align-items:center;justify-content:center;gap:8px;max-width:600px;margin:0 auto;text-decoration:none;color:#CA8A04;font-size:13px;font-weight:600;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Anda punya pembayaran tertunda — klik untuk lanjutkan
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>`;
+    } else {
+      localStorage.removeItem('pd_last_order');
+    }
+  } catch {}
+}
 
 // Update cart badge
 (function(){

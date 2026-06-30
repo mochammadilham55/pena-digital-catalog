@@ -53,8 +53,19 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
   <div class="logo-box"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#E07B2A" stroke-width="2.2"/><path d="M12 4L9 12H12L10.5 20L18 11H13.5L16 4H12Z" fill="#1B3A6B"/><circle cx="12" cy="15.5" r="1.2" fill="#E07B2A"/></svg></div>
   <span class="brand-name">PenaDigital</span>
   <div class="hspacer"></div>
-  <a href="index.html" class="back-btn">← Beranda</a>
+  <button onclick="goBackOrHome()" class="back-btn" style="margin-right:6px;cursor:pointer;border:1px solid rgba(255,255,255,.2);">← Kembali</button>
+  <a href="index.html" class="back-btn">🏠 Beranda</a>
 </header>
+
+<script>
+function goBackOrHome() {
+  if (document.referrer && document.referrer.includes(location.host)) {
+    history.back();
+  } else {
+    location.href = 'index.html';
+  }
+}
+</script>
 <div class="main">
   <div class="hero">
     <h1>Hubungi Kami</h1>
