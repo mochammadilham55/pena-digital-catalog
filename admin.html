@@ -603,7 +603,7 @@ async function simpanEdit() {
   const urutan = parseInt(document.getElementById('e-urutan').value) || 0;
   const aktif  = document.getElementById('e-aktif').value === 'true';
 
-  if (!nama || !foto || !link) { toast('Semua field wajib diisi.', true); return; }
+  if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
 
   try {
     const r = await fetch(`${API}/katalog/${id}`, {

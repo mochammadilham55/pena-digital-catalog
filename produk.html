@@ -241,12 +241,32 @@ async function loadProduk() {
   try {
     const r = await fetch(`${API}/katalog/${produkId}`);
     const d = await r.json();
-    if (d.status !== 'ok') { location.href = 'index.html'; return; }
+    if (d.status !== 'ok') {
+      tampilError('Produk tidak ditemukan atau belum aktif.');
+      return;
+    }
     produk = d.data;
     renderProduk(produk);
-  } catch {
-    location.href = 'index.html';
+  } catch(e) {
+    tampilError('Gagal memuat produk. Periksa koneksi internet Anda.');
   }
+}
+
+function tampilError(msg) {
+  document.getElementById('foto-wrap').innerHTML = `
+    <div class="foto-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      <span style="font-size:13px;color:var(--g500);text-align:center;padding:0 20px;">${msg}</span>
+    </div>`;
+  document.getElementById('info-card').innerHTML = `
+    <div style="text-align:center;padding:10px 0;">
+      <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--orange);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
+        ← Kembali ke Beranda
+      </a>
+    </div>`;
+  document.getElementById('variasi-card').style.display = 'none';
+  document.getElementById('contoh-card').style.display  = 'none';
+  document.querySelector('.aksi-bottom').style.display  = 'none';
 }
 
 function renderProduk(p) {
