@@ -281,6 +281,11 @@ header{
     </div>
     <span class="brand-name">PenaDigital <span class="brand-badge">ADMIN</span></span>
     <div class="header-spacer"></div>
+    <a href="index.html" class="btn-logout" style="text-decoration:none;display:flex;align-items:center;gap:5px;margin-right:8px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Beranda
+    </a>
+    <a href="orders.html" class="btn-logout" style="text-decoration:none;margin-right:8px;">Pesanan</a>
     <button class="btn-logout" onclick="logout()">Keluar</button>
   </header>
 
@@ -375,7 +380,28 @@ header{
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Link Produk *</label>
+      <label class="form-label">Harga (Rp) *</label>
+      <input id="e-harga" class="form-input" type="number" min="0" style="max-width:200px;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deskripsi Produk</label>
+      <textarea id="e-deskripsi" class="form-input" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Variasi Produk</label>
+      <div class="form-hint" style="margin-bottom:8px;">Contoh: Dimensi 1 = "Mapel" dengan opsi "Matematika, IPA, IPS". Dimensi 2 = "Kelas" dengan opsi "7, 8, 9"</div>
+      <div id="e-variasi-builder"></div>
+      <button type="button" onclick="tambahDimensiEdit()" style="margin-top:8px;padding:7px 14px;background:var(--g100);color:var(--navy);border:1.5px dashed var(--g300);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
+        + Tambah Dimensi Variasi
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link Contoh Isi Produk (Opsional)</label>
+      <input id="e-contoh" class="form-input" type="url" placeholder="https://drive.google.com/file/d/... (Word/PPT)">
+      <div class="form-hint">Link Google Drive file Word atau PPT untuk preview pembeli</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link CO (Shopee / Lynk.id) — Opsional</label>
       <input id="e-link" class="form-input" type="url">
     </div>
     <div class="form-group">
@@ -582,26 +608,80 @@ async function tambahProduk() {
 // ════════════════════════════════════════
 // EDIT
 // ════════════════════════════════════════
+// ── Variasi builder untuk MODAL EDIT (terpisah dari form tambah) ──
+let editVariasiDims = [];
+
+function tambahDimensiEdit() {
+  editVariasiDims.push({ nama: '', opsi: [] });
+  renderVariasiBuilderEdit();
+}
+
+function hapusDimensiEdit(idx) {
+  editVariasiDims.splice(idx, 1);
+  renderVariasiBuilderEdit();
+}
+
+function renderVariasiBuilderEdit() {
+  const container = document.getElementById('e-variasi-builder');
+  if (!container) return;
+  container.innerHTML = editVariasiDims.map((dim, i) => `
+    <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input class="form-input" style="flex:1;" type="text" placeholder="Nama dimensi (contoh: Mapel)"
+          value="${esc(dim.nama)}" oninput="editVariasiDims[${i}].nama=this.value">
+        <button type="button" onclick="hapusDimensiEdit(${i})" style="padding:6px 10px;background:var(--red-bg);color:var(--red);border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:12px;">✕</button>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;">OPSI (pisahkan dengan koma):</div>
+      <input class="form-input" type="text" placeholder="contoh: Matematika, IPA, IPS, B. Indonesia"
+        value="${esc((dim.opsi||[]).join(', '))}"
+        oninput="editVariasiDims[${i}].opsi=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+    </div>
+  `).join('');
+}
+
+function getVariasiConfigEdit() {
+  return editVariasiDims.filter(d => d.nama).map(d => ({ nama: d.nama, opsi: d.opsi }));
+}
+
 function bukaEdit(p) {
-  document.getElementById('e-id').value    = p.id;
-  document.getElementById('e-nama').value  = p.nama;
-  document.getElementById('e-foto').value  = p.foto_url;
-  document.getElementById('e-link').value  = p.link_co;
-  document.getElementById('e-urutan').value= p.urutan;
-  document.getElementById('e-aktif').value = String(p.aktif);
+  document.getElementById('e-id').value        = p.id;
+  document.getElementById('e-nama').value      = p.nama;
+  document.getElementById('e-foto').value      = p.foto_url;
+  document.getElementById('e-harga').value     = p.harga || 0;
+  document.getElementById('e-deskripsi').value = p.deskripsi || '';
+  document.getElementById('e-contoh').value    = p.link_contoh || '';
+  document.getElementById('e-link').value      = p.link_co || '';
+  document.getElementById('e-urutan').value    = p.urutan;
+  document.getElementById('e-aktif').value     = String(p.aktif);
+
+  // Load variasi config ke builder
+  let varConf = p.variasi_config;
+  if (typeof varConf === 'string') {
+    try { varConf = JSON.parse(varConf); } catch { varConf = []; }
+  }
+  editVariasiDims = Array.isArray(varConf) ? JSON.parse(JSON.stringify(varConf)) : [];
+  renderVariasiBuilderEdit();
+
   previewFoto('e-foto','e-prev-foto');
   document.getElementById('modal-edit').classList.add('open');
 }
 
-function tutupModal() { document.getElementById('modal-edit').classList.remove('open'); }
+function tutupModal() {
+  document.getElementById('modal-edit').classList.remove('open');
+  editVariasiDims = [];
+}
 
 async function simpanEdit() {
-  const id     = parseInt(document.getElementById('e-id').value);
-  const nama   = document.getElementById('e-nama').value.trim();
-  const foto   = document.getElementById('e-foto').value.trim();
-  const link   = document.getElementById('e-link').value.trim();
-  const urutan = parseInt(document.getElementById('e-urutan').value) || 0;
-  const aktif  = document.getElementById('e-aktif').value === 'true';
+  const id        = parseInt(document.getElementById('e-id').value);
+  const nama      = document.getElementById('e-nama').value.trim();
+  const foto      = document.getElementById('e-foto').value.trim();
+  const harga     = parseInt(document.getElementById('e-harga').value) || 0;
+  const deskripsi = document.getElementById('e-deskripsi').value.trim();
+  const contoh    = document.getElementById('e-contoh').value.trim();
+  const link      = document.getElementById('e-link').value.trim();
+  const urutan    = parseInt(document.getElementById('e-urutan').value) || 0;
+  const aktif     = document.getElementById('e-aktif').value === 'true';
+  const varConf   = getVariasiConfigEdit();
 
   if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
 
@@ -609,7 +689,7 @@ async function simpanEdit() {
     const r = await fetch(`${API}/katalog/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama, foto_url: foto, link_co: link, urutan, aktif })
+      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan, aktif })
     });
     const d = await r.json();
     if (d.status === 'ok') { toast('Produk diperbarui!'); tutupModal(); loadList(); }
