@@ -286,6 +286,7 @@ header{
       Beranda
     </a>
     <a href="orders.html" class="btn-logout" style="text-decoration:none;margin-right:8px;">Pesanan</a>
+    <a href="referral.html" class="btn-logout" style="text-decoration:none;margin-right:8px;">Referral</a>
     <button class="btn-logout" onclick="logout()">Keluar</button>
   </header>
 
@@ -326,6 +327,15 @@ header{
         <button type="button" onclick="tambahDimensi()" style="margin-top:8px;padding:7px 14px;background:var(--g100);color:var(--navy);border:1.5px dashed var(--g300);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
           + Tambah Dimensi Variasi
         </button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tandai Stok Habis (Opsional)</label>
+        <div class="form-hint" style="margin-bottom:6px;">
+          Tulis kombinasi yang habis, pisahkan dengan koma. Format: gabungkan opsi dengan tanda "-" sesuai urutan dimensi.<br>
+          Contoh: jika variasi 1 = "IPA" dan variasi 2 = "7" maka tulis <strong>IPA-7</strong>. Untuk lebih dari satu: <strong>IPA-7, Matematika-9</strong>
+        </div>
+        <input id="f-stok-habis" class="form-input" type="text" placeholder="contoh: IPA-7, Matematika-9">
       </div>
 
       <div class="form-group">
@@ -394,6 +404,14 @@ header{
       <button type="button" onclick="tambahDimensiEdit()" style="margin-top:8px;padding:7px 14px;background:var(--g100);color:var(--navy);border:1.5px dashed var(--g300);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
         + Tambah Dimensi Variasi
       </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tandai Stok Habis (Opsional)</label>
+      <div class="form-hint" style="margin-bottom:6px;">
+        Tulis kombinasi yang habis, pisahkan dengan koma. Format: gabungkan opsi dengan tanda "-".<br>
+        Contoh: <strong>IPA-7, Matematika-9</strong>
+      </div>
+      <input id="e-stok-habis" class="form-input" type="text" placeholder="contoh: IPA-7, Matematika-9">
     </div>
     <div class="form-group">
       <label class="form-label">Link Contoh Isi Produk (Opsional)</label>
@@ -579,6 +597,8 @@ async function tambahProduk() {
   const contoh  = document.getElementById('f-contoh').value.trim();
   const urutan  = parseInt(document.getElementById('f-urutan').value) || 0;
   const varConf = getVariasiConfig();
+  const stokHabisRaw = document.getElementById('f-stok-habis').value.trim();
+  const stokHabis = stokHabisRaw ? stokHabisRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
 
   if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
 
@@ -587,12 +607,12 @@ async function tambahProduk() {
     const r = await fetch(`${API}/katalog`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan })
+      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan, stok_habis: stokHabis })
     });
     const d = await r.json();
     if (d.status === 'ok') {
       toast('Produk berhasil ditambahkan!');
-      ['f-nama','f-foto','f-harga','f-deskripsi','f-link','f-contoh'].forEach(id => {
+      ['f-nama','f-foto','f-harga','f-deskripsi','f-link','f-contoh','f-stok-habis'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
@@ -654,6 +674,12 @@ function bukaEdit(p) {
   document.getElementById('e-urutan').value    = p.urutan;
   document.getElementById('e-aktif').value     = String(p.aktif);
 
+  // Stok habis
+  let stokHabis = p.stok_habis;
+  if (typeof stokHabis === 'string') { try { stokHabis = JSON.parse(stokHabis); } catch { stokHabis = []; } }
+  if (!Array.isArray(stokHabis)) stokHabis = [];
+  document.getElementById('e-stok-habis').value = stokHabis.join(', ');
+
   // Load variasi config ke builder
   let varConf = p.variasi_config;
   if (typeof varConf === 'string') {
@@ -682,6 +708,8 @@ async function simpanEdit() {
   const urutan    = parseInt(document.getElementById('e-urutan').value) || 0;
   const aktif     = document.getElementById('e-aktif').value === 'true';
   const varConf   = getVariasiConfigEdit();
+  const stokHabisRaw = document.getElementById('e-stok-habis').value.trim();
+  const stokHabis = stokHabisRaw ? stokHabisRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
 
   if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
 
@@ -689,7 +717,7 @@ async function simpanEdit() {
     const r = await fetch(`${API}/katalog/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan, aktif })
+      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan, aktif, stok_habis: stokHabis })
     });
     const d = await r.json();
     if (d.status === 'ok') { toast('Produk diperbarui!'); tutupModal(); loadList(); }

@@ -62,7 +62,17 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .btn-lanjut:hover{background:#C96E1F;}
 .btn-lanjut:disabled{background:var(--g300);cursor:not-allowed;box-shadow:none;}
 
-.btn-batal{width:100%;padding:12px;border-radius:10px;background:var(--g100);color:var(--g700);border:1.5px solid var(--g200);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s;}
+.btn-batal{width:100%;padding:12px;border-radius:10px;background:var(--g100);color:var(--g700);border:1.5px solid var(--g200);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-batal:hover{background:var(--red-bg);border-color:#FECACA;color:var(--red);}
+.btn-batal:disabled{opacity:.6;cursor:not-allowed;}
+
+/* COUNTDOWN BOX */
+.countdown-box{background:var(--yellow-bg);border:1px solid #FEF08A;border-radius:10px;padding:14px;text-align:center;margin-bottom:14px;}
+.countdown-box.urgent{background:var(--red-bg);border-color:#FECACA;}
+.countdown-label{font-size:12px;font-weight:600;color:var(--yellow);margin-bottom:4px;}
+.countdown-box.urgent .countdown-label{color:var(--red);}
+.countdown-time{font-size:24px;font-weight:800;color:var(--yellow);letter-spacing:1px;font-variant-numeric:tabular-nums;}
+.countdown-box.urgent .countdown-time{color:var(--red);}
 .btn-batal:hover{background:var(--g200);}
 
 .spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;}
@@ -229,6 +239,33 @@ function tampilkanOrder(order) {
 
   // Status pending
   const items = order.items || [];
+
+  // Hitung sisa waktu (3 jam dari created_at)
+  const createdAt   = new Date(order.created_at).getTime();
+  const expiredAt   = createdAt + (3 * 60 * 60 * 1000); // 3 jam
+  const sisaMs      = expiredAt - Date.now();
+
+  if (sisaMs <= 0) {
+    // Sudah lewat 3 jam, otomatis expired
+    expireOrderOtomatis(order.order_id);
+    area.innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-icon expired">⌛</div>
+          <div class="result-info">
+            <div class="result-title">Waktu Pembayaran Habis</div>
+            <div class="result-id">${esc(order.order_id)}</div>
+          </div>
+        </div>
+        <div class="result-divider"></div>
+        <div class="result-body">
+          <p style="font-size:13px;color:var(--g500);margin-bottom:12px;">Pesanan ini sudah melebihi batas waktu 3 jam. Silakan buat pesanan baru.</p>
+          <a href="index.html" class="btn-lanjut" style="text-decoration:none;display:flex;">Buat Pesanan Baru</a>
+        </div>
+      </div>`;
+    return;
+  }
+
   area.innerHTML = `
     <div class="result-card">
       <div class="result-header">
@@ -240,6 +277,11 @@ function tampilkanOrder(order) {
       </div>
       <div class="result-divider"></div>
       <div class="result-body">
+        <div class="countdown-box" id="countdown-box">
+          <div class="countdown-label">⏰ Selesaikan pembayaran dalam:</div>
+          <div class="countdown-time" id="countdown-time">--:--:--</div>
+        </div>
+
         ${items.map(i => `
           <div class="item-row">
             <span>${esc(i.nama)}${i.variasi?' — '+esc(i.variasi):''} ×${i.qty||1}</span>
@@ -252,9 +294,106 @@ function tampilkanOrder(order) {
           <svg id="icon-lanjut" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           <span id="txt-lanjut">Lanjutkan Pembayaran</span>
         </button>
-        <button class="btn-batal" onclick="location.href='index.html'">Batalkan & Kembali ke Beranda</button>
+        <button class="btn-batal" id="btn-batal" onclick="batalkanPesanan('${esc(order.order_id)}')">
+          <div class="spin" id="spin-batal" style="border-top-color:var(--g700);"></div>
+          <span id="txt-batal">Batalkan Pesanan</span>
+        </button>
       </div>
     </div>`;
+
+  mulaiCountdown(expiredAt, order.order_id);
+}
+
+// ════════════════════════════════════════
+// COUNTDOWN 3 JAM
+// ════════════════════════════════════════
+let countdownInterval = null;
+
+function mulaiCountdown(expiredAt, orderId) {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  function update() {
+    const sisaMs = expiredAt - Date.now();
+    const el = document.getElementById('countdown-time');
+    if (!el) { clearInterval(countdownInterval); return; }
+
+    if (sisaMs <= 0) {
+      clearInterval(countdownInterval);
+      expireOrderOtomatis(orderId);
+      tampilkanOrder({ order_id: orderId, payment_status: 'expire' });
+      return;
+    }
+
+    const jam   = Math.floor(sisaMs / 3600000);
+    const menit = Math.floor((sisaMs % 3600000) / 60000);
+    const detik = Math.floor((sisaMs % 60000) / 1000);
+    el.textContent = `${String(jam).padStart(2,'0')}:${String(menit).padStart(2,'0')}:${String(detik).padStart(2,'0')}`;
+
+    // Warning kalau sisa < 15 menit
+    const box = document.getElementById('countdown-box');
+    if (box && sisaMs < 15*60000) box.classList.add('urgent');
+  }
+
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+async function expireOrderOtomatis(orderId) {
+  try {
+    await fetch(`${API}/midtrans/order/${orderId}/cancel`, { method: 'POST' });
+  } catch {}
+  localStorage.removeItem('pd_last_order');
+}
+
+// ════════════════════════════════════════
+// BATALKAN PESANAN
+// ════════════════════════════════════════
+async function batalkanPesanan(orderId) {
+  if (!confirm('Yakin ingin membatalkan pesanan ini? Tindakan ini tidak bisa dibatalkan.')) return;
+
+  const btn  = document.getElementById('btn-batal');
+  const spin = document.getElementById('spin-batal');
+  const txt  = document.getElementById('txt-batal');
+
+  if (btn) btn.disabled = true;
+  if (spin) spin.style.display = 'inline-block';
+  if (txt) txt.textContent = 'Membatalkan...';
+
+  try {
+    const r = await fetch(`${API}/midtrans/order/${orderId}/cancel`, { method: 'POST' });
+    const d = await r.json();
+
+    if (d.status === 'ok') {
+      localStorage.removeItem('pd_last_order');
+      if (countdownInterval) clearInterval(countdownInterval);
+      document.getElementById('result-area').innerHTML = `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-icon" style="background:var(--g100);">🚫</div>
+            <div class="result-info">
+              <div class="result-title">Pesanan Dibatalkan</div>
+              <div class="result-id">${esc(orderId)}</div>
+            </div>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-body">
+            <p style="font-size:13px;color:var(--g500);margin-bottom:12px;">Pesanan berhasil dibatalkan. Anda bisa berbelanja kembali kapan saja.</p>
+            <a href="index.html" class="btn-lanjut" style="text-decoration:none;display:flex;">Kembali ke Beranda</a>
+          </div>
+        </div>`;
+      document.getElementById('auto-detected').innerHTML = '';
+    } else {
+      alert(d.message || 'Gagal membatalkan pesanan.');
+      if (btn) btn.disabled = false;
+      if (spin) spin.style.display = 'none';
+      if (txt) txt.textContent = 'Batalkan Pesanan';
+    }
+  } catch (e) {
+    alert('Gagal terhubung ke server.');
+    if (btn) btn.disabled = false;
+    if (spin) spin.style.display = 'none';
+    if (txt) txt.textContent = 'Batalkan Pesanan';
+  }
 }
 
 function tampilkanError(msg) {

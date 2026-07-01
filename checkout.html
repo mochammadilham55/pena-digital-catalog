@@ -83,8 +83,20 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
   <div class="section-card">
     <div class="sec-title">Ringkasan Pesanan</div>
     <div id="order-items"></div>
+
+    <!-- KODE REFERRAL -->
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--cream2);">
+      <label class="form-label" style="margin-bottom:6px;display:block;">Punya Kode Referral?</label>
+      <div style="display:flex;gap:8px;">
+        <input id="f-referral" class="form-input" type="text" placeholder="Masukkan kode (opsional)" style="text-transform:uppercase;letter-spacing:.5px;flex:1;">
+        <button type="button" onclick="cekReferral()" id="btn-cek-referral" style="padding:11px 16px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Terapkan</button>
+      </div>
+      <div id="referral-msg" style="font-size:12px;margin-top:6px;display:none;"></div>
+    </div>
+
     <div style="margin-top:12px;">
       <div class="total-row"><span>Subtotal</span><span id="subtotal">Rp 0</span></div>
+      <div class="total-row" id="diskon-row" style="display:none;color:var(--green);"><span>Diskon Referral</span><span id="diskon-amount">-Rp 0</span></div>
       <div class="total-row"><span>Pengiriman</span><span style="color:var(--green);">Gratis (Digital)</span></div>
       <div class="total-row final"><span>Total Pembayaran</span><span id="total-final">Rp 0</span></div>
     </div>
@@ -157,6 +169,8 @@ function goBackOrHome() {
   }
 }
 
+let referralAktif = null; // {kode, diskon}
+
 function renderRingkasan() {
   const cart  = getCart();
   if (!cart.length) { location.href = 'cart.html'; return; }
@@ -178,8 +192,73 @@ function renderRingkasan() {
     </div>
   `).join('');
 
-  document.getElementById('subtotal').textContent    = `Rp ${total.toLocaleString('id-ID')}`;
+  document.getElementById('subtotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+  updateTotalTampil();
+}
+
+function updateTotalTampil() {
+  const cart     = getCart();
+  const subtotal = cart.reduce((s,i) => s + (parseInt(i.harga)*(i.qty||1)), 0);
+  const diskon   = referralAktif ? referralAktif.diskon : 0;
+  const total    = Math.max(1000, subtotal - diskon);
+
   document.getElementById('total-final').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+
+  const diskonRow = document.getElementById('diskon-row');
+  if (referralAktif && diskon > 0) {
+    diskonRow.style.display = 'flex';
+    document.getElementById('diskon-amount').textContent = `-Rp ${diskon.toLocaleString('id-ID')}`;
+  } else {
+    diskonRow.style.display = 'none';
+  }
+}
+
+async function cekReferral() {
+  const kode = document.getElementById('f-referral').value.trim().toUpperCase();
+  const msgEl = document.getElementById('referral-msg');
+
+  if (!kode) {
+    referralAktif = null;
+    updateTotalTampil();
+    msgEl.style.display = 'none';
+    return;
+  }
+
+  const cart     = getCart();
+  const subtotal = cart.reduce((s,i) => s + (parseInt(i.harga)*(i.qty||1)), 0);
+
+  const btn = document.getElementById('btn-cek-referral');
+  btn.disabled = true;
+  btn.textContent = 'Mengecek...';
+
+  try {
+    const r = await fetch(`${API}/referral/validasi`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kode, subtotal })
+    });
+    const d = await r.json();
+
+    if (d.status === 'ok') {
+      referralAktif = { kode: d.kode, diskon: d.diskon };
+      msgEl.style.display = 'block';
+      msgEl.style.color = 'var(--green)';
+      msgEl.textContent = `✅ Kode "${d.kode}" diterapkan! Hemat Rp ${d.diskon.toLocaleString('id-ID')}`;
+    } else {
+      referralAktif = null;
+      msgEl.style.display = 'block';
+      msgEl.style.color = 'var(--red)';
+      msgEl.textContent = `❌ ${d.message || 'Kode tidak valid.'}`;
+    }
+    updateTotalTampil();
+  } catch {
+    msgEl.style.display = 'block';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❌ Gagal memeriksa kode. Coba lagi.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Terapkan';
+  }
 }
 
 function setLoad(on) {
@@ -222,6 +301,7 @@ async function prosesBayar() {
         customer_name:  nama,
         customer_email: email,
         customer_wa:    wa,
+        kode_referral:  referralAktif ? referralAktif.kode : '',
         items: cart.map(i => ({
           produk_id: i.produk_id,
           nama:      i.nama,

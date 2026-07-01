@@ -76,6 +76,9 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 }
 .variasi-opt:hover{border-color:var(--orange);color:var(--orange);}
 .variasi-opt.selected{border-color:var(--navy);background:var(--navy);color:#fff;}
+.variasi-opt.habis{opacity:.5;cursor:not-allowed;text-decoration:line-through;background:var(--g100);}
+.variasi-opt.habis:hover{border-color:var(--g200);color:var(--g700);}
+.badge-habis{display:inline-block;font-size:9px;font-weight:800;color:#DC2626;margin-left:4px;}
 
 /* CONTOH */
 .contoh-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);}
@@ -299,8 +302,10 @@ function renderProduk(p) {
   `;
 
   // Variasi
-  const varCard = document.getElementById('variasi-card');
-  const varConf = typeof p.variasi_config === 'string' ? JSON.parse(p.variasi_config||'[]') : (p.variasi_config||[]);
+  const varCard  = document.getElementById('variasi-card');
+  const varConf  = typeof p.variasi_config === 'string' ? JSON.parse(p.variasi_config||'[]') : (p.variasi_config||[]);
+  const stokHabis = typeof p.stok_habis === 'string' ? JSON.parse(p.stok_habis||'[]') : (p.stok_habis||[]);
+
   if (varConf.length > 0) {
     varCard.style.display = 'block';
     varCard.innerHTML = `<div class="variasi-title">Pilih Variasi</div>` +
@@ -311,11 +316,15 @@ function renderProduk(p) {
             <span class="variasi-selected" id="sel-${di}">Belum dipilih</span>
           </div>
           <div class="variasi-opts">
-            ${(dim.opsi||[]).map(opt => `
-              <button class="variasi-opt" onclick="pilihVariasi(${di},'${escA(dim.nama)}','${escA(opt)}')" data-dim="${di}" data-opt="${escA(opt)}">
-                ${esc(opt)}
-              </button>
-            `).join('')}
+            ${(dim.opsi||[]).map(opt => {
+              // Cek apakah kombinasi tunggal ini ada di daftar habis (untuk dimensi tunggal)
+              const habisSendiri = stokHabis.includes(opt);
+              return `
+              <button class="variasi-opt ${habisSendiri ? 'habis' : ''}" ${habisSendiri ? 'disabled' : ''}
+                onclick="pilihVariasi(${di},'${escA(dim.nama)}','${escA(opt)}')" data-dim="${di}" data-opt="${escA(opt)}">
+                ${esc(opt)} ${habisSendiri ? '<span class="badge-habis">Habis</span>' : ''}
+              </button>`;
+            }).join('')}
           </div>
         </div>
       `).join('');
@@ -341,6 +350,54 @@ function pilihVariasi(dimIdx, dimNama, opsi) {
   });
   const selEl = document.getElementById(`sel-${dimIdx}`);
   if (selEl) selEl.textContent = opsi;
+
+  cekKombinasiStok();
+}
+
+// ── Cek apakah kombinasi variasi yang dipilih sedang habis ────────
+function cekKombinasiStok() {
+  const stokHabis = typeof produk.stok_habis === 'string' ? JSON.parse(produk.stok_habis||'[]') : (produk.stok_habis||[]);
+  const varConf   = typeof produk.variasi_config === 'string' ? JSON.parse(produk.variasi_config||'[]') : (produk.variasi_config||[]);
+
+  if (!varConf.length || Object.keys(variasiTerpilih).length < varConf.length) {
+    hapusPesanStokHabis();
+    return true; // belum lengkap dipilih, belum perlu cek
+  }
+
+  const kombinasi = Object.values(variasiTerpilih).join('-');
+  const habis = stokHabis.includes(kombinasi);
+
+  if (habis) {
+    tampilkanPesanStokHabis();
+    return false;
+  } else {
+    hapusPesanStokHabis();
+    return true;
+  }
+}
+
+function tampilkanPesanStokHabis() {
+  let el = document.getElementById('pesan-stok-habis');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'pesan-stok-habis';
+    el.style.cssText = 'background:#FEE2E2;border:1px solid #FECACA;color:#DC2626;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:12px;text-align:center;';
+    document.getElementById('variasi-card').appendChild(el);
+  }
+  el.textContent = '⚠️ Maaf, kombinasi variasi ini sedang habis. Silakan pilih variasi lain.';
+  document.querySelector('.btn-cart').disabled = true;
+  document.querySelector('.btn-beli').disabled = true;
+  document.querySelector('.btn-cart').style.opacity = '0.5';
+  document.querySelector('.btn-beli').style.opacity = '0.5';
+}
+
+function hapusPesanStokHabis() {
+  const el = document.getElementById('pesan-stok-habis');
+  if (el) el.remove();
+  document.querySelector('.btn-cart').disabled = false;
+  document.querySelector('.btn-beli').disabled = false;
+  document.querySelector('.btn-cart').style.opacity = '1';
+  document.querySelector('.btn-beli').style.opacity = '1';
 }
 
 function getVariasiLabel() {
@@ -407,6 +464,7 @@ function updateCartBadge() {
 function tambahKeranjang() {
   if (!produk) return;
   if (!validasiVariasi()) return;
+  if (!cekKombinasiStok()) { toast('⚠️ Variasi ini sedang stok habis.', true); return; }
 
   const varLabel = getVariasiLabel();
   const cart     = getCart();
