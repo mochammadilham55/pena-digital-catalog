@@ -124,12 +124,10 @@ function renderHasil(order, urlStatus) {
   const adaKosong = linkList.some(l => !l.url);
   const semuaAda  = linkList.length > 0 && linkList.every(l => l.url);
 
-  // Items string untuk template WA admin
-  const itemsStr = (order.items||[]).map(i => `${i.nama}${i.variasi?' - '+i.variasi:''}`).join(', ');
-
-  // Template WA admin
-  const waAdminTemplate =
-    `Halo min, saya sudah melakukan pembayaran via website\nno pesanan: ${order.order_id}\nproduk: ${itemsStr}`;
+  // Template WA admin — hanya produk yang linknya BELUM ada, pakai label
+  // ringkas (variasi), plus no pesanan. Supaya admin tahu persis apa yang
+  // harus dikirim.
+  const waAdminTemplate = buildWAAdminTemplate(order);
 
   let html = '';
 
@@ -194,14 +192,14 @@ function renderHasil(order, urlStatus) {
       // Ada sebagian link kosong
       html += `<div class="card">
         <div class="card-title">📁 Link File Produk Anda</div>
-        ${linkList.map(l => l.url ? `
+        ${linkList.map((l,idx) => l.url ? `
           <div class="link-item">
             <div class="link-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${esc(l.label)}</div>
             <div class="link-url">${esc(l.url)}</div>
             <button class="btn-salin" onclick="salin(this,'${escA(l.url)}')">Salin Link</button>
           </div>` : `
           <div class="link-item" style="border-color:#FECACA;background:#FEF2F2;">
-            <div class="link-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>${esc(l.label)}</div>
+            <div class="link-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>${esc(cleanLabel(order,idx,l.label))}</div>
             <div style="font-size:12px;color:#DC2626;">Link akan dikirim manual oleh admin</div>
           </div>`).join('')}
         <div class="info-box-red" style="margin-top:14px;">
@@ -215,8 +213,11 @@ function renderHasil(order, urlStatus) {
     }
   }
 
-  // ── Jika paid tapi SEMUA link kosong ──────────────────────────
-  if (isPaid && linkList.length > 0 && !linkList.some(l => l.url)) {
+  // ── Jika paid tapi link_produk BELUM ada sama sekali (webhook belum
+  //    sempat mengisi / gagal). Kasus sebagian/semua kosong TAPI list ada
+  //    sudah ditangani branch adaKosong di atas — jadi di sini khusus
+  //    linkList kosong total, supaya tidak render kartu admin ganda.
+  if (isPaid && linkList.length === 0) {
     html += `<div class="card">
       <div class="card-title">📁 Status Link Produk</div>
       <div class="info-box-red">
@@ -269,6 +270,38 @@ function buildWAText(list, orderId) {
   let t=`*Link Pesanan PenaDigital*\nNo: ${orderId}\n\n`;
   list.forEach((l,i)=>{ t+=`*${i+1}. ${l.label}*\n${l.url||'(Link menyusul)'}\n\n`; });
   return t;
+}
+
+// Label ringkas produk (pakai variasi, bukan nama marketing panjang).
+// link_produk[idx] sejajar dengan items[idx] (webhook push 1 entri per item).
+function cleanLabel(order, idx, fallback) {
+  const it = (order.items || [])[idx];
+  return (it && (it.variasi || it.nama)) || fallback || 'Produk';
+}
+
+// Daftar produk yang linknya BELUM ada (untuk template hubungi admin).
+function missingLabels(order) {
+  const links = order.link_produk || [];
+  const items = order.items || [];
+  const n = Math.max(links.length, items.length);
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const l = links[i];
+    if (!l || !l.url) out.push(cleanLabel(order, i, l && l.label));
+  }
+  return out;
+}
+
+function buildWAAdminTemplate(order) {
+  const miss = missingLabels(order);
+  const daftar = miss.length
+    ? miss.map((m, i) => `${i + 1}. ${m}`).join('\n')
+    : (order.items || []).map((it, i) => `${i + 1}. ${it.variasi || it.nama}`).join('\n');
+  return `Halo Admin PenaDigital 🙏\n\n` +
+    `Saya sudah membayar via website, tapi ada link produk yang belum saya terima.\n\n` +
+    `No. Pesanan: ${order.order_id}\n` +
+    `Produk (link belum ada):\n${daftar}\n\n` +
+    `Mohon dibantu kirim linknya ya. Terima kasih!`;
 }
 
 function toast(msg) {
