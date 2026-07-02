@@ -726,7 +726,7 @@ async function toggleAktif(id, aktifSekarang, p) {
     const r = await fetch(`${API}/katalog/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama: p.nama, foto_url: p.foto_url, link_co: p.link_co, urutan: p.urutan, aktif: newAktif })
+      body: JSON.stringify({ nama: p.nama, foto_url: p.foto_url, link_co: p.link_co, harga: p.harga, deskripsi: p.deskripsi, variasi_config: p.variasi_config, link_contoh: p.link_contoh, urutan: p.urutan, aktif: newAktif, stok_habis: p.stok_habis })
     });
     const d = await r.json();
     if (d.status === 'ok') { toast(newAktif ? 'Produk diaktifkan.' : 'Produk disembunyikan.'); loadList(); }

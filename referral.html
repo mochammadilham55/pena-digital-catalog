@@ -248,7 +248,7 @@ async function toggleReferral(id, aktifSekarang, r) {
     const res = await fetch(`${API}/referral/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ tipe_diskon: r.tipe_diskon, nilai_diskon: r.nilai_diskon, maks_pemakaian: r.maks_pemakaian, aktif: !aktifSekarang })
+      body: JSON.stringify({ kode: r.kode, tipe_diskon: r.tipe_diskon, nilai_diskon: r.nilai_diskon, maks_pemakaian: r.maks_pemakaian, aktif: !aktifSekarang })
     });
     const d = await res.json();
     if (d.status === 'ok') { toast(aktifSekarang ? 'Kode dinonaktifkan.' : 'Kode diaktifkan.'); loadList(); }
