@@ -207,7 +207,7 @@ function renderList(items) {
         <button class="btn-icon btn-toggle ${r.aktif?'':'off'}" onclick="toggleReferral(${r.id}, ${r.aktif}, ${JSON.stringify(r).replace(/"/g,'&quot;')})" title="${r.aktif?'Nonaktifkan':'Aktifkan'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="${r.aktif ? 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' : 'M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94'}"/>${r.aktif?'<circle cx="12" cy="12" r="3"/>':'<line x1="1" y1="1" x2="23" y2="23"/>'}</svg>
         </button>
-        <button class="btn-icon btn-del" onclick="hapusReferral(${r.id}, '${esc(r.kode)}')" title="Hapus">
+        <button class="btn-icon btn-del" onclick="hapusReferral(${r.id}, '${escA(r.kode)}')" title="Hapus">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
         </button>
       </div>
@@ -268,6 +268,7 @@ async function hapusReferral(id, kode) {
 
 function fmt(n) { return parseInt(n||0).toLocaleString('id-ID'); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
 function toast(msg, err=false) {
   const el=document.getElementById('toast');
   el.textContent=msg; el.style.background=err?'#DC2626':'#1B3A6B';

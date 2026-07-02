@@ -290,7 +290,7 @@ function renderProduk(p) {
   }
 
   // Info
-  const harga = p.harga ? `Rp ${parseInt(p.harga).toLocaleString('id-ID')}` : 'Hubungi Admin';
+  const harga = (p.harga !== null && p.harga !== undefined) ? `Rp ${parseInt(p.harga).toLocaleString('id-ID')}` : 'Hubungi Admin';
   document.getElementById('info-card').innerHTML = `
     <div class="badge-row">
       <span class="badge">✅ Produk Digital</span>
@@ -354,17 +354,28 @@ function pilihVariasi(dimIdx, dimNama, opsi) {
   cekKombinasiStok();
 }
 
+// ── Ambil variasi_config produk, selalu berupa array ──────────────
+function getVarConf() {
+  return typeof produk.variasi_config === 'string' ? JSON.parse(produk.variasi_config||'[]') : (produk.variasi_config||[]);
+}
+
+// ── Ambil nilai variasi terpilih, diurutkan sesuai variasi_config ─
+// (bukan Object.values, yang urutannya mengikuti urutan klik pembeli)
+function getVariasiUrut() {
+  return getVarConf().map(d => variasiTerpilih[d.nama]);
+}
+
 // ── Cek apakah kombinasi variasi yang dipilih sedang habis ────────
 function cekKombinasiStok() {
   const stokHabis = typeof produk.stok_habis === 'string' ? JSON.parse(produk.stok_habis||'[]') : (produk.stok_habis||[]);
-  const varConf   = typeof produk.variasi_config === 'string' ? JSON.parse(produk.variasi_config||'[]') : (produk.variasi_config||[]);
+  const varConf   = getVarConf();
 
   if (!varConf.length || Object.keys(variasiTerpilih).length < varConf.length) {
     hapusPesanStokHabis();
     return true; // belum lengkap dipilih, belum perlu cek
   }
 
-  const kombinasi = Object.values(variasiTerpilih).join('-');
+  const kombinasi = getVariasiUrut().join('-');
   const habis = stokHabis.includes(kombinasi);
 
   if (habis) {
@@ -401,13 +412,11 @@ function hapusPesanStokHabis() {
 }
 
 function getVariasiLabel() {
-  return Object.values(variasiTerpilih).join(' - ');
+  return getVariasiUrut().join(' - ');
 }
 
 function validasiVariasi() {
-  const varConf = typeof produk.variasi_config === 'string'
-    ? JSON.parse(produk.variasi_config||'[]')
-    : (produk.variasi_config||[]);
+  const varConf = getVarConf();
   if (!varConf.length) return true;
   const belumDipilih = varConf.filter(d => !variasiTerpilih[d.nama]);
   if (belumDipilih.length) {
