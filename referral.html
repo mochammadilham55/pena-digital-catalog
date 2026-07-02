@@ -32,6 +32,13 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .nav-link{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;text-decoration:none;margin-right:6px;transition:all .15s;}
 .nav-link:hover{color:#fff;}
 .btn-logout{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;cursor:pointer;}
+.admin-nav{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+/* Mobile: header 2 baris, nav full-width & wrap agar semua tombol terjangkau */
+@media(max-width:560px){
+  header{flex-wrap:wrap;row-gap:10px;}
+  .hspacer{display:none;}
+  .admin-nav{width:100%;flex-wrap:wrap;justify-content:flex-start;}
+}
 
 .main{max-width:700px;margin:0 auto;padding:24px 16px 60px;}
 
@@ -90,10 +97,12 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
     <div class="logo-box"><img src="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg" alt="PenaDigital" style="width:100%;height:100%;object-fit:cover;"></div>
     <span class="brand-name">PenaDigital <span class="brand-badge">REFERRAL</span></span>
     <div class="hspacer"></div>
-    <a href="admin.html" class="nav-link">Katalog</a>
-    <a href="orders.html" class="nav-link">Pesanan</a>
-    <a href="index.html" class="nav-link">Beranda</a>
-    <button class="btn-logout" onclick="logout()">Keluar</button>
+    <nav class="admin-nav">
+      <a href="admin.html" class="nav-link">Katalog</a>
+      <a href="orders.html" class="nav-link">Pesanan</a>
+      <a href="index.html" class="nav-link">Beranda</a>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </nav>
   </header>
 
   <div class="main">

@@ -85,6 +85,14 @@ header{
   border-radius:6px;padding:5px 10px;cursor:pointer;transition:all .15s;
 }
 .btn-logout:hover{color:#fff;border-color:rgba(255,255,255,.35);}
+.admin-nav{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+/* Mobile: header jadi 2 baris — logo+brand di atas, nav full-width & bisa
+   wrap di bawah, supaya SEMUA tombol nav selalu terjangkau (tidak terpotong). */
+@media(max-width:560px){
+  header{flex-wrap:wrap;row-gap:10px;}
+  .header-spacer{display:none;}
+  .admin-nav{width:100%;flex-wrap:wrap;justify-content:flex-start;}
+}
 
 .main{max-width:600px;margin:0 auto;padding:24px 16px 60px;}
 
@@ -283,13 +291,15 @@ header{
     </div>
     <span class="brand-name">PenaDigital <span class="brand-badge">ADMIN</span></span>
     <div class="header-spacer"></div>
-    <a href="index.html" class="btn-logout" style="text-decoration:none;display:flex;align-items:center;gap:5px;margin-right:8px;">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Beranda
-    </a>
-    <a href="orders.html" class="btn-logout" style="text-decoration:none;margin-right:8px;">Pesanan</a>
-    <a href="referral.html" class="btn-logout" style="text-decoration:none;margin-right:8px;">Referral</a>
-    <button class="btn-logout" onclick="logout()">Keluar</button>
+    <nav class="admin-nav">
+      <a href="index.html" class="btn-logout" style="text-decoration:none;display:flex;align-items:center;gap:5px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Beranda
+      </a>
+      <a href="orders.html" class="btn-logout" style="text-decoration:none;">Pesanan</a>
+      <a href="referral.html" class="btn-logout" style="text-decoration:none;">Referral</a>
+      <button class="btn-logout" onclick="logout()">Keluar</button>
+    </nav>
   </header>
 
   <div class="main">
