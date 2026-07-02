@@ -311,6 +311,7 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 let SECRET = '';
 let modalOrderId = '';
 let modalItems   = [];
+let modalAutoLabels = {};
 
 // ════════════════════════════════════════
 // AUTH
@@ -627,26 +628,56 @@ async function loadManual() {
   }
 }
 
-function bukaModalKirim(orderId, namaPembeli, items, existingLinks) {
+async function bukaModalKirim(orderId, namaPembeli, items, existingLinks) {
   modalOrderId = orderId;
   modalItems   = items;
+  modalAutoLabels = {};
 
   document.getElementById('modal-order-info').textContent = `${orderId} — ${namaPembeli}`;
 
-  // Buat input untuk setiap item
+  // Buat input untuk setiap item. Label tampilan pakai variasi (ringkas),
+  // bukan nama marketing yang panjang.
   document.getElementById('modal-link-inputs').innerHTML = items.map((item, i) => {
     const existUrl = existingLinks[i]?.url || '';
-    const label    = `${item.nama}${item.variasi ? ' — '+item.variasi : ''}`;
+    const label    = item.variasi || item.nama;
     return `
       <div class="link-input-group">
         <div class="link-input-label">📌 ${esc(label)}</div>
         <input class="link-input" type="url" id="link-input-${i}"
           placeholder="https://drive.google.com/..."
           value="${esc(existUrl)}">
+        <div id="link-auto-${i}" style="font-size:11px;font-weight:600;margin-top:5px;"></div>
       </div>`;
   }).join('');
 
   document.getElementById('modal-link').classList.add('open');
+
+  // Auto-isi dari master untuk item yang inputnya masih kosong. Ini menutup
+  // kasus: link master baru dilengkapi SETELAH pesanan dibayar, jadi
+  // link_produk tersimpan kosong. Admin tidak perlu copy-paste manual.
+  for (let i = 0; i < items.length; i++) {
+    const inp = document.getElementById(`link-input-${i}`);
+    if (!inp || inp.value.trim()) continue;
+    const note = document.getElementById(`link-auto-${i}`);
+    const detail = items[i].variasi || items[i].nama;
+    if (note) { note.style.color = 'var(--g500)'; note.textContent = '🔎 mencari link otomatis dari master...'; }
+    try {
+      const r = await fetch(`${API}/cari-link`, {
+        method:  'POST',
+        headers: { 'Content-Type':'application/json', 'x-admin-secret': SECRET },
+        body:    JSON.stringify({ detail_produk: detail })
+      });
+      const d = await r.json();
+      const found = (d.produkList || []).find(p => p.url);
+      if (found) {
+        inp.value = found.url;
+        modalAutoLabels[i] = found.label;
+        if (note) { note.style.color = 'var(--green)'; note.textContent = '✓ Terisi otomatis dari master produk'; }
+      } else if (note) {
+        note.style.color = 'var(--g500)'; note.textContent = 'Belum ada di master produk — isi manual.';
+      }
+    } catch { if (note) note.textContent = ''; }
+  }
 }
 
 function tutupModal() {
@@ -657,9 +688,10 @@ async function kirimLinkManual() {
   const btn = document.getElementById('btn-kirim-modal');
   const txt = document.getElementById('kirim-txt');
 
-  // Kumpulkan link dari input
+  // Kumpulkan link dari input. Label pakai hasil auto (bersih, mis.
+  // "PAG Bahasa Indonesia Kelas 11") kalau ada, jika tidak pakai variasi.
   const linkProduk = modalItems.map((item, i) => ({
-    label: `${item.nama}${item.variasi ? ' — '+item.variasi : ''}`,
+    label: modalAutoLabels[i] || item.variasi || item.nama,
     url:   document.getElementById(`link-input-${i}`)?.value.trim() || null
   }));
 
