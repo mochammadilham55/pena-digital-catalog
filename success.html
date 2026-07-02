@@ -297,7 +297,9 @@ function buildWAAdminTemplate(order) {
   const daftar = miss.length
     ? miss.map((m, i) => `${i + 1}. ${m}`).join('\n')
     : (order.items || []).map((it, i) => `${i + 1}. ${it.variasi || it.nama}`).join('\n');
-  return `Halo Admin PenaDigital 🙏\n\n` +
+  // Teks polos tanpa emoji — emoji sempat ter-korupsi jadi karakter
+  // pengganti (U+FFFD) di URL wa.me pada sebagian perangkat.
+  return `Halo Admin PenaDigital,\n\n` +
     `Saya sudah membayar via website, tapi ada link produk yang belum saya terima.\n\n` +
     `No. Pesanan: ${order.order_id}\n` +
     `Produk (link belum ada):\n${daftar}\n\n` +
