@@ -44,6 +44,10 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .ringkasan-row:last-child{margin-bottom:0;padding-top:12px;border-top:2px solid var(--cream2);font-size:16px;font-weight:800;color:var(--navy);}
 .ringkasan-row:last-child span:last-child{color:var(--orange);}
 
+/* KOSONGKAN */
+.btn-kosongkan{width:100%;padding:11px;border-radius:10px;background:transparent;color:var(--red);border:1.5px solid var(--red-bg);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
+.btn-kosongkan:hover{background:var(--red-bg);border-color:var(--red);}
+
 /* EMPTY */
 .empty-cart{text-align:center;padding:60px 20px;}
 .empty-cart svg{width:56px;height:56px;color:var(--g300);margin-bottom:16px;}
@@ -161,9 +165,19 @@ function renderCart() {
       <div class="ringkasan-row"><span>${jumlah} produk</span><span>Rp ${total.toLocaleString('id-ID')}</span></div>
       <div class="ringkasan-row"><span>Pengiriman</span><span style="color:#16A34A;">Gratis (Digital)</span></div>
       <div class="ringkasan-row"><span>Total</span><span>Rp ${total.toLocaleString('id-ID')}</span></div>
-    </div>`;
+    </div>
+    <button class="btn-kosongkan" onclick="kosongkanCart()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+      Kosongkan Keranjang
+    </button>`;
 
   aksi.style.display = 'block';
+}
+
+function kosongkanCart() {
+  if (!confirm('Kosongkan seluruh keranjang? Semua produk akan dihapus.')) return;
+  localStorage.removeItem('pd_cart');
+  renderCart();
 }
 
 function ubahQty(idx, delta) {
