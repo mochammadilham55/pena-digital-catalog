@@ -445,6 +445,7 @@ async function cekPesanan() {
   try {
     const r = await fetch(`${API}/pesanan/${encodeURIComponent(no)}`);
     const d = await r.json();
+    if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=cari'; return; }
     renderResult(d);
   } catch {
     renderResult({ status:'error', message:'Tidak dapat terhubung ke server. Coba lagi.' });

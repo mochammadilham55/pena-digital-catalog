@@ -102,6 +102,16 @@ header{
 }
 .card-title::before{content:'';width:3px;height:14px;background:var(--orange);border-radius:2px;display:inline-block;}
 
+/* ── MODE MAINTENANCE ── */
+.maint-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--cream2);}
+.maint-row:last-child{border-bottom:none;}
+.maint-label{font-size:14px;font-weight:700;color:var(--navy);}
+.maint-desc{font-size:11px;color:var(--g500);margin-top:2px;}
+.maint-switch{position:relative;width:46px;height:26px;border-radius:20px;background:var(--g300);border:none;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.maint-switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+.maint-switch.on{background:var(--orange);}
+.maint-switch.on::after{transform:translateX(20px);}
+
 .form-group{margin-bottom:14px;}
 .form-label{font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px;}
 .form-input,.form-textarea{
@@ -284,6 +294,26 @@ header{
 
   <div class="main">
 
+    <!-- MODE MAINTENANCE -->
+    <div class="add-card" id="maint-card">
+      <div class="card-title">Mode Maintenance</div>
+      <div class="form-hint" style="margin-bottom:14px;">Aktifkan sementara saat fitur terkait sedang diperbaiki. Pembeli akan diarahkan ke halaman maintenance dan tidak bisa lanjut.</div>
+      <div class="maint-row">
+        <div>
+          <div class="maint-label">Cek Pesanan (tombol "Cari")</div>
+          <div class="maint-desc">Fitur cek link pesanan Shopee di halaman utama</div>
+        </div>
+        <button class="maint-switch" id="sw-cari" onclick="toggleMaintenance('cari')" title="Toggle maintenance Cek Pesanan"></button>
+      </div>
+      <div class="maint-row">
+        <div>
+          <div class="maint-label">Beli Sekarang / Checkout</div>
+          <div class="maint-desc">Tombol "Beli Sekarang" dan proses pembayaran Midtrans</div>
+        </div>
+        <button class="maint-switch" id="sw-beli" onclick="toggleMaintenance('beli')" title="Toggle maintenance Beli Sekarang"></button>
+      </div>
+    </div>
+
     <!-- TAMBAH PRODUK -->
     <div class="add-card">
       <div class="card-title">Tambah Produk</div>
@@ -462,6 +492,7 @@ function doLogin() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
         renderList(d.data || []);
+        loadMaintenance();
       } else { throw new Error('failed'); }
     })
     .catch(() => {
@@ -498,9 +529,42 @@ async function loadList() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
     renderList(d.data || []);
+    loadMaintenance();
   } catch {
     toast('Gagal memuat data. Coba refresh.', true);
   }
+}
+
+// ════════════════════════════════════════
+// MODE MAINTENANCE
+// ════════════════════════════════════════
+let maintState = { cari:false, beli:false };
+async function loadMaintenance() {
+  try {
+    const r = await fetch(`${API}/maintenance`);
+    const d = await r.json();
+    if (d.status === 'ok') { maintState = { cari: !!d.cari, beli: !!d.beli }; renderMaintenance(); }
+  } catch { /* biarkan switch di posisi terakhir kalau gagal load */ }
+}
+function renderMaintenance() {
+  document.getElementById('sw-cari').classList.toggle('on', maintState.cari);
+  document.getElementById('sw-beli').classList.toggle('on', maintState.beli);
+}
+async function toggleMaintenance(kunci) {
+  const next = { ...maintState, [kunci]: !maintState[kunci] };
+  try {
+    const r = await fetch(`${API}/maintenance`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
+      body: JSON.stringify(next)
+    });
+    if (r.status === 401) { logout(); return; }
+    const d = await r.json();
+    if (d.status !== 'ok') throw new Error(d.message || 'Gagal update');
+    maintState = { cari: !!d.cari, beli: !!d.beli };
+    renderMaintenance();
+    toast(maintState[kunci] ? 'Mode maintenance diaktifkan' : 'Mode maintenance dimatikan');
+  } catch (e) { toast('Gagal ubah status: ' + e.message, true); }
 }
 
 function renderList(items) {

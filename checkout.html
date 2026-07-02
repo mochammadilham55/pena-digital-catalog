@@ -312,6 +312,7 @@ async function prosesBayar() {
       })
     });
     const d = await r.json();
+    if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=beli'; return; }
     if (d.status !== 'ok') { tampilErr(d.message || 'Gagal membuat transaksi.'); setLoad(false); return; }
 
     // Simpan order_id untuk halaman sukses

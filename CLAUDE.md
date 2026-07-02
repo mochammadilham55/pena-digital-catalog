@@ -41,6 +41,20 @@ Pembeli pilih produk → cart → checkout → Midtrans Snap popup
 → Pembeli lihat link di success.html
 ```
 
+**Mode Maintenance (toggle admin, tanpa redeploy):**
+```
+Admin nyalain switch di admin.html → PUT /api/public/maintenance
+→ disimpan di tabel app_settings (key='maintenance')
+
+Dicek di 2 titik, masing-masing independen:
+1. Tombol "Cari" di index.html   → GET /pesanan/:no_pesanan digate server-side
+2. Tombol "Beli Sekarang" produk.html → cek GET /maintenance sebelum masuk cart
+   (backstop) POST /midtrans/create-transaction digate server-side juga,
+   jadi jalur cart.html → checkout.html manual pun tetap ketolak.
+
+Kalau digate, pembeli diarahkan ke maintenance.html?fitur=cari|beli.
+```
+
 ---
 
 ## 📁 Struktur File Frontend
@@ -55,9 +69,10 @@ pena-digital-catalog/
 ├── success.html        # Halaman setelah bayar: tampilkan link / hubungi admin
 ├── pending.html        # Pembayaran tertunda: countdown 3 jam + tombol batalkan
 │
-├── admin.html          # Admin: kelola katalog produk (CRUD)
+├── admin.html          # Admin: kelola katalog produk (CRUD) + toggle mode maintenance
 ├── orders.html         # Admin: riwayat pesanan Midtrans + rekap keuangan + kirim link manual
 ├── referral.html       # Admin: kelola kode diskon referral
+├── maintenance.html    # Halaman "sedang maintenance" -- tujuan redirect saat fitur cari/beli dimatikan admin
 │
 ├── contact.html        # Halaman kontak (wajib Midtrans)
 ├── tnc.html            # Syarat & Ketentuan (wajib Midtrans)
@@ -95,6 +110,7 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 | POST | `/midtrans/order/:order_id/cancel` | Batalkan pesanan pending |
 | POST | `/midtrans/order/:order_id/regenerate-token` | Buat ulang Snap token yang expired |
 | GET | `/midtrans/config` | Ambil client key Midtrans |
+| GET | `/maintenance` | Status mode maintenance saat ini `{cari,beli}` |
 
 ### Endpoint Admin (butuh header `x-admin-secret`)
 
@@ -111,6 +127,7 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 | POST | `/referral` | Buat kode referral baru |
 | PUT | `/referral/:id` | Edit kode referral |
 | DELETE | `/referral/:id` | Hapus kode referral |
+| PUT | `/maintenance` | Ubah mode maintenance `{cari,beli}` |
 
 ---
 
@@ -161,6 +178,13 @@ maks_pemakaian  INT
 jumlah_terpakai INT DEFAULT 0
 aktif           BOOLEAN DEFAULT true
 created_at      TIMESTAMPTZ
+```
+
+**`app_settings`** — setting key-value generik (dipakai pertama kali untuk mode maintenance)
+```sql
+key             TEXT PRIMARY KEY       -- saat ini cuma 1 baris: 'maintenance'
+value           JSONB                  -- {"cari":bool,"beli":bool}
+updated_at      TIMESTAMPTZ
 ```
 
 **`shopee_orders`** — pesanan Shopee (sistem lama, read-only dari frontend ini)

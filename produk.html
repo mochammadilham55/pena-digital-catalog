@@ -503,9 +503,14 @@ function tambahKeranjang() {
   toast('✅ Ditambahkan ke keranjang!');
 }
 
-function beliSekarang() {
+async function beliSekarang() {
   if (!produk) return;
   if (!validasiVariasi()) return;
+  try {
+    const r = await fetch(`${API}/maintenance`);
+    const d = await r.json();
+    if (d.beli) { location.href = 'maintenance.html?fitur=beli'; return; }
+  } catch { /* kalau gagal cek, anggap normal -- jangan blokir pembeli gara-gara error jaringan */ }
   tambahKeranjang();
   setTimeout(() => { location.href = 'cart.html'; }, 400);
 }
