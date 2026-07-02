@@ -416,8 +416,12 @@ function hapusPesanStokHabis() {
   document.querySelector('.btn-beli').style.opacity = '1';
 }
 
+// Dipisah koma (bukan " - ") karena string ini yang dikirim apa adanya
+// ke backend sebagai item.variasi, dan bedahDanCariLink() di backend
+// mem-parsing dengan format "KATEGORI MAPEL,KELAS" (pisah koma), bukan
+// dash. Contoh hasil: "PAG B Indonesia, 7".
 function getVariasiLabel() {
-  return getVariasiUrut().join(' - ');
+  return getVariasiUrut().join(', ');
 }
 
 function validasiVariasi() {
