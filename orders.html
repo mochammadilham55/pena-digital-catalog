@@ -531,7 +531,7 @@ function renderPesanan(orders, total) {
             </div>`).join('')}
         </div>` : o.status==='paid' ? `<div class="detail-section"><div class="detail-label">Status Link</div><div style="font-size:13px;color:var(--red);">⚠️ Link belum ditemukan</div></div>` : ''}
         ${o.status === 'paid' ? `
-        <button class="btn-kirim-manual" onclick="bukaModalKirim('${esc(o.id)}','${esc(o.customer_name)}',${JSON.stringify(items).replace(/'/g,'&#39;')},${JSON.stringify(links).replace(/'/g,'&#39;')})">
+        <button class="btn-kirim-manual" onclick="bukaModalKirim('${esc(o.id)}','${esc(o.customer_name)}',${JSON.stringify(items).replace(/"/g,'&quot;')},${JSON.stringify(links).replace(/"/g,'&quot;')})">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           Kirim / Update Link ke Pembeli
         </button>` : ''}
@@ -606,7 +606,7 @@ async function loadManual() {
               </div>`;
             }).join('')}
           </div>
-          <button class="btn-kirim-manual" onclick="bukaModalKirim('${esc(o.id)}','${esc(o.customer_name)}',${JSON.stringify(items).replace(/'/g,'&#39;')},${JSON.stringify(links).replace(/'/g,'&#39;')})">
+          <button class="btn-kirim-manual" onclick="bukaModalKirim('${esc(o.id)}','${esc(o.customer_name)}',${JSON.stringify(items).replace(/"/g,'&quot;')},${JSON.stringify(links).replace(/"/g,'&quot;')})">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Input & Kirim Link ke Pembeli
           </button>
