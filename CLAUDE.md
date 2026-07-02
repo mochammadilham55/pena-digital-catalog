@@ -249,14 +249,22 @@ Tidak ada state management library. Semua state disimpan di:
 
 1. **`orders.html`** (dulu baris 534 & 609) — `JSON.stringify(items/links)` di atribut `onclick` tidak escape tanda kutip ganda, memecah HTML sehingga tombol "Kirim/Update Link ke Pembeli" gagal terpanggil. **Fixed** commit `f8c4cfc` (2026-07-02): ganti `.replace(/'/g,'&#39;')` → `.replace(/"/g,'&quot;')`.
 2. **`admin.html`** (dulu baris 534) — `toggleAktif` tidak escape `JSON.stringify(p)` dengan `&quot;`, memecah `onclick` tombol toggle Aktif/Nonaktif. **Fixed** commit `f8c4cfc` (2026-07-02): disamakan dengan pola `bukaEdit` yang sudah benar.
+3. **`admin.html`** (dulu baris 729) — body PUT di `toggleAktif` hanya kirim 5 field lama (`nama, foto_url, link_co, urutan, aktif`). Dikonfirmasi lewat kode backend (`pena-digital-backend/src/routes/api.js`, endpoint `PUT /katalog/:id`) bahwa query melakukan `UPDATE ... SET` ke **semua 10 kolom tanpa syarat** — jadi field yang tidak dikirim (`harga, deskripsi, variasi_config, link_contoh, stok_habis`) benar-benar ter-reset ke default setiap toggle Aktif/Nonaktif. **Fixed** commit `3affc5e` (2026-07-02): `toggleAktif` sekarang kirim semua field seperti `simpanEdit()`.
+4. **`referral.html:251`** — body PUT di `toggleReferral` tidak kirim `kode`. Dikonfirmasi lewat kode backend (`PUT /referral/:id`) bahwa query **hanya** meng-update 4 kolom eksplisit (`tipe_diskon, nilai_diskon, maks_pemakaian, aktif`) — `kode` dan `jumlah_terpakai` tidak pernah disentuh, jadi **sebenarnya sudah aman, bukan bug**. Tetap ditambahkan pengiriman `kode` di commit `3affc5e` (2026-07-02) sebagai pengaman kalau query backend berubah ke full-replace di masa depan.
 
 ### ❌ Belum Diperbaiki
 
-3. **`admin.html:729`** — body PUT di `toggleAktif` hanya kirim `{nama, foto_url, link_co, urutan, aktif}` (5 field lama), field baru (`harga`, `deskripsi`, `variasi_config`, `link_contoh`, `stok_habis`) tidak ikut → risiko field ter-reset kalau backend PUT full-replace, bukan partial patch.
-4. **`produk.html:367`** — `Object.values(variasiTerpilih).join('-')` di `cekKombinasiStok()` bergantung pada urutan klik pembeli, bukan urutan dimensi di `variasi_config` — pencocokan `stok_habis` bisa meleset dan meloloskan varian yang sebenarnya habis.
-5. **`referral.html:251`** — body PUT di `toggleReferral` tidak kirim `kode` maupun `jumlah_terpakai` → risiko counter pemakaian ter-reset ke 0 kalau backend full-replace.
+5. **`produk.html:367`** — `Object.values(variasiTerpilih).join('-')` di `cekKombinasiStok()` bergantung pada urutan klik pembeli, bukan urutan dimensi di `variasi_config` — pencocokan `stok_habis` bisa meleset dan meloloskan varian yang sebenarnya habis.
 6. **`produk.html:293`** — `const harga = p.harga ? ... : 'Hubungi Admin'` memperlakukan harga `0` sebagai falsy → produk gratis tampil "Hubungi Admin" alih-alih "Rp 0".
 7. **`referral.html:210`** — `onclick="hapusReferral(${r.id}, '${esc(r.kode)}')"` pakai `esc()` (fungsi didefinisikan baris 270) yang tidak escape kutip tunggal, padahal disisipkan ke string berkutip tunggal → seharusnya pakai `escA()`. Risiko rendah (kode referral jarang berisi apostrof).
+
+### 🔍 Temuan Backend (repo `pena-digital-backend`)
+
+- **`ADMIN_SECRET` punya fallback hardcoded** di `src/routes/publicRoutes.js` (fungsi `adminAuth`): `process.env.ADMIN_SECRET || 'penadigital2025'` — kalau env var kosong/salah konfigurasi di Vercel, semua endpoint admin bisa diakses pakai password default yang predictable. Sudah ada di git history backend sejak commit `8c489b1`, jadi bukan kebocoran baru, tapi tetap perlu diperbaiki (hapus fallback, wajibkan `ADMIN_SECRET` di-set).
+- **`/api/shopee-webhook` dan `/api/telegram-webhook` tidak ada verifikasi signature/secret** — siapa pun yang tahu URL-nya bisa POST payload palsu.
+- **`prisma/schema.prisma` tidak mencerminkan skema DB asli** — tabel `catalog_products`, `midtrans_orders`, `referral_codes` diakses lewat raw SQL (`$queryRaw`) dan tidak dideklarasikan di schema Prisma (hanya `Product`, `ProductCell`, `ShopeeOrder`, `SystemLog`). Aman dari SQL injection (tagged template Prisma otomatis parameterize), tapi tidak ada type-safety untuk tabel-tabel utama itu.
+- **`src/controllers/productController.js` — dead code, sudah dihapus** commit `fd23cf4` (2026-07-02). Ini duplikat lama dari `bedahDanCariLink` yang sudah digantikan `shopeeController.js`; tidak direferensikan `routes/api.js` maupun file lain. `shopeeController.js` (jalur produksi webhook GAS → cari link → notif Telegram + email/WA) **tidak diubah**.
+- File `gas.txt` (170 baris) dan `pro.py` (kosong) di root backend berisi kode Python skoring tugas/deadline yang tidak berhubungan dengan proyek ini — sepertinya nyasar dari proyek lain, belum dibersihkan.
 
 ---
 
