@@ -44,11 +44,27 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .main{max-width:640px;margin:0 auto;padding:0 16px 80px;}
 
 /* FOTO */
-.foto-wrap{background:var(--white);border-radius:16px;overflow:hidden;margin-bottom:16px;border:1px solid var(--cream2);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;}
+.foto-container{position:relative;margin-bottom:16px;}
+.foto-wrap{background:var(--white);border-radius:16px;overflow:hidden;border:1px solid var(--cream2);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;}
 .foto-wrap img{width:100%;height:100%;object-fit:cover;}
 .foto-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--g300);}
 .foto-placeholder svg{width:48px;height:48px;}
 .foto-placeholder span{font-size:13px;}
+.btn-share-float{
+  position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.92);border:1px solid var(--cream2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.15);z-index:5;transition:background .15s;
+}
+.btn-share-float:hover{background:#fff;}
+.btn-share-float svg{width:18px;height:18px;color:var(--navy);}
+
+/* SHARE MODAL */
+.share-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 10px;margin:18px 0 4px;}
+.share-opt{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:600;color:var(--g700);padding:0;}
+.share-opt .icon-circle{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;}
+.share-opt svg{width:22px;height:22px;}
+.share-opt:hover .icon-circle{filter:brightness(1.08);}
 
 /* CARD INFO */
 .info-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);overflow:hidden;}
@@ -176,8 +192,13 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 
 <div class="main">
   <!-- FOTO -->
-  <div class="foto-wrap" id="foto-wrap">
-    <div class="foto-placeholder skeleton" style="width:100%;height:100%;"></div>
+  <div class="foto-container">
+    <div class="foto-wrap" id="foto-wrap">
+      <div class="foto-placeholder skeleton" style="width:100%;height:100%;"></div>
+    </div>
+    <button class="btn-share-float" onclick="bukaShareModal()" title="Bagikan produk" aria-label="Bagikan produk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
+    </button>
   </div>
 
   <!-- INFO -->
@@ -226,6 +247,44 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
     <h3>⚠️ Pilih Variasi</h3>
     <p id="modal-variasi-msg">Silakan pilih semua variasi produk terlebih dahulu.</p>
     <button class="btn-modal-ok" onclick="document.getElementById('modal-variasi').classList.remove('open')">OK, Pilih Sekarang</button>
+  </div>
+</div>
+
+<!-- MODAL SHARE -->
+<div class="modal-overlay" id="modal-share" onclick="if(event.target===this) tutupShareModal()">
+  <div class="modal-box">
+    <h3>Bagikan Produk</h3>
+    <div class="share-opts">
+      <button class="share-opt" onclick="shareVia('whatsapp')">
+        <span class="icon-circle" style="background:#25D366;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.8-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.6-1.6-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5.1.5-.1 1.6-.6 1.8-1.3.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5-1.3c1.4.8 3.1 1.2 4.9 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.1c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 14.9 3.7 13.5 3.7 12c0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.7 8.3-8.3 8.3z"/></svg>
+        </span>
+        WhatsApp
+      </button>
+      <button class="share-opt" onclick="shareVia('facebook')">
+        <span class="icon-circle" style="background:#1877F2;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.6h2.6l.4-3h-3v-1.9c0-.9.2-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.2-.1-2.2 0-3.8 1.4-3.8 3.9v2.2H8v3h2.6V21h2.9z"/></svg>
+        </span>
+        Facebook
+      </button>
+      <button class="share-opt" onclick="shareVia('telegram')">
+        <span class="icon-circle" style="background:#26A5E4;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.5 4.5L18.9 19c-.2 1-.8 1.2-1.6.8l-4.4-3.3-2.1 2c-.2.2-.4.4-.9.4l.3-4.5 8.2-7.4c.4-.3-.1-.5-.5-.2L7.1 13 2.7 11.6c-.9-.3-.9-.9.2-1.4L20.3 3.4c.8-.3 1.5.2 1.2 1.1z"/></svg>
+        </span>
+        Telegram
+      </button>
+      <button class="share-opt" onclick="shareVia('twitter')">
+        <span class="icon-circle" style="background:#000;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.6 10.6L20 3h-1.9l-5.6 6.6L8 3H3l6.7 9.7L3 21h1.9l5.9-6.9L15.9 21H21l-7.4-10.4zm-2.1 2.5l-.7-1L5.4 4.4h2.2l4.4 6.3.7 1 5.7 8.2h-2.2l-4.7-6.7z"/></svg>
+        </span>
+        X
+      </button>
+    </div>
+    <button class="btn-modal-ok" onclick="salinLink()" style="margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Salin Link
+    </button>
+    <button class="btn-modal-ok" onclick="tutupShareModal()" style="margin-top:8px;background:var(--g100);color:var(--g700);">Tutup</button>
   </div>
 </div>
 
@@ -517,6 +576,58 @@ async function beliSekarang() {
   } catch { /* kalau gagal cek, anggap normal -- jangan blokir pembeli gara-gara error jaringan */ }
   tambahKeranjang();
   setTimeout(() => { location.href = 'cart.html'; }, 400);
+}
+
+// ── Share ────────────────────────────────────────────────────────
+function getShareUrl() {
+  return `${location.origin}${location.pathname}?id=${produk.id}`;
+}
+function getShareText() {
+  return `${produk.nama} - PenaDigital Store`;
+}
+function bukaShareModal() {
+  if (!produk) return;
+  if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    navigator.share({ title: produk.nama, text: getShareText(), url: getShareUrl() }).catch(() => {});
+    return;
+  }
+  document.getElementById('modal-share').classList.add('open');
+}
+function tutupShareModal() {
+  document.getElementById('modal-share').classList.remove('open');
+}
+function shareVia(platform) {
+  const url  = encodeURIComponent(getShareUrl());
+  const text = encodeURIComponent(getShareText());
+  const links = {
+    whatsapp: `https://wa.me/?text=${text}%20${url}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    telegram: `https://t.me/share/url?url=${url}&text=${text}`,
+    twitter:  `https://twitter.com/intent/tweet?text=${text}&url=${url}`
+  };
+  window.open(links[platform], '_blank', 'noopener,noreferrer,width=600,height=520');
+  tutupShareModal();
+}
+async function salinLink() {
+  const url = getShareUrl();
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    toast('🔗 Link produk disalin!');
+  } catch (e) {
+    toast('Gagal menyalin link', true);
+  }
+  tutupShareModal();
 }
 
 // ── Utils ────────────────────────────────────────────────────────
