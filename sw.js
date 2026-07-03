@@ -1,4 +1,4 @@
-const CACHE = 'penadigital-v5';
+const CACHE = 'penadigital-v6';
 const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
