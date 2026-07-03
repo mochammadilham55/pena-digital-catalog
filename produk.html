@@ -72,12 +72,25 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .produk-nama{font-size:20px;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:8px;}
 .produk-harga{font-size:24px;font-weight:800;color:var(--orange);margin-bottom:12px;}
 .produk-harga span{font-size:13px;font-weight:500;color:var(--g500);}
-.produk-desc{font-size:14px;color:var(--g700);line-height:1.7;word-break:break-word;overflow-wrap:break-word;max-width:100%;}
+.produk-desc{font-size:14px;color:var(--g700);line-height:1.7;word-break:break-word;overflow-wrap:break-word;max-width:100%;margin-top:14px;}
+/* Tombol buka/tutup deskripsi */
+.btn-desc-toggle{
+  width:100%;margin-top:14px;padding:11px;border-radius:10px;
+  background:var(--g50);color:var(--navy);border:2px solid var(--g200);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;
+}
+.btn-desc-toggle:hover{background:var(--cream);border-color:var(--cream2);}
+.btn-desc-toggle .chevron{transition:transform .2s;}
+.btn-desc-toggle.open .chevron{transform:rotate(180deg);}
 .badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 .badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);color:var(--green);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
 
 /* VARIASI */
 .variasi-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid var(--cream2);}
+/* Flash highlight saat pembeli klik beli tanpa pilih variasi */
+@keyframes flashVariasi{0%,100%{box-shadow:0 0 0 0 rgba(224,123,42,0);}30%{box-shadow:0 0 0 3px rgba(224,123,42,.55);}}
+.variasi-card.flash{animation:flashVariasi 1s ease;}
 .variasi-title{font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 .variasi-title::before{content:'';width:3px;height:14px;background:var(--orange);border-radius:2px;display:inline-block;}
 .variasi-group{margin-bottom:16px;}
@@ -242,15 +255,6 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
   </div>
 </div>
 
-<!-- MODAL VARIASI -->
-<div class="modal-overlay" id="modal-variasi">
-  <div class="modal-box">
-    <h3>⚠️ Pilih Variasi</h3>
-    <p id="modal-variasi-msg">Silakan pilih semua variasi produk terlebih dahulu.</p>
-    <button class="btn-modal-ok" onclick="document.getElementById('modal-variasi').classList.remove('open')">OK, Pilih Sekarang</button>
-  </div>
-</div>
-
 <!-- MODAL SHARE -->
 <div class="modal-overlay" id="modal-share" onclick="if(event.target===this) tutupShareModal()">
   <div class="modal-box">
@@ -363,7 +367,14 @@ function renderProduk(p) {
     </div>
     <div class="produk-nama">${esc(p.nama)}</div>
     <div class="produk-harga">${harga} <span>/ paket</span></div>
-    ${p.deskripsi ? `<div class="produk-desc">${esc(p.deskripsi).replace(/\n/g,'<br>')}</div>` : ''}
+    ${p.deskripsi ? `
+      <button class="btn-desc-toggle" id="btn-desc-toggle" onclick="toggleDeskripsi()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <span id="btn-desc-txt">Baca Deskripsi Produk</span>
+        <svg class="chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="produk-desc" id="produk-desc" style="display:none;">${esc(p.deskripsi).replace(/\n/g,'<br>')}</div>
+    ` : ''}
   `;
 
   // Variasi
@@ -489,12 +500,37 @@ function validasiVariasi() {
   if (!varConf.length) return true;
   const belumDipilih = varConf.filter(d => !variasiTerpilih[d.nama]);
   if (belumDipilih.length) {
-    document.getElementById('modal-variasi-msg').textContent =
-      `Silakan pilih: ${belumDipilih.map(d=>d.nama).join(', ')}`;
-    document.getElementById('modal-variasi').classList.add('open');
+    // Alih-alih modal, gulir langsung ke menu variasi supaya pembeli
+    // melihat & memilih variasinya. Beri flash highlight + toast.
+    scrollKeVariasi();
+    toast(`⚠️ Pilih dulu: ${belumDipilih.map(d=>d.nama).join(', ')}`, true);
     return false;
   }
   return true;
+}
+
+// Gulir sampai kartu variasi terlihat penuh (offset untuk header sticky),
+// lalu flash highlight agar perhatian pembeli tertuju ke sana.
+function scrollKeVariasi() {
+  const varCard = document.getElementById('variasi-card');
+  if (!varCard || varCard.style.display === 'none') return;
+  const y = varCard.getBoundingClientRect().top + window.pageYOffset - 76;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+  varCard.classList.remove('flash');
+  void varCard.offsetWidth; // paksa reflow supaya animasi bisa retrigger
+  varCard.classList.add('flash');
+}
+
+// Buka/tutup deskripsi produk (default tersembunyi).
+function toggleDeskripsi() {
+  const desc = document.getElementById('produk-desc');
+  const btn  = document.getElementById('btn-desc-toggle');
+  const txt  = document.getElementById('btn-desc-txt');
+  if (!desc) return;
+  const buka = desc.style.display === 'none';
+  desc.style.display = buka ? 'block' : 'none';
+  btn.classList.toggle('open', buka);
+  txt.textContent = buka ? 'Tutup Deskripsi Produk' : 'Baca Deskripsi Produk';
 }
 
 // ── Preview Contoh ───────────────────────────────────────────────
