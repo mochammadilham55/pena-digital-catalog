@@ -580,7 +580,11 @@ async function beliSekarang() {
 
 // ── Share ────────────────────────────────────────────────────────
 function getShareUrl() {
-  return `${location.origin}${location.pathname}?id=${produk.id}`;
+  // Arahkan ke endpoint backend yang render og:image (thumbnail produk)
+  // untuk preview WhatsApp/Facebook/Telegram, lalu redirect ke halaman ini.
+  // Link langsung ke produk.html tidak punya og:image per-produk karena
+  // datanya baru diisi lewat JS setelah fetch API (crawler tidak jalankan JS).
+  return `${API}/share/${produk.id}`;
 }
 function getShareText() {
   return `${produk.nama} - PenaDigital Store`;
