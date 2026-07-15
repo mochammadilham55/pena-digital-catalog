@@ -99,8 +99,8 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| GET | `/pesanan/:no_pesanan` | Cek link pesanan Shopee (rate-limited 10x/menit) |
-| PATCH | `/pesanan/:no_pesanan/ambil` | Tandai pesanan TERKIRIM + notif Telegram |
+| GET | `/pesanan/:no_pesanan` | Cek link pesanan Shopee (rate-limited 10x/menit). Bisa return `status:'blocked'` (ditambahkan 2026-07-15) kalau `username_pembeli` order ada di daftar blokir admin — index.html menampilkan pesan "Akun Diblokir" + tombol WA admin, tanpa link produk sama sekali |
+| PATCH | `/pesanan/:no_pesanan/ambil` | Tandai pesanan TERKIRIM + notif Telegram. Return `403 {status:'blocked'}` untuk pembeli yang diblokir |
 | GET | `/katalog` | Daftar produk aktif untuk halaman publik |
 | GET | `/katalog/:id` | Detail satu produk |
 | POST | `/referral/validasi` | Validasi kode referral saat checkout |
