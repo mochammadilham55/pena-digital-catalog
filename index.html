@@ -77,9 +77,10 @@ header{
 .btn-wa-header:hover{background:#1EBE5A;}
 .btn-wa-header:active{transform:scale(.96);}
 .btn-wa-header svg{width:16px;height:16px;flex-shrink:0;}
-@media (max-width:380px){
+@media (max-width:480px){
   .btn-wa-header span{display:none;}
   .btn-wa-header{padding:0;width:36px;}
+  .brand-sub{display:none;}
 }
 
 /* ── TOMBOL CHAT WA (MENGAMBANG) ── */
@@ -286,6 +287,11 @@ header{
   overflow-wrap:anywhere;word-break:break-word;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
+.produk-card-price{
+  font-size:12px;font-weight:800;color:var(--orange2);
+  text-align:center;margin-top:3px;
+}
+.produk-card-price-empty{visibility:hidden;height:0;margin:0;}
 
 /* loading skeleton */
 .skeleton{
@@ -440,13 +446,32 @@ async function loadKatalog() {
   }
 }
 
+// Format angka jadi Rupiah, mis. 150000 -> "Rp 150.000"
+function formatRupiah(n) {
+  const num = Number(n);
+  if (isNaN(num)) return '';
+  return 'Rp ' + num.toLocaleString('id-ID');
+}
+
+// Deteksi field harga secara otomatis dari beberapa kemungkinan nama field backend
+function getHarga(p) {
+  const candidates = ['harga', 'harga_jual', 'price', 'harga_produk', 'harga_diskon'];
+  for (const key of candidates) {
+    if (p[key] !== undefined && p[key] !== null && p[key] !== '') return p[key];
+  }
+  return null;
+}
+
 function renderKatalog(items) {
   const grid = document.getElementById('katalog-grid');
   if (!items.length) {
     grid.innerHTML = '<div class="katalog-empty">Katalog belum tersedia.</div>';
     return;
   }
-  grid.innerHTML = items.map(p => `
+  grid.innerHTML = items.map(p => {
+    const harga = getHarga(p);
+    const hargaHtml = `<div class="produk-card-price">${harga !== null ? formatRupiah(harga) : 'Hubungi Admin'}</div>`;
+    return `
     <a class="produk-card" href="produk.html?id=${p.id}">
       <div class="produk-thumb-wrap">
         ${p.foto_url
@@ -459,8 +484,10 @@ function renderKatalog(items) {
         </div></div>
       </div>
       <div class="produk-card-name">${esc(p.nama)}</div>
+      ${hargaHtml}
     </a>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // Konversi Google Drive share link ke direct image link
@@ -707,6 +734,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
+//q
 </script>
 </body>
 </html>
