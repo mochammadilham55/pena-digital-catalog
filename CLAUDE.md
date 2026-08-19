@@ -267,6 +267,10 @@ Tidak ada state management library. Semua state disimpan di:
 
 ---
 
+## 🔗 Auto-shortlink (2026-08-20, TAHAP UJI COBA)
+
+`orders.html` → `bukaModalKirim()` (tab "Kirim Link Manual" & tombol kirim di tab "Riwayat Pesanan") tidak lagi auto-mencari link lewat `POST /cari-link` saat modal dibuka — sekarang langsung memakai `tautanSiap(o)` (helper baru: prioritas `o.link_shortlink`, fallback `o.link_produk`) yang datang dari `GET /midtrans/orders`. Link yang dikirim ke pembeli sekarang berupa shortlink (`penadigital.xyz/s/<slug>`), bukan link Drive asli. Detail lengkap arsitekturnya (kolom DB baru, fungsi backend, titik-titik yang berubah, status migrasi yang **belum dijalankan**) ada di `CLAUDE.md` (root, satu folder di atas) §1.17 — baca di sana sebelum menyentuh alur pengiriman link di file ini.
+
 ## ⚠️ Bug Diketahui
 
 ### ✅ Sudah Diperbaiki

@@ -501,7 +501,7 @@ function renderPesanan(orders, total) {
     const statusClass = `s-${o.status}`;
     const statusLabel = {paid:'✅ Paid',pending:'⏳ Pending',cancel:'❌ Cancel',expire:'⌛ Expire',deny:'🚫 Deny',fraud:'⚠️ Fraud'}[o.status] || o.status;
     const items = o.items || [];
-    const links = o.link_produk || [];
+    const links = tautanSiap(o);
     const adaLinkKosong = links.some(l => !l.url) || (o.status==='paid' && !links.length);
     const tgl = new Date(o.created_at).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
@@ -577,7 +577,7 @@ async function loadManual() {
 
     // Filter hanya yang ada link kosong
     const butuhManual = (d.data||[]).filter(o => {
-      const links = o.link_produk || [];
+      const links = tautanSiap(o);
       return !links.length || links.some(l => !l.url);
     });
 
@@ -592,7 +592,7 @@ async function loadManual() {
 
     document.getElementById('manual-list').innerHTML = butuhManual.map((o,idx) => {
       const items = o.items || [];
-      const links = o.link_produk || [];
+      const links = tautanSiap(o);
       const tgl = new Date(o.created_at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
       return `
       <div class="order-card" style="border-color:#FCA5A5;">
@@ -652,33 +652,10 @@ async function bukaModalKirim(orderId, namaPembeli, items, existingLinks) {
   }).join('');
 
   document.getElementById('modal-link').classList.add('open');
-
-  // Auto-isi dari master untuk item yang inputnya masih kosong. Ini menutup
-  // kasus: link master baru dilengkapi SETELAH pesanan dibayar, jadi
-  // link_produk tersimpan kosong. Admin tidak perlu copy-paste manual.
-  for (let i = 0; i < items.length; i++) {
-    const inp = document.getElementById(`link-input-${i}`);
-    if (!inp || inp.value.trim()) continue;
-    const note = document.getElementById(`link-auto-${i}`);
-    const detail = items[i].variasi || items[i].nama;
-    if (note) { note.style.color = 'var(--g500)'; note.textContent = '🔎 mencari link otomatis dari master...'; }
-    try {
-      const r = await fetch(`${API}/cari-link`, {
-        method:  'POST',
-        headers: { 'Content-Type':'application/json', 'x-admin-secret': SECRET },
-        body:    JSON.stringify({ detail_produk: detail })
-      });
-      const d = await r.json();
-      const found = (d.produkList || []).find(p => p.url);
-      if (found) {
-        inp.value = found.url;
-        modalAutoLabels[i] = found.label;
-        if (note) { note.style.color = 'var(--green)'; note.textContent = '✓ Terisi otomatis dari master produk'; }
-      } else if (note) {
-        note.style.color = 'var(--g500)'; note.textContent = 'Belum ada di master produk — isi manual.';
-      }
-    } catch { if (note) note.textContent = ''; }
-  }
+  // Input di atas sudah diisi dari link tersimpan (existingLinks, hasil
+  // tautanSiap() yang dipanggil pemanggil fungsi ini) -- tidak ada pencarian
+  // otomatis lagi di sini. Item yang benar-benar belum ada linknya (masih
+  // kosong) diisi manual oleh admin.
 }
 
 function tutupModal() {
@@ -729,6 +706,10 @@ async function kirimLinkManual() {
 // UTILS
 // ════════════════════════════════════════
 function fmt(n) { return parseInt(n||0).toLocaleString('id-ID'); }
+// Link sudah dihitung & disimpan (link_shortlink) sejak webhook pembayaran
+// dikonfirmasi -- dipakai apa adanya di sini, tidak dicari ulang. Fallback ke
+// link_produk (mentah) untuk pesanan lama sebelum kolom link_shortlink ada.
+function tautanSiap(o){ return (o.link_shortlink&&o.link_shortlink.length) ? o.link_shortlink : (o.link_produk||[]); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function toast(msg, err=false) {
   const el=document.getElementById('toast');
