@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /orders.html
+Disallow: /referral.html
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /pending.html
+Disallow: /success.html
+Disallow: /maintenance.html
+
+Sitemap: https://penadigital.xyz/sitemap.xml

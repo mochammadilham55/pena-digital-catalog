@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Detail Produk — PenaDigital</title>
+<title>Modul Ajar & Perangkat Ajar — RPP, LKPD, Kurikulum Merdeka | Pena Digital Store</title>
 <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg">
-<meta name="description" content="Detail produk perangkat ajar digital PenaDigital.">
+<meta name="description" content="Modul Ajar & Perangkat Ajar siap pakai — RPP, LKPD, ATP, Prota, Promes — untuk Kurikulum Merdeka, Deep Learning, dan KBC di Pena Digital Store.">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1B3A6B">
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -362,7 +362,12 @@ function tampilError(msg) {
 }
 
 function renderProduk(p) {
-  document.title = `${p.nama} — PenaDigital`;
+  document.title = `${p.nama} — Pena Digital Store`;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) {
+    const ringkas = (p.deskripsi ? p.deskripsi.replace(/\s+/g,' ').trim().slice(0,140) : `${p.nama} — Modul Ajar & Perangkat Ajar siap pakai dari Pena Digital Store.`);
+    metaDesc.setAttribute('content', ringkas);
+  }
   document.getElementById('bc-nama').textContent = p.nama;
 
   // Foto
@@ -429,6 +434,44 @@ function renderProduk(p) {
   }
 
   updateCartBadge();
+  tambahJsonLd(p);
+}
+
+// JSON-LD Product schema (dibuat setelah data produk termuat) supaya Google
+// bisa menampilkan rich result (harga, ketersediaan) di hasil pencarian.
+// Googlebot menjalankan JS jadi ini sampai terbaca, tapi crawler lain yang
+// tidak menjalankan JS tidak akan melihatnya -- keterbatasan arsitektur
+// client-side render, lihat CLAUDE.md §2 untuk konteks lengkap.
+function tambahJsonLd(p) {
+  const old = document.getElementById('ld-produk');
+  if (old) old.remove();
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.id = 'ld-produk';
+  script.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.nama,
+    image: p.foto_url || undefined,
+    description: p.deskripsi || `${p.nama} — Modul Ajar & Perangkat Ajar siap pakai dari Pena Digital Store.`,
+    brand: { '@type': 'Brand', name: 'Pena Digital Store' },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'IDR',
+      price: (p.harga !== null && p.harga !== undefined) ? p.harga : undefined,
+      availability: 'https://schema.org/InStock',
+      url: `https://penadigital.xyz/produk.html?id=${p.id}`
+    }
+  });
+  document.head.appendChild(script);
+
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    document.head.appendChild(canonical);
+  }
+  canonical.href = `https://penadigital.xyz/produk.html?id=${p.id}`;
 }
 
 // ── Pilih Variasi ────────────────────────────────────────────────

@@ -267,6 +267,17 @@ Tidak ada state management library. Semua state disimpan di:
 
 ---
 
+## 🔍 SEO (2026-08-20)
+
+Target kata kunci: nama brand ("pena digital", "pena digital store"), istilah umum ("perangkat ajar", "modul ajar", "rpp", "lkpd"), dan istilah niche dari nama produk aktual ("deep learning", "KBC", kode CP seperti "CP 046"/"CP 026").
+
+- **`index.html`**: `<title>`/`<meta description>` diganti lebih deskriptif, tambah `<link rel="canonical">`, Open Graph tags, JSON-LD `OnlineStore`. Tambah `<h1>`+`<p>` intro singkat (kelas `.katalog-seo-title`/`.katalog-seo-desc`) di atas grid katalog — sebelumnya halaman ini **tidak punya heading tag sama sekali**. "Produk Kami" diubah dari `<div>` jadi `<h2>` semantik.
+- **`produk.html`**: title/description default statis diperbaiki (untuk crawler yang tidak jalankan JS), lalu di-update lagi dinamis di `renderProduk()` sesuai data produk asli. Tambah JSON-LD `Product`+`Offer` (harga, ketersediaan) dan `<link rel="canonical">` per produk, disuntik lewat `tambahJsonLd()` — HANYA terbaca crawler yang menjalankan JS (Googlebot ya, sebagian lain tidak).
+- **`robots.txt`** (baru) — izinkan semua kecuali halaman admin & transaksional (`admin.html`, `orders.html`, `referral.html`, `cart.html`, `checkout.html`, `pending.html`, `success.html`, `maintenance.html`). Arahkan ke `Sitemap: https://penadigital.xyz/sitemap.xml`.
+- **`sitemap.xml`** — TIDAK berupa file statis, tapi rewrite di `vercel.json` (`/sitemap.xml` → `GET /api/public/sitemap.xml` backend) supaya daftar URL produk selalu ikut `catalog_products` aktif terkini, tidak perlu diedit manual.
+
+**Keterbatasan yang belum diselesaikan** (didiskusikan, belum dieksekusi): situs ini client-side rendered — HTML awal `produk.html` sebelum JS jalan identik untuk semua `?id=`, jadi crawler yang tidak menjalankan JS (Bing dkk.) tidak pernah lihat konten produk sesungguhnya per halaman. Perbaikan permanennya butuh server-render/prerender per produk (bisa reuse pola `GET /api/public/share/:id` di backend yang sudah server-render HTML lengkap untuk keperluan share WA/FB) — effort besar, belum dikerjakan.
+
 ## 🔗 Auto-shortlink (2026-08-20, TAHAP UJI COBA)
 
 `orders.html` → `bukaModalKirim()` (tab "Kirim Link Manual" & tombol kirim di tab "Riwayat Pesanan") tidak lagi auto-mencari link lewat `POST /cari-link` saat modal dibuka — sekarang langsung memakai `tautanSiap(o)` (helper baru: prioritas `o.link_shortlink`, fallback `o.link_produk`) yang datang dari `GET /midtrans/orders`. Link yang dikirim ke pembeli sekarang berupa shortlink (`penadigital.xyz/s/<slug>`), bukan link Drive asli. Detail lengkap arsitekturnya (kolom DB baru, fungsi backend, titik-titik yang berubah, status migrasi yang **belum dijalankan**) ada di `CLAUDE.md` (root, satu folder di atas) §1.17 — baca di sana sebelum menyentuh alur pengiriman link di file ini.

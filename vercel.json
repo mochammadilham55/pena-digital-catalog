@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/s/:slug", "destination": "https://pena-digital-backend.vercel.app/s/:slug" }
+    { "source": "/s/:slug", "destination": "https://pena-digital-backend.vercel.app/s/:slug" },
+    { "source": "/sitemap.xml", "destination": "https://pena-digital-backend.vercel.app/api/public/sitemap.xml" }
   ]
 }
