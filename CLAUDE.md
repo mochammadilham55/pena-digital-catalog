@@ -292,6 +292,15 @@ Target kata kunci: nama brand ("pena digital", "pena digital store"), istilah um
 
 **Keterbatasan yang belum diselesaikan** (didiskusikan, belum dieksekusi): situs ini client-side rendered — HTML awal `produk.html` sebelum JS jalan identik untuk semua `?id=`, jadi crawler yang tidak menjalankan JS (Bing dkk.) tidak pernah lihat konten produk sesungguhnya per halaman. Perbaikan permanennya butuh server-render/prerender per produk (bisa reuse pola `GET /api/public/share/:id` di backend yang sudah server-render HTML lengkap untuk keperluan share WA/FB) — effort besar, belum dikerjakan.
 
+## 🔢 Format Nomor Pesanan Website & Pencarian Gabungan (2026-08-23)
+
+`index.html` — kotak "Cek Pesanan" (dulu label "...Jika Sudah Beli Di Shopee", sekarang "Ambil Link Pesanan (Shopee & Website)") sekarang bisa dipakai untuk **dua jenis nomor pesanan sekaligus**: nomor pesanan Shopee (format lama, apa adanya) DAN nomor pesanan Website format baru `ddmmyyyy0000` (mis. `230820260001`) — keduanya lewat endpoint yang sama, `GET /api/public/pesanan/:no_pesanan` (lihat CLAUDE.md backend §1.7 poin 0 & §1.10 untuk detail server-side).
+
+- `cekPesanan()` sekarang simpan `d.sumber` (`'shopee'`/`'website'`) ke variabel global `currentSumber`.
+- `tandaiTerkirim()` cuma jalan kalau `currentSumber==='shopee'` — pesanan Website tidak punya konsep "tandai TERKIRIM" (status-nya dilacak lewat status pembayaran Midtrans sendiri, bukan field terpisah).
+- `renderResult()` dapat case baru `not_paid` — pesanan Website ketemu tapi belum `paid`/`settlement`/`capture`, tombol arahkan ke `pending.html`.
+- Nomor pesanan Website LAMA (format `PD-<timestamp>-<random>`, sebelum 2026-08-23) tetap bisa dicari di kotak yang sama (regex input di backend sengaja mengizinkan `-`).
+
 ## 💬 Modal Konfirmasi Kustom (2026-08-23)
 
 Semua `confirm()`/`alert()` bawaan Chrome (10 titik `confirm()` + 4 titik `alert()`, tersebar di `admin.html`, `cart.html`, `pending.html`, `referral.html`, dan dashboard `pena-digital-frontend/index.html`) diganti popup kustom yang gayanya menyesuaikan tema tiap halaman (terang untuk catalog, gelap untuk dashboard admin).

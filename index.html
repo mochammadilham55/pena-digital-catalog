@@ -396,7 +396,7 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
 
 <section class="section-pesanan">
   <div class="pesanan-inner">
-    <div class="pesanan-title">Ambil Link Pesanan Jika Sudah Beli Di Shopee</div>
+    <div class="pesanan-title">Ambil Link Pesanan (Shopee & Website)</div>
     <div class="input-row">
       <div class="input-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -406,7 +406,7 @@ footer a{color:var(--orange);text-decoration:none;font-weight:600;}
           id="inp"
           class="pesanan-input"
           type="text"
-          placeholder="Masukkan nomor pesanan Shopee"
+          placeholder="Masukkan nomor pesanan"
           maxlength="25"
           autocomplete="off"
           spellcheck="false"
@@ -553,6 +553,7 @@ async function cekPesanan() {
     const r = await fetch(`${API}/pesanan/${encodeURIComponent(no)}`);
     const d = await r.json();
     if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=cari'; return; }
+    currentSumber = d.sumber || null; // 'shopee' atau 'website' -- dipakai tandaiTerkirim()
     renderResult(d);
   } catch {
     renderResult({ status:'error', message:'Tidak dapat terhubung ke server. Coba lagi.' });
@@ -633,6 +634,23 @@ function renderResult(d) {
       </div>
     </div>`;
 
+  } else if (d.status === 'not_paid') {
+    box.innerHTML = `<div class="rbox">
+      <div class="rbox-header">
+        <div class="rbox-icon">⏳</div>
+        <div><div class="rbox-title">Menunggu Pembayaran</div>
+          <div class="rbox-no">${esc(d.no_pesanan)}</div></div>
+      </div>
+      <div class="rbox-divider"></div>
+      <div class="rbox-body">
+        <div class="rbox-msg">${esc(d.message||'Pesanan ditemukan tapi belum dibayar/dikonfirmasi.')}</div>
+        <a class="btn-wa-admin" href="pending.html" style="background:var(--navy2);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Cek & Lanjutkan Pembayaran
+        </a>
+      </div>
+    </div>`;
+
   } else if (d.status === 'blocked') {
     box.innerHTML = `<div class="rbox">
       <div class="rbox-header">
@@ -664,8 +682,12 @@ function renderResult(d) {
 // TANDAI TERKIRIM — dipanggil otomatis
 // ════════════════════════════════════════
 let sudahTandai = false;
+let currentSumber = null;
 async function tandaiTerkirim() {
-  if (sudahTandai || !currentNoPesanan) return;
+  // Cuma berlaku untuk pesanan Shopee -- pesanan Website (Midtrans) tidak
+  // punya konsep status "TERKIRIM" yang perlu ditandai di sini, statusnya
+  // sudah dilacak lewat status pembayaran Midtrans sendiri.
+  if (sudahTandai || !currentNoPesanan || currentSumber !== 'shopee') return;
   sudahTandai = true;
   try {
     await fetch(`${API}/pesanan/${encodeURIComponent(currentNoPesanan)}/ambil`, {
