@@ -9,4 +9,4 @@ Disallow: /pending.html
 Disallow: /success.html
 Disallow: /maintenance.html
 
-Sitemap: https://penadigital.xyz/sitemap.xml
+Sitemap: https://penadigital.xyz/sitemap.xml 
