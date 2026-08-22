@@ -292,6 +292,17 @@ Target kata kunci: nama brand ("pena digital", "pena digital store"), istilah um
 
 **Keterbatasan yang belum diselesaikan** (didiskusikan, belum dieksekusi): situs ini client-side rendered — HTML awal `produk.html` sebelum JS jalan identik untuk semua `?id=`, jadi crawler yang tidak menjalankan JS (Bing dkk.) tidak pernah lihat konten produk sesungguhnya per halaman. Perbaikan permanennya butuh server-render/prerender per produk (bisa reuse pola `GET /api/public/share/:id` di backend yang sudah server-render HTML lengkap untuk keperluan share WA/FB) — effort besar, belum dikerjakan.
 
+## 💬 Modal Konfirmasi Kustom (2026-08-23)
+
+Semua `confirm()`/`alert()` bawaan Chrome (10 titik `confirm()` + 4 titik `alert()`, tersebar di `admin.html`, `cart.html`, `pending.html`, `referral.html`, dan dashboard `pena-digital-frontend/index.html`) diganti popup kustom yang gayanya menyesuaikan tema tiap halaman (terang untuk catalog, gelap untuk dashboard admin).
+
+- **`konfirmasi(pesan, opsi)`** — balikin `Promise<boolean>` (mirip `confirm()`), 2 tombol (Batal/Ya Lanjutkan). `opsi.icon` (emoji, default `⚠️`), `opsi.okText` (default "Ya, Lanjutkan").
+- **`tampilkanInfo(pesan, opsi)`** — balikin `Promise<boolean>` (selalu `true`), cuma 1 tombol OK (mirip `alert()`). Cuma dipakai di `pending.html` (satu-satunya file yang ada `alert()`).
+- **Setiap file py implementasi sendiri-sendiri** (tidak ada shared JS antar file, konsisten dengan arsitektur repo ini) — CSS/markup/JS diduplikasi per file, bukan di-import dari satu tempat.
+- Semua fungsi pemanggil (`hapusProduk`, `hapusFotoInput`, `kosongkanCart`, `batalkanPesanan`, `generateTokenBaru`, `hapusReferral`, `gantiSecret`, `hapusOrder`, `delProduk`, `hapusShortlink`, `hapusBlokir`) jadi/tetap `async`, ganti `if(!confirm(...))` jadi `if(!(await konfirmasi(...)))`.
+- Klik area gelap di luar modal (backdrop) = sama seperti klik "Batal".
+- `admin.html` reuse CSS `.modal-overlay`/`.modal` yang sudah ada (untuk modal Edit Produk). `cart.html`/`pending.html`/`referral.html` dapat CSS `.modal-overlay`/`.modal-confirm` baru (belum ada modal sebelumnya). Dashboard `pena-digital-frontend` reuse `.modal-bg`/`.modal`/`.btn-ghost`/`.btn-danger` yang sudah ada.
+
 ## 🔗 Auto-shortlink (2026-08-20, TAHAP UJI COBA)
 
 `orders.html` → `bukaModalKirim()` (tab "Kirim Link Manual" & tombol kirim di tab "Riwayat Pesanan") tidak lagi auto-mencari link lewat `POST /cari-link` saat modal dibuka — sekarang langsung memakai `tautanSiap(o)` (helper baru: prioritas `o.link_shortlink`, fallback `o.link_produk`) yang datang dari `GET /midtrans/orders`. Link yang dikirim ke pembeli sekarang berupa shortlink (`penadigital.xyz/s/<slug>`), bukan link Drive asli. Detail lengkap arsitekturnya (kolom DB baru, fungsi backend, titik-titik yang berubah, status migrasi yang **belum dijalankan**) ada di `CLAUDE.md` (root, satu folder di atas) §1.17 — baca di sana sebelum menyentuh alur pengiriman link di file ini.

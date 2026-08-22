@@ -521,6 +521,18 @@ header{
   </div>
 </div>
 
+<!-- ══ MODAL KONFIRMASI (pengganti confirm()/alert() bawaan Chrome) ══ -->
+<div class="modal-overlay" id="modal-konfirmasi">
+  <div class="modal" style="max-width:340px;text-align:center;">
+    <div id="konf-icon" style="font-size:32px;margin-bottom:10px;">⚠️</div>
+    <div id="konf-pesan" style="font-size:14px;color:var(--g700);line-height:1.6;white-space:pre-line;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button type="button" id="konf-batal" class="btn-modal-cancel" style="flex:1;">Batal</button>
+      <button type="button" id="konf-ok" class="btn-modal-save" style="flex:1;">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -861,7 +873,7 @@ async function toggleAktif(id, aktifSekarang, p) {
 // HAPUS
 // ════════════════════════════════════════
 async function hapusProduk(id, nama, fotoUrl) {
-  if (!confirm(`Hapus produk "${nama}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+  if (!(await konfirmasi(`Hapus produk "${nama}"? Tindakan ini tidak bisa dibatalkan.`, {icon:'🗑️'}))) return;
   try {
     const r = await fetch(`${API}/katalog/${id}`, {
       method: 'DELETE',
@@ -995,7 +1007,7 @@ async function hapusFotoInput(urlInputId, previewId) {
   const urlInput = document.getElementById(urlInputId);
   const url = urlInput.value.trim();
   if (!url) return;
-  if (!confirm('Hapus foto ini secara permanen dari Cloudinary?\n\nKalau produk ini sudah tersimpan dengan foto ini, pastikan upload foto baru & klik Simpan setelahnya supaya tidak ada gambar rusak di katalog.')) return;
+  if (!(await konfirmasi('Hapus foto ini secara permanen dari Cloudinary?\n\nKalau produk ini sudah tersimpan dengan foto ini, pastikan upload foto baru & klik Simpan setelahnya supaya tidak ada gambar rusak di katalog.', {icon:'🗑️'}))) return;
   await hapusFotoCloudinary(url);
   urlInput.value = '';
   previewFoto(urlInputId, previewId);
@@ -1027,6 +1039,40 @@ function toast(msg, err=false) {
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
+
+// ════════════════════════════════════════
+// MODAL KONFIRMASI -- pengganti confirm()/alert() bawaan Chrome, gaya
+// tampilan menyesuaikan desain situs sendiri. konfirmasi() balikin Promise
+// yang resolve true/false (mirip confirm()); tampilkanInfo() cuma 1 tombol
+// OK (mirip alert()), selalu resolve true.
+// ════════════════════════════════════════
+function konfirmasi(pesan, opsi) {
+  opsi = opsi || {};
+  return new Promise(resolve => {
+    document.getElementById('konf-icon').textContent = opsi.icon || '⚠️';
+    document.getElementById('konf-pesan').textContent = pesan;
+    const okBtn = document.getElementById('konf-ok');
+    const batalBtn = document.getElementById('konf-batal');
+    okBtn.textContent = opsi.okText || 'Ya, Lanjutkan';
+    batalBtn.style.display = opsi.alertOnly ? 'none' : 'block';
+    document.getElementById('modal-konfirmasi').classList.add('open');
+
+    function selesai(hasil) {
+      document.getElementById('modal-konfirmasi').classList.remove('open');
+      okBtn.onclick = null; batalBtn.onclick = null;
+      resolve(hasil);
+    }
+    okBtn.onclick = () => selesai(true);
+    batalBtn.onclick = () => selesai(false);
+  });
+}
+function tampilkanInfo(pesan, opsi) {
+  opsi = opsi || {};
+  return konfirmasi(pesan, { ...opsi, alertOnly: true, okText: opsi.okText || 'OK' });
+}
+document.getElementById('modal-konfirmasi').addEventListener('click', function(e) {
+  if (e.target === this) document.getElementById('konf-batal').click();
+});
 
 // Tutup modal klik di luar
 document.getElementById('modal-edit').addEventListener('click', function(e) {

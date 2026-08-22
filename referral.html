@@ -76,6 +76,13 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;white-space:nowrap;opacity:0;transition:opacity .25s;z-index:999;pointer-events:none;}
 #toast.show{opacity:1;}
+
+/* MODAL KONFIRMASI (pengganti confirm() bawaan Chrome) */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-confirm{background:var(--white);border-radius:16px;width:100%;max-width:340px;padding:24px 22px;text-align:center;}
+.modal-confirm .btn-cancel{flex:1;padding:11px;background:var(--g100);color:var(--g700);border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.modal-confirm .btn-ok{flex:1;padding:11px;background:var(--red);color:#fff;border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -135,6 +142,18 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 
     <div class="list-header">Daftar Kode Referral</div>
     <div id="ref-list"><div class="empty-state">Memuat...</div></div>
+  </div>
+</div>
+
+<!-- MODAL KONFIRMASI (pengganti confirm() bawaan Chrome) -->
+<div class="modal-overlay" id="modal-konfirmasi">
+  <div class="modal-confirm">
+    <div id="konf-icon" style="font-size:32px;margin-bottom:10px;">⚠️</div>
+    <div id="konf-pesan" style="font-size:14px;color:var(--g700);line-height:1.6;white-space:pre-line;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button type="button" id="konf-batal" class="btn-cancel">Batal</button>
+      <button type="button" id="konf-ok" class="btn-ok">Ya, Lanjutkan</button>
+    </div>
   </div>
 </div>
 
@@ -266,8 +285,31 @@ async function toggleReferral(id, aktifSekarang, r) {
   } catch { toast('Kesalahan jaringan.', true); }
 }
 
+// ── Modal Konfirmasi kustom (pengganti confirm() bawaan Chrome) ──
+function konfirmasi(pesan, opsi) {
+  opsi = opsi || {};
+  return new Promise(resolve => {
+    document.getElementById('konf-icon').textContent = opsi.icon || '⚠️';
+    document.getElementById('konf-pesan').textContent = pesan;
+    const okBtn = document.getElementById('konf-ok');
+    const batalBtn = document.getElementById('konf-batal');
+    okBtn.textContent = opsi.okText || 'Ya, Lanjutkan';
+    document.getElementById('modal-konfirmasi').classList.add('open');
+    function selesai(hasil) {
+      document.getElementById('modal-konfirmasi').classList.remove('open');
+      okBtn.onclick = null; batalBtn.onclick = null;
+      resolve(hasil);
+    }
+    okBtn.onclick = () => selesai(true);
+    batalBtn.onclick = () => selesai(false);
+  });
+}
+document.getElementById('modal-konfirmasi').addEventListener('click', function(e) {
+  if (e.target === this) document.getElementById('konf-batal').click();
+});
+
 async function hapusReferral(id, kode) {
-  if (!confirm(`Hapus kode referral "${kode}"?`)) return;
+  if (!(await konfirmasi(`Hapus kode referral "${kode}"?`, {icon:'🗑️'}))) return;
   try {
     const r = await fetch(`${API}/referral/${id}`, { method: 'DELETE', headers: { 'x-admin-secret': SECRET } });
     const d = await r.json();

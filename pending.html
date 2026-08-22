@@ -84,6 +84,13 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 .empty-state p{font-size:13px;line-height:1.6;}
 
 .err-box{background:var(--red-bg);border:1px solid #FECACA;color:var(--red);border-radius:10px;padding:14px;font-size:13px;text-align:center;margin-bottom:14px;}
+
+/* MODAL KONFIRMASI (pengganti confirm()/alert() bawaan Chrome) */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-confirm{background:var(--white);border-radius:16px;width:100%;max-width:340px;padding:24px 22px;text-align:center;}
+.modal-confirm .btn-cancel{flex:1;padding:11px;background:var(--g100);color:var(--g700);border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.modal-confirm .btn-ok{flex:1;padding:11px;background:var(--red);color:#fff;border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -122,11 +129,51 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
   <div id="result-area"></div>
 </div>
 
+<!-- MODAL KONFIRMASI (pengganti confirm()/alert() bawaan Chrome) -->
+<div class="modal-overlay" id="modal-konfirmasi">
+  <div class="modal-confirm">
+    <div id="konf-icon" style="font-size:32px;margin-bottom:10px;">⚠️</div>
+    <div id="konf-pesan" style="font-size:14px;color:var(--g700);line-height:1.6;white-space:pre-line;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button type="button" id="konf-batal" class="btn-cancel">Batal</button>
+      <button type="button" id="konf-ok" class="btn-ok">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
 <!-- Midtrans Snap.js -->
 <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-tSZ9jlbMfd4FzuOA"></script>
 
 <script>
 const API = 'https://pena-digital-backend.vercel.app/api/public';
+
+// ── Modal Konfirmasi kustom (pengganti confirm()/alert() bawaan Chrome) ──
+function konfirmasi(pesan, opsi) {
+  opsi = opsi || {};
+  return new Promise(resolve => {
+    document.getElementById('konf-icon').textContent = opsi.icon || '⚠️';
+    document.getElementById('konf-pesan').textContent = pesan;
+    const okBtn = document.getElementById('konf-ok');
+    const batalBtn = document.getElementById('konf-batal');
+    okBtn.textContent = opsi.okText || 'Ya, Lanjutkan';
+    batalBtn.style.display = opsi.alertOnly ? 'none' : 'block';
+    document.getElementById('modal-konfirmasi').classList.add('open');
+    function selesai(hasil) {
+      document.getElementById('modal-konfirmasi').classList.remove('open');
+      okBtn.onclick = null; batalBtn.onclick = null;
+      resolve(hasil);
+    }
+    okBtn.onclick = () => selesai(true);
+    batalBtn.onclick = () => selesai(false);
+  });
+}
+function tampilkanInfo(pesan, opsi) {
+  opsi = opsi || {};
+  return konfirmasi(pesan, { ...opsi, alertOnly: true, okText: opsi.okText || 'OK' });
+}
+document.getElementById('modal-konfirmasi').addEventListener('click', function(e) {
+  if (e.target === this) document.getElementById('konf-batal').click();
+});
 
 function goBack() {
   if (document.referrer && document.referrer.includes(location.host)) {
@@ -350,7 +397,7 @@ async function expireOrderOtomatis(orderId) {
 // BATALKAN PESANAN
 // ════════════════════════════════════════
 async function batalkanPesanan(orderId) {
-  if (!confirm('Yakin ingin membatalkan pesanan ini? Tindakan ini tidak bisa dibatalkan.')) return;
+  if (!(await konfirmasi('Yakin ingin membatalkan pesanan ini? Tindakan ini tidak bisa dibatalkan.', {icon:'🚫'}))) return;
 
   const btn  = document.getElementById('btn-batal');
   const spin = document.getElementById('spin-batal');
@@ -384,13 +431,13 @@ async function batalkanPesanan(orderId) {
         </div>`;
       document.getElementById('auto-detected').innerHTML = '';
     } else {
-      alert(d.message || 'Gagal membatalkan pesanan.');
+      await tampilkanInfo(d.message || 'Gagal membatalkan pesanan.', {icon:'❌'});
       if (btn) btn.disabled = false;
       if (spin) spin.style.display = 'none';
       if (txt) txt.textContent = 'Batalkan Pesanan';
     }
   } catch (e) {
-    alert('Gagal terhubung ke server.');
+    await tampilkanInfo('Gagal terhubung ke server.', {icon:'❌'});
     if (btn) btn.disabled = false;
     if (spin) spin.style.display = 'none';
     if (txt) txt.textContent = 'Batalkan Pesanan';
@@ -430,13 +477,13 @@ async function generateTokenBaru(orderId, btn, spin, icon, txt) {
     const r = await fetch(`${API}/midtrans/order/${orderId}/regenerate-token`, { method: 'POST' });
     const d = await r.json();
     if (d.status !== 'ok') {
-      alert(d.message || 'Gagal membuat ulang link pembayaran.');
+      await tampilkanInfo(d.message || 'Gagal membuat ulang link pembayaran.', {icon:'❌'});
       resetBtn(btn, spin, icon, txt);
       return;
     }
     bukaSnap(d.snap_token, orderId, btn, spin, icon, txt);
   } catch (e) {
-    alert('Gagal terhubung ke server.');
+    await tampilkanInfo('Gagal terhubung ke server.', {icon:'❌'});
     resetBtn(btn, spin, icon, txt);
   }
 }
