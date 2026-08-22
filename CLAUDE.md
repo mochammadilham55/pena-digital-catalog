@@ -267,6 +267,14 @@ Tidak ada state management library. Semua state disimpan di:
 
 ---
 
+## 📤 Upload Foto Produk ke Cloudinary (2026-08-20)
+
+`admin.html` (form "Tambah Produk" & modal "Edit Produk") sekarang punya tombol **Upload** di samping field "URL Foto Produk" — admin bisa upload file gambar langsung, tidak perlu lagi upload manual ke dashboard Cloudinary lalu tempel URL.
+
+**Cara kerja (signed upload)**: browser minta signature sekali-pakai ke `GET /api/public/cloudinary/signature` (admin-only, pakai `x-admin-secret`) → backend hitung signature pakai `CLOUDINARY_API_SECRET` (di server, **tidak pernah** dikirim ke browser) → browser upload file **langsung ke Cloudinary** (bukan lewat backend kita, supaya tidak kena batas payload Vercel) pakai signature itu → URL hasil upload (`secure_url`) otomatis mengisi field & preview. Upload dikunci ke folder `penadigital/produk` di Cloudinary (bagian dari parameter yang di-sign, tidak bisa diarahkan ke folder lain). Fungsi JS: `uploadFoto(fileInput, urlInputId, previewId, btnId)`.
+
+Kalau `CLOUDINARY_API_KEY`/`CLOUDINARY_API_SECRET` belum di-set di env Vercel backend, tombol Upload akan gagal dengan pesan error yang jelas (bukan diam-diam gagal) — field URL manual tetap berfungsi seperti biasa sebagai fallback.
+
 ## 🔍 SEO (2026-08-20)
 
 Target kata kunci: nama brand ("pena digital", "pena digital store"), istilah umum ("perangkat ajar", "modul ajar", "rpp", "lkpd"), dan istilah niche dari nama produk aktual ("deep learning", "KBC", kode CP seperti "CP 046"/"CP 026").
