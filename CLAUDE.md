@@ -228,6 +228,7 @@ status_aksi     TEXT    -- diupdate ke 'TERKIRIM' saat pembeli ambil link sendir
 - Frontend kirim sebagai header: `x-admin-secret: <password>`
 - Session disimpan di `sessionStorage` browser (hilang saat tab ditutup)
 - Tidak ada JWT atau sistem token — simpel intentional karena single-user
+- **Catatan (2026-08-24)**: `pena-digital-frontend` (dashboard admin internal, repo terpisah) sekarang punya sistem login multi-user penuh (email/WA + sandi + OTP + approval + JWT) — lihat CLAUDE.md root §1.18. Middleware `adminAuth` di backend jadi dual-mode (dipindah ke `src/middleware/adminAuth.js`), tapi **3 halaman admin di repo `pena-digital-catalog` ini TIDAK berubah sama sekali** — tetap pakai `x-admin-secret` seperti di atas, karena masih cocok untuk kebutuhan single-user toko publik.
 
 ---
 
