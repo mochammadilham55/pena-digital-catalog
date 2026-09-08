@@ -78,6 +78,9 @@ pena-digital-catalog/
 ├── tnc.html            # Syarat & Ketentuan (wajib Midtrans)
 ├── refund.html         # Kebijakan pengembalian dana (wajib Midtrans)
 │
+├── insight.html        # Admin: insight website (pengunjung + penjualan)
+├── lacak.js            # Pelacakan pengunjung, dipakai bersama halaman toko
+│
 ├── manifest.json       # PWA manifest
 ├── sw.js               # Service Worker (PWA)
 ├── icon-192.png        # Ikon PWA 192x192
@@ -111,6 +114,7 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 | POST | `/midtrans/order/:order_id/regenerate-token` | Buat ulang Snap token yang expired |
 | GET | `/midtrans/config` | Ambil client key Midtrans |
 | GET | `/maintenance` | Status mode maintenance saat ini `{cari,beli}` |
+| POST | `/lacak` | Catat kunjungan / klik produk / detak kehadiran (dipanggil `lacak.js`) |
 
 ### Endpoint Admin (butuh header `x-admin-secret`)
 
@@ -128,6 +132,7 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 | PUT | `/referral/:id` | Edit kode referral |
 | DELETE | `/referral/:id` | Hapus kode referral |
 | PUT | `/maintenance` | Ubah mode maintenance `{cari,beli}` |
+| GET | `/statistik?hari=N` | Statistik pengunjung untuk `insight.html` |
 
 ---
 
@@ -252,6 +257,7 @@ Tidak ada state management library. Semua state disimpan di:
 | Order ID terakhir | `localStorage` | `pd_last_order` |
 | WA pembeli terakhir | `localStorage` | `pd_customer_wa` |
 | Session admin | `sessionStorage` | `pd_admin_secret` |
+| Id pengunjung (acak) | `localStorage` | `pd_visitor_id` |
 
 **Format `pd_cart`:**
 ```json

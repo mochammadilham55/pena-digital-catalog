@@ -3,1081 +3,1107 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Katalog — PenaDigital</title>
-<link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg">
+<title>Kelola Produk — Admin Pena Digital</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --navy:#1B3A6B;--navy2:#2A4F8F;--orange:#E07B2A;--orange2:#F5A040;
-  --cream:#F5EFE6;--cream2:#EDE4D6;--white:#fff;
-  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
-  --g500:#64748B;--g700:#334155;
-  --green:#16A34A;--green-bg:#DCFCE7;
-  --red:#DC2626;--red-bg:#FEE2E2;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;}
+  :root{
+    --navy: #1B3A6B;
+    --navy-dark: #12294D;
+    --navy-tint: #E8EDF5;
+    --orange: #E07B2A;
+    --orange-dark: #B9631E;
+    --orange-tint: #FBEADC;
+    --cream: #F5EFE6;
+    --surface: #FFFFFF;
+    --surface-alt: #FAF7F1;
+    --line: #E7E1D3;
+    --ink: #24211B;
+    --ink-soft: #6B6459;
+    --ink-faint: #96907F;
+    --success: #1E7A4C;
+    --success-bg: #E6F3EC;
+    --amber: #A9670F;
+    --amber-bg: #FBF0DD;
+    --red: #B3392C;
+    --red-bg: #FAEBE8;
+    --radius-s: 8px;
+    --radius-m: 12px;
+    --radius-l: 18px;
+    --shadow: 0 1px 2px rgba(27,58,107,0.05), 0 6px 20px rgba(27,58,107,0.08);
+    --sidebar-w: 232px;
+  }
 
-/* ── LOGIN ── */
-#login-screen{
-  display:flex;align-items:center;justify-content:center;
-  min-height:100vh;padding:20px;
-}
-.login-box{
-  background:var(--white);border-radius:16px;padding:36px 28px;
-  max-width:340px;width:100%;
-  box-shadow:0 8px 32px rgba(27,58,107,.12);
-  border:1px solid var(--cream2);
-  text-align:center;
-}
-.login-logo{
-  width:56px;height:56px;background:var(--cream);border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 16px;
-}
-.login-logo svg{width:32px;height:32px;}
-.login-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.login-sub{font-size:13px;color:var(--g500);margin-bottom:24px;}
-.field-label{font-size:12px;font-weight:700;color:var(--navy);text-align:left;margin-bottom:6px;display:block;}
-.field-input{
-  width:100%;padding:12px 14px;
-  border:2px solid var(--g200);border-radius:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;color:var(--navy);background:var(--g50);
-  outline:none;transition:border-color .2s,box-shadow .2s;
-}
-.field-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(224,123,42,.12);}
-.btn-login{
-  width:100%;margin-top:20px;padding:13px;
-  background:var(--orange);color:#fff;
-  border:none;border-radius:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:15px;font-weight:700;cursor:pointer;
-  transition:background .15s;
-}
-.btn-login:hover{background:#C96E1F;}
-#login-err{color:var(--red);font-size:12px;margin-top:8px;display:none;}
+  /* ── Layar login ──────────────────────────────────────────────
+     Halaman ini mengendalikan katalog toko, jadi wajib terkunci.
+     Autentikasi memakai ADMIN_SECRET lewat header x-admin-secret,
+     sama seperti versi sebelumnya (tersimpan di sessionStorage,
+     hilang saat tab ditutup). */
+  #loginScreen{
+    position:fixed; inset:0; z-index:200; background:var(--cream);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  #loginScreen.hidden{display:none;}
+  .login-card{
+    width:100%; max-width:340px; background:var(--surface);
+    border:1px solid var(--line); border-radius:var(--radius-l);
+    padding:26px 22px; box-shadow:var(--shadow);
+  }
+  .login-mark{
+    width:40px; height:40px; border-radius:11px; background:var(--navy);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--cream); font-weight:800; font-size:15px; margin:0 auto 14px;
+  }
+  .login-card h1{margin:0 0 4px; font-size:17px; font-weight:800; color:var(--navy-dark); text-align:center;}
+  .login-card p{margin:0 0 18px; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+  .login-card input{
+    width:100%; height:42px; padding:0 12px; margin-bottom:10px;
+    border:1.5px solid var(--line); border-radius:var(--radius-s);
+    background:var(--surface-alt); font-family:inherit; font-size:13.5px; color:var(--ink);
+  }
+  .login-card input:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .login-card input.err{border-color:#E3A79C; background:var(--red-bg);}
+  .login-err{font-size:12px; color:var(--red); margin:0 0 10px; display:none;}
+  .login-err.show{display:block;}
 
-/* ── MAIN APP ── */
-#app-screen{display:none;}
+  /* ── Kartu mode pemeliharaan ─────────────────────────────────
+     Mematikan sementara fitur "cek pesanan" dan "beli" di toko
+     tanpa perlu deploy ulang. */
+  .maint-card{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius-m); padding:16px; margin-bottom:16px;
+  }
+  .maint-card h2{margin:0 0 3px; font-size:13.5px; font-weight:800; color:var(--navy-dark);}
+  .maint-card > p{margin:0 0 12px; font-size:12px; color:var(--ink-soft);}
+  .maint-card .toggle-row + .toggle-row{margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    background:var(--cream); color:var(--ink); -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  a{color:inherit;}
+  :focus-visible{outline:2.5px solid var(--orange); outline-offset:2px;}
+  .tabular{font-variant-numeric:tabular-nums;}
 
-header{
-  background:var(--navy);padding:14px 20px;
-  display:flex;align-items:center;gap:10px;
-  position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 12px rgba(0,0,0,.2);
-}
-.logo-box{
-  width:38px;height:38px;background:var(--cream);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.logo-box svg{width:24px;height:24px;}
-.brand-name{font-size:16px;font-weight:800;color:#fff;}
-.brand-badge{
-  font-size:10px;font-weight:700;
-  background:var(--orange);color:#fff;
-  padding:2px 8px;border-radius:5px;margin-left:6px;
-}
-.header-spacer{flex:1;}
-.btn-logout{
-  font-size:11px;font-weight:700;color:rgba(255,255,255,.6);
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
-  border-radius:6px;padding:5px 10px;cursor:pointer;transition:all .15s;
-}
-.btn-logout:hover{color:#fff;border-color:rgba(255,255,255,.35);}
-.admin-nav{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-/* Mobile: header jadi 2 baris — logo+brand di atas, nav full-width & bisa
-   wrap di bawah, supaya SEMUA tombol nav selalu terjangkau (tidak terpotong). */
-@media(max-width:560px){
-  header{flex-wrap:wrap;row-gap:10px;}
-  .header-spacer{display:none;}
-  .admin-nav{width:100%;flex-wrap:wrap;justify-content:flex-start;}
-}
+  /* ================= Layout shell ================= */
+  .app{display:flex; min-height:100vh;}
 
-.main{max-width:600px;margin:0 auto;padding:24px 16px 60px;}
+  /* ---- Sidebar ---- */
+  .admin-sidebar{
+    width:var(--sidebar-w); flex-shrink:0; background:var(--navy-dark); color:#fff;
+    display:flex; flex-direction:column; position:fixed; top:0; bottom:0; left:0;
+    transform:translateX(-100%); transition:transform .22s ease; z-index:80;
+  }
+  .admin-sidebar.open{transform:translateX(0);}
+  .sb-brand{
+    display:flex; align-items:center; gap:10px; padding:18px 18px 16px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  .sb-brand .mark{
+    width:32px; height:32px; border-radius:9px; background:var(--orange);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0;
+  }
+  .sb-brand .txt strong{display:block; font-size:13.5px; font-weight:700;}
+  .sb-brand .txt span{display:block; font-size:11px; color:#9FB0CC;}
+  .sb-nav{flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px;}
+  .sb-link{
+    display:flex; align-items:center; gap:10px; padding:10px 11px; border-radius:9px;
+    font-size:13.5px; font-weight:600; color:#C7D3E8; text-decoration:none;
+  }
+  .sb-link svg{flex-shrink:0; opacity:0.85;}
+  .sb-link:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .sb-link.active{background:rgba(255,255,255,0.1); color:#fff;}
+  .sb-link.active svg{opacity:1;}
+  .sb-foot{padding:12px 10px 16px; border-top:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:2px;}
 
-/* ── TAMBAH PRODUK ── */
-.add-card{
-  background:var(--white);border-radius:14px;padding:22px 20px;
-  border:1px solid var(--cream2);
-  box-shadow:0 2px 12px rgba(27,58,107,.06);
-  margin-bottom:24px;
-}
-.card-title{
-  font-size:13px;font-weight:800;color:var(--navy);
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:18px;
-  display:flex;align-items:center;gap:8px;
-}
-.card-title::before{content:'';width:3px;height:14px;background:var(--orange);border-radius:2px;display:inline-block;}
+  .sidebar-overlay{
+    position:fixed; inset:0; background:rgba(18,41,77,0.4); z-index:70;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .sidebar-overlay.open{opacity:1; pointer-events:auto;}
 
-/* ── MODE MAINTENANCE ── */
-.maint-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--cream2);}
-.maint-row:last-child{border-bottom:none;}
-.maint-label{font-size:14px;font-weight:700;color:var(--navy);}
-.maint-desc{font-size:11px;color:var(--g500);margin-top:2px;}
-.maint-switch{position:relative;width:46px;height:26px;border-radius:20px;background:var(--g300);border:none;cursor:pointer;transition:background .2s;flex-shrink:0;}
-.maint-switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
-.maint-switch.on{background:var(--orange);}
-.maint-switch.on::after{transform:translateX(20px);}
+  /* ---- Main column ---- */
+  .admin-main{flex:1; min-width:0;}
+  .admin-topbar{
+    position:sticky; top:0; z-index:30; background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:12px; padding:0 18px; height:58px;
+  }
+  .sb-toggle{
+    width:36px; height:36px; border-radius:9px; border:none; background:none; color:var(--navy);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .sb-toggle:hover{background:var(--navy-tint);}
+  .topbar-title{font-size:14.5px; font-weight:700; color:var(--navy-dark);}
 
-.form-group{margin-bottom:14px;}
-.form-label{font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px;}
-.form-input,.form-textarea{
-  width:100%;padding:11px 13px;
-  border:1.5px solid var(--g200);border-radius:9px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:13px;color:var(--g700);background:var(--g50);
-  outline:none;transition:border-color .2s,box-shadow .2s;
-}
-.form-input:focus,.form-textarea:focus{
-  border-color:var(--orange);box-shadow:0 0 0 3px rgba(224,123,42,.1);
-}
-.form-hint{font-size:11px;color:var(--g500);margin-top:4px;}
+  .admin-content{padding:20px 18px 60px; max-width:1180px;}
 
-/* preview foto */
-.foto-preview{
-  width:80px;height:80px;border-radius:8px;overflow:hidden;
-  border:2px solid var(--g200);background:var(--g100);
-  display:flex;align-items:center;justify-content:center;
-  margin-top:8px;flex-shrink:0;
-}
-.foto-preview img{width:100%;height:100%;object-fit:cover;}
-.foto-preview svg{width:24px;height:24px;color:var(--g300);}
+  .page-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; flex-wrap:wrap;
+  }
+  .page-head h1{margin:0 0 3px; font-size:19px; font-weight:800; letter-spacing:-0.01em; color:var(--navy-dark);}
+  .page-head p{margin:0; font-size:12.5px; color:var(--ink-soft);}
+  .btn-primary{
+    display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 15px;
+    background:var(--orange); color:#fff; border:none; border-radius:var(--radius-s);
+    font-weight:700; font-size:13px; cursor:pointer; flex-shrink:0; white-space:nowrap;
+  }
+  .btn-primary:hover{background:var(--orange-dark);}
+  .btn-ghost{
+    height:38px; padding:0 15px; background:var(--surface); color:var(--ink); border:1.5px solid var(--line);
+    border-radius:var(--radius-s); font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .btn-ghost:hover{border-color:var(--navy);}
 
-.btn-upload-foto{
-  padding:0 14px;background:var(--g100);color:var(--navy);
-  border:1.5px solid var(--g200);border-radius:9px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:background .15s;flex-shrink:0;
-  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;
-}
-.btn-upload-foto:hover{background:var(--cream);border-color:var(--cream2);}
-.btn-upload-foto:disabled{opacity:.6;cursor:not-allowed;}
-.btn-upload-foto svg{width:15px;height:15px;flex-shrink:0;}
+  /* ---- Toolbar ---- */
+  .toolbar{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:14px;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:8px; height:38px; padding:0 12px; border-radius:9px;
+    background:var(--surface); border:1.5px solid var(--line); min-width:200px; flex:1; max-width:280px;
+  }
+  .search-box input{border:none; outline:none; background:none; flex:1; font-size:13px; font-family:inherit; color:var(--ink);}
+  .search-box svg{color:var(--ink-faint); flex-shrink:0;}
+  .status-chips{display:flex; gap:6px;}
+  .schip{
+    height:38px; padding:0 13px; border-radius:9px; border:1.5px solid var(--line); background:var(--surface);
+    color:var(--ink); font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+  .schip.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .schip:hover:not(.active){border-color:var(--navy);}
 
-.btn-hapus-foto{
-  width:38px;flex-shrink:0;background:var(--red-bg);color:var(--red);
-  border:1.5px solid var(--red-bg);border-radius:9px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:background .15s;
-}
-.btn-hapus-foto:hover{background:#FCA5A5;}
-.btn-hapus-foto:disabled{opacity:.6;cursor:not-allowed;}
-.btn-hapus-foto svg{width:15px;height:15px;flex-shrink:0;}
 
-.upload-progress-wrap{width:100%;height:6px;background:var(--g200);border-radius:4px;overflow:hidden;margin-top:8px;display:none;}
-.upload-progress-wrap.show{display:block;}
-.upload-progress-bar{height:100%;background:var(--orange);border-radius:4px;width:0%;transition:width .15s;}
+  /* ---- Product table ---- */
+  .table-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;
+  }
+  table.ptable{width:100%; border-collapse:collapse;}
+  .ptable thead th{
+    text-align:left; font-size:11px; font-weight:700; color:var(--ink-faint);
+    padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap;
+  }
+  .ptable tbody td{padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:middle; font-size:13px;}
+  .ptable tbody tr:last-child td{border-bottom:none;}
+  .ptable tbody tr:hover{background:var(--surface-alt);}
 
-.btn-tambah{
-  width:100%;padding:12px;
-  background:var(--orange);color:#fff;
-  border:none;border-radius:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:background .15s;margin-top:4px;
-}
-.btn-tambah:hover{background:#C96E1F;}
-.btn-tambah:disabled{background:var(--g300);cursor:not-allowed;}
+  .row-thumb{width:44px; height:44px; border-radius:8px; overflow:hidden; flex-shrink:0; background:var(--navy-tint);}
+  .row-thumb svg, .row-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .row-name-cell{display:flex; align-items:center; gap:10px; min-width:260px;}
+  .row-name{font-weight:700; font-size:12.5px; line-height:1.35; max-width:340px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .row-sub{font-size:11px; color:var(--ink-soft); margin-top:2px;}
 
-/* ── DAFTAR PRODUK ── */
-.list-header{
-  font-size:13px;font-weight:800;color:var(--navy);
-  text-transform:uppercase;letter-spacing:.6px;
-  margin-bottom:14px;
-  display:flex;align-items:center;gap:8px;
-}
-.list-header::before{content:'';width:3px;height:14px;background:var(--orange);border-radius:2px;display:inline-block;}
-.list-count{
-  font-size:11px;font-weight:700;color:var(--g500);
-  background:var(--g100);padding:2px 8px;border-radius:5px;
-}
+  .variasi-badge{
+    display:inline-flex; align-items:center; font-size:11.5px; font-weight:600; color:var(--navy);
+    background:var(--navy-tint); padding:3px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .price-cell{font-weight:700; color:var(--ink);}
+  .price-cell.contact{color:var(--ink-soft); font-weight:600; font-size:12px;}
 
-.produk-list-item{
-  background:var(--white);border-radius:12px;
-  border:1px solid var(--cream2);
-  padding:14px;margin-bottom:10px;
-  display:flex;align-items:center;gap:12px;
-}
-.item-thumb{
-  width:56px;height:56px;border-radius:8px;
-  overflow:hidden;flex-shrink:0;
-  background:var(--g100);
-  display:flex;align-items:center;justify-content:center;
-}
-.item-thumb img{width:100%;height:100%;object-fit:cover;}
-.item-thumb svg{width:20px;height:20px;color:var(--g300);}
-.item-info{flex:1;min-width:0;}
-.item-nama{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.item-link{font-size:11px;color:var(--g500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.item-order{font-size:10px;color:var(--g500);margin-top:2px;}
-.item-badge{
-  display:inline-block;font-size:10px;font-weight:700;
-  padding:2px 7px;border-radius:4px;margin-top:3px;
-}
-.badge-aktif{background:var(--green-bg);color:var(--green);}
-.badge-nonaktif{background:var(--red-bg);color:var(--red);}
-.item-actions{display:flex;gap:6px;flex-shrink:0;}
-.btn-edit,.btn-del,.btn-toggle{
-  width:32px;height:32px;border-radius:7px;
-  border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
-}
-.btn-edit{background:var(--g100);color:var(--navy);}
-.btn-edit:hover{background:var(--g200);}
-.btn-del{background:var(--red-bg);color:var(--red);}
-.btn-del:hover{background:#FCA5A5;}
-.btn-toggle{background:var(--green-bg);color:var(--green);}
-.btn-toggle.off{background:var(--g100);color:var(--g500);}
+  .status-toggle{
+    position:relative; width:38px; height:22px; border-radius:999px; background:var(--line);
+    border:none; cursor:pointer; flex-shrink:0;
+  }
+  .status-toggle::after{
+    content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%;
+    background:#fff; transition:transform .15s ease; box-shadow:0 1px 2px rgba(0,0,0,0.2);
+  }
+  .status-toggle.on{background:var(--success);}
+  .status-toggle.on::after{transform:translateX(16px);}
 
-/* ── MODAL EDIT ── */
-.modal-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.5);z-index:200;
-  align-items:center;justify-content:center;padding:20px;
-}
-.modal-overlay.open{display:flex;}
-.modal{
-  background:var(--white);border-radius:16px;
-  width:100%;max-width:440px;
-  max-height:90vh;overflow-y:auto;
-  padding:24px 22px;
-}
-.modal-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;}
-.modal-btns{display:flex;gap:10px;margin-top:20px;}
-.btn-modal-save{
-  flex:1;padding:12px;background:var(--orange);color:#fff;
-  border:none;border-radius:9px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;
-}
-.btn-modal-save:hover{background:#C96E1F;}
-.btn-modal-cancel{
-  padding:12px 16px;background:var(--g100);color:var(--g700);
-  border:none;border-radius:9px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;
-}
-.btn-modal-cancel:hover{background:var(--g200);}
+  .row-actions{display:flex; gap:4px; justify-content:flex-end;}
+  .icon-action{
+    width:30px; height:30px; border-radius:8px; border:none; background:none; color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .icon-action:hover{background:var(--navy-tint); color:var(--navy);}
+  .icon-action.danger:hover{background:var(--red-bg); color:var(--red);}
 
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  background:var(--navy);color:#fff;
-  font-size:13px;font-weight:700;
-  padding:10px 20px;border-radius:10px;
-  white-space:nowrap;
-  opacity:0;transition:opacity .25s;
-  z-index:999;pointer-events:none;
-}
-#toast.show{opacity:1;}
+  .skel{background:linear-gradient(90deg, #EDE7DA 25%, #F5F1E8 37%, #EDE7DA 63%); background-size:400% 100%; animation:shimmer 1.4s ease infinite;}
+  @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
+  .skel-thumb{width:44px; height:44px; border-radius:8px;}
+  .skel-line{height:10px; border-radius:5px;}
 
-/* ── EMPTY ── */
-.empty-state{
-  text-align:center;padding:36px 20px;
-  color:var(--g500);font-size:13px;
-}
+  .table-empty, .table-error{padding:52px 20px; text-align:center;}
+  .table-empty .ic, .table-error .ic{color:var(--ink-faint); margin-bottom:10px; display:flex; justify-content:center;}
+  .table-error .ic{color:var(--red);}
+  .table-empty h3, .table-error h3{margin:0 0 4px; font-size:14px; font-weight:700;}
+  .table-empty p, .table-error p{margin:0 auto 14px; font-size:12.5px; color:var(--ink-soft); max-width:34ch;}
 
-/* ── SPINNER ── */
-.spin{
-  width:16px;height:16px;
-  border:2.5px solid rgba(255,255,255,.35);
-  border-top-color:#fff;border-radius:50%;
-  animation:spin .6s linear infinite;display:none;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){ .skel{animation:none;} }
+
+  /* ================= Drawer ================= */
+  .drawer-overlay{
+    position:fixed; inset:0; background:rgba(18,41,77,0.42); z-index:90;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .drawer-overlay.open{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; bottom:0; width:460px; max-width:94vw; background:var(--surface);
+    z-index:95; transform:translateX(100%); transition:transform .25s ease;
+    display:flex; flex-direction:column; box-shadow:-8px 0 28px rgba(18,41,77,0.18);
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    display:flex; align-items:center; gap:10px; padding:16px 18px; border-bottom:1px solid var(--line); flex-shrink:0;
+  }
+  .drawer-head h2{flex:1; margin:0; font-size:15.5px; font-weight:800; color:var(--navy-dark);}
+  .drawer-body{flex:1; overflow-y:auto; padding:18px;}
+  .drawer-foot{
+    display:flex; align-items:center; gap:10px; padding:14px 18px; border-top:1px solid var(--line); flex-shrink:0;
+  }
+
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:6px;}
+  .field .hint{font-size:11px; color:var(--ink-faint); margin-top:5px; line-height:1.4;}
+  .field input[type=text], .field input[type=url], .field input[type=number], .field textarea{
+    width:100%; border:1.5px solid var(--line); border-radius:var(--radius-s); background:var(--surface-alt);
+    padding:9px 11px; font-size:13px; font-family:inherit; color:var(--ink); resize:vertical;
+  }
+  .field input:focus, .field textarea:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .field textarea{min-height:76px;}
+  .checkbox-row{display:flex; align-items:center; gap:8px; margin-top:8px;}
+  .checkbox-row input{width:16px; height:16px; accent-color:var(--navy);}
+  .checkbox-row label{font-size:12.5px; font-weight:600; color:var(--ink-soft); margin:0;}
+
+  .dropzone{
+    border:1.5px dashed var(--line); border-radius:var(--radius-m); padding:18px; text-align:center;
+    background:var(--surface-alt); cursor:pointer;
+  }
+  .dropzone:hover{border-color:var(--navy);}
+  .dropzone svg{color:var(--ink-faint); margin-bottom:6px;}
+  .dropzone .dz-title{font-size:12.5px; font-weight:700; color:var(--ink);}
+  .dropzone .dz-sub{font-size:11px; color:var(--ink-faint); margin-top:2px;}
+  .dropzone.has-preview{padding:10px; display:flex; align-items:center; gap:10px; text-align:left;}
+  .dz-preview-thumb{width:54px; height:54px; border-radius:8px; overflow:hidden; flex-shrink:0; background:var(--navy-tint);}
+  .dz-preview-thumb svg{width:100%; height:100%;}
+  .dz-preview-info{flex:1; min-width:0;}
+  .dz-preview-info b{display:block; font-size:12px; font-weight:700;}
+  .dz-preview-info span{display:block; font-size:11px; color:var(--ink-faint);}
+  .dz-remove{border:none; background:none; color:var(--red); font-size:11.5px; font-weight:700; cursor:pointer; flex-shrink:0;}
+
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:11px 12px; background:var(--surface-alt); border:1px solid var(--line); border-radius:var(--radius-s);
+    margin-bottom:14px;
+  }
+  .toggle-row .tr-label{font-size:12.5px; font-weight:700;}
+  .toggle-row .tr-sub{font-size:11px; color:var(--ink-faint); margin-top:1px;}
+  .switch{
+    position:relative; width:38px; height:22px; border-radius:999px; background:var(--line); border:none; cursor:pointer; flex-shrink:0;
+  }
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .15s ease; box-shadow:0 1px 2px rgba(0,0,0,0.2);}
+  .switch.on{background:var(--navy);}
+  .switch.on::after{transform:translateX(16px);}
+
+  .variasi-section{border-top:1px dashed var(--line); padding-top:14px; margin-top:2px;}
+  .tier-block{margin-bottom:14px;}
+  .tier-block label{display:block; font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .chip-input-row{
+    display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px; border:1.5px solid var(--line);
+    border-radius:var(--radius-s); background:var(--surface-alt);
+  }
+  .opt-chip{
+    display:flex; align-items:center; gap:5px; background:#fff; border:1px solid var(--line); border-radius:7px;
+    padding:4px 4px 4px 9px; font-size:12px; font-weight:600;
+  }
+  .opt-chip button{border:none; background:none; color:var(--ink-faint); cursor:pointer; width:18px; height:18px; display:flex; align-items:center; justify-content:center; border-radius:5px;}
+  .opt-chip button:hover{background:var(--red-bg); color:var(--red);}
+  .chip-add-input{border:none; outline:none; background:none; font-size:12px; font-family:inherit; flex:1; min-width:80px; padding:4px 2px;}
+
+  .combo-table{margin-top:6px; border:1px solid var(--line); border-radius:var(--radius-s); overflow:hidden;}
+  .combo-row{
+    display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line); background:#fff;
+  }
+  .combo-row:last-child{border-bottom:none;}
+  .combo-label{flex:0 0 34%; font-size:12px; font-weight:600; color:var(--ink);}
+  .combo-row input[type=text]{
+    flex:1; min-width:0; height:30px; padding:0 8px; font-size:11.5px; border:1.5px solid var(--line);
+    border-radius:6px; background:var(--surface-alt); font-family:inherit;
+  }
+  .combo-habis-btn{
+    flex-shrink:0; height:30px; padding:0 10px; border-radius:6px; border:1.5px solid var(--line);
+    background:#fff; font-size:11px; font-weight:700; color:var(--ink-soft); cursor:pointer;
+  }
+  .combo-habis-btn.active{background:var(--red-bg); border-color:#EBCFC8; color:var(--red);}
+
+  /* ---- Delete confirm modal ---- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(18,41,77,0.45); z-index:110;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .18s ease;
+  }
+  .modal-overlay.open{opacity:1; pointer-events:auto;}
+  .confirm-modal{
+    background:#fff; border-radius:var(--radius-l); padding:22px; max-width:340px; width:100%;
+    text-align:center; box-shadow:0 20px 50px rgba(18,41,77,0.25);
+  }
+  .confirm-modal .ic{
+    width:44px; height:44px; border-radius:50%; background:var(--red-bg); color:var(--red);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
+  }
+  .confirm-modal h3{margin:0 0 6px; font-size:14.5px; font-weight:800;}
+  .confirm-modal p{margin:0 0 18px; font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
+  .confirm-actions{display:flex; gap:8px;}
+  .confirm-actions button{flex:1; height:38px; border-radius:9px; font-size:12.5px; font-weight:700; cursor:pointer;}
+  .confirm-cancel{background:#fff; border:1.5px solid var(--line); color:var(--ink);}
+  .confirm-delete{background:var(--red); border:none; color:#fff;}
+
+  /* ---- Toast ---- */
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--navy-dark); color:#fff; padding:12px 18px; border-radius:10px; font-size:12.5px; font-weight:600;
+    display:flex; align-items:center; gap:8px; z-index:120; opacity:0; pointer-events:none; transition:all .2s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast svg{color:#7CD9A0; flex-shrink:0;}
+
+  /* ================= Desktop ================= */
+  @media (min-width:900px){
+    .admin-sidebar{transform:translateX(0);}
+    .admin-main{margin-left:var(--sidebar-w);}
+    .sb-toggle{display:none;}
+    .sidebar-overlay{display:none;}
+    .admin-content{padding:26px 30px 60px;}
+    .page-head h1{font-size:22px;}
+  }
 </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══ -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <img src="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg" alt="PenaDigital" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="login-title">Admin PenaDigital</div>
-    <div class="login-sub">Kelola katalog produk toko</div>
-    <label class="field-label" for="pw-input">Password</label>
-    <input id="pw-input" class="field-input" type="password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn-login" onclick="doLogin()">Masuk</button>
-    <div id="login-err">Password salah. Coba lagi.</div>
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-mark">PD</div>
+    <h1>Panel Admin</h1>
+    <p>Masukkan kata sandi admin untuk melanjutkan.</p>
+    <input type="password" id="loginPw" placeholder="Kata sandi admin" autocomplete="current-password">
+    <p class="login-err" id="loginErr">Kata sandi salah. Coba lagi.</p>
+    <button class="btn-primary" style="width:100%; justify-content:center;" onclick="doLogin()">Masuk</button>
   </div>
 </div>
 
-<!-- ══ APP ══ -->
-<div id="app-screen">
-  <header>
-    <div class="logo-box">
-      <img src="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg" alt="PenaDigital" style="width:100%;height:100%;object-fit:cover;">
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <div class="sidebar-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sb-brand">
+      <span class="mark">PD</span>
+      <span class="txt"><strong>Pena Digital</strong><span>Panel Admin</span></span>
     </div>
-    <span class="brand-name">PenaDigital <span class="brand-badge">ADMIN</span></span>
-    <div class="header-spacer"></div>
-    <nav class="admin-nav">
-      <a href="index.html" class="btn-logout" style="text-decoration:none;display:flex;align-items:center;gap:5px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Beranda
+    <nav class="sb-nav">
+      <a class="sb-link" href="insight.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8 13 13.7l-3-3L6.3 14.4"/></svg>
+        Insight
       </a>
-      <a href="orders.html" class="btn-logout" style="text-decoration:none;">Pesanan</a>
-      <a href="referral.html" class="btn-logout" style="text-decoration:none;">Referral</a>
-      <button class="btn-logout" onclick="logout()">Keluar</button>
+      <a class="sb-link active" href="admin.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        Produk
+      </a>
+      <a class="sb-link" href="orders.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        Pesanan
+      </a>
+      <a class="sb-link" href="referral.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7"/><path d="M22 7H2v5h20V7Z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C10 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C14 2 12 7 12 7Z"/></svg>
+        Referral
+      </a>
     </nav>
-  </header>
-
-  <div class="main">
-
-    <!-- MODE MAINTENANCE -->
-    <div class="add-card" id="maint-card">
-      <div class="card-title">Mode Maintenance</div>
-      <div class="form-hint" style="margin-bottom:14px;">Aktifkan sementara saat fitur terkait sedang diperbaiki. Pembeli akan diarahkan ke halaman maintenance dan tidak bisa lanjut.</div>
-      <div class="maint-row">
-        <div>
-          <div class="maint-label">Cek Pesanan (tombol "Cari")</div>
-          <div class="maint-desc">Fitur cek link pesanan Shopee di halaman utama</div>
-        </div>
-        <button class="maint-switch" id="sw-cari" onclick="toggleMaintenance('cari')" title="Toggle maintenance Cek Pesanan"></button>
-      </div>
-      <div class="maint-row">
-        <div>
-          <div class="maint-label">Beli Sekarang / Checkout</div>
-          <div class="maint-desc">Tombol "Beli Sekarang" dan proses pembayaran Midtrans</div>
-        </div>
-        <button class="maint-switch" id="sw-beli" onclick="toggleMaintenance('beli')" title="Toggle maintenance Beli Sekarang"></button>
-      </div>
-    </div>
-
-    <!-- TAMBAH PRODUK -->
-    <div class="add-card">
-      <div class="card-title">Tambah Produk</div>
-
-      <div class="form-group">
-        <label class="form-label">Nama Produk *</label>
-        <input id="f-nama" class="form-input" type="text" placeholder="contoh: PAG Matematika Kelas 7">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Foto Produk *</label>
-        <div style="display:flex;gap:8px;">
-          <button type="button" class="btn-upload-foto" id="f-foto-btn" onclick="document.getElementById('f-foto-file').click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Upload Foto
-          </button>
-          <input type="file" id="f-foto-file" accept="image/*" style="display:none;" onchange="uploadFoto(this,'f-foto','prev-foto','f-foto-btn')">
-          <button type="button" class="btn-hapus-foto" onclick="hapusFotoInput('f-foto','prev-foto')" title="Hapus foto">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-          </button>
-          <input type="hidden" id="f-foto">
-        </div>
-        <div class="upload-progress-wrap" id="f-foto-progress-wrap"><div class="upload-progress-bar" id="f-foto-progress-bar"></div></div>
-        <div class="form-hint">Foto otomatis di-upload ke Cloudinary (maks. 1MB), tidak perlu isi link manual</div>
-        <div class="foto-preview" id="prev-foto">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Harga (Rp) *</label>
-        <input id="f-harga" class="form-input" type="number" placeholder="contoh: 35000" min="0" style="max-width:200px;">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Deskripsi Produk</label>
-        <textarea id="f-deskripsi" class="form-input" rows="3" placeholder="Jelaskan isi produk, cocok untuk kelas berapa, kurikulum apa, dsb..."></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Variasi Produk</label>
-        <div class="form-hint" style="margin-bottom:8px;">Contoh: Dimensi 1 = "Mapel" dengan opsi "Matematika, IPA, IPS". Dimensi 2 = "Kelas" dengan opsi "7, 8, 9"</div>
-        <div id="variasi-builder"></div>
-        <button type="button" onclick="tambahDimensi()" style="margin-top:8px;padding:7px 14px;background:var(--g100);color:var(--navy);border:1.5px dashed var(--g300);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
-          + Tambah Dimensi Variasi
-        </button>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Tandai Stok Habis (Opsional)</label>
-        <div class="form-hint" style="margin-bottom:6px;">
-          Tulis kombinasi yang habis, pisahkan dengan koma. Format: gabungkan opsi dengan tanda "-" sesuai urutan dimensi.<br>
-          Contoh: jika variasi 1 = "IPA" dan variasi 2 = "7" maka tulis <strong>IPA-7</strong>. Untuk lebih dari satu: <strong>IPA-7, Matematika-9</strong>
-        </div>
-        <input id="f-stok-habis" class="form-input" type="text" placeholder="contoh: IPA-7, Matematika-9">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Link Contoh Isi Produk (Opsional)</label>
-        <input id="f-contoh" class="form-input" type="url" placeholder="https://drive.google.com/file/d/... (Word/PPT)">
-        <div class="form-hint">Link Google Drive file Word atau PPT untuk preview pembeli</div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Link CO (Shopee / Lynk.id) — Opsional</label>
-        <input id="f-link" class="form-input" type="url" placeholder="https://shopee.co.id/... atau https://lynk.id/...">
-        <div class="form-hint">Link alternatif jika pembeli ingin order via marketplace</div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Urutan Tampil</label>
-        <input id="f-urutan" class="form-input" type="number" value="0" min="0" style="max-width:120px;">
-        <div class="form-hint">Angka lebih kecil = tampil lebih dulu</div>
-      </div>
-
-      <button class="btn-tambah" id="btn-tambah" onclick="tambahProduk()">
-        <div class="spin" id="spin-tambah"></div>
-        <svg id="icon-tambah" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Tambah Produk
+    <div class="sb-foot">
+      <a class="sb-link" href="index.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        Lihat Toko
+      </a>
+      <button class="sb-link" style="background:none; border:none; cursor:pointer; text-align:left; width:100%;" onclick="logout()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+        Keluar
       </button>
     </div>
+  </aside>
 
-    <!-- DAFTAR PRODUK -->
-    <div class="list-header">
-      Daftar Produk
-      <span class="list-count" id="list-count">0 produk</span>
-    </div>
-    <div id="produk-list"><div class="empty-state">Memuat...</div></div>
-
-  </div>
-</div>
-
-<!-- ══ MODAL EDIT ══ -->
-<div class="modal-overlay" id="modal-edit">
-  <div class="modal">
-    <div class="modal-title">Edit Produk</div>
-    <input type="hidden" id="e-id">
-    <div class="form-group">
-      <label class="form-label">Nama Produk *</label>
-      <input id="e-nama" class="form-input" type="text">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Foto Produk *</label>
-      <div style="display:flex;gap:8px;">
-        <button type="button" class="btn-upload-foto" id="e-foto-btn" onclick="document.getElementById('e-foto-file').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Upload Foto
-        </button>
-        <input type="file" id="e-foto-file" accept="image/*" style="display:none;" onchange="uploadFoto(this,'e-foto','e-prev-foto','e-foto-btn')">
-        <button type="button" class="btn-hapus-foto" onclick="hapusFotoInput('e-foto','e-prev-foto')" title="Hapus foto">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-        </button>
-        <input type="hidden" id="e-foto">
-      </div>
-      <div class="upload-progress-wrap" id="e-foto-progress-wrap"><div class="upload-progress-bar" id="e-foto-progress-bar"></div></div>
-      <div class="form-hint">Foto otomatis di-upload ke Cloudinary (maks. 1MB), tidak perlu isi link manual</div>
-      <div class="foto-preview" id="e-prev-foto">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Harga (Rp) *</label>
-      <input id="e-harga" class="form-input" type="number" min="0" style="max-width:200px;">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Deskripsi Produk</label>
-      <textarea id="e-deskripsi" class="form-input" rows="3"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Variasi Produk</label>
-      <div class="form-hint" style="margin-bottom:8px;">Contoh: Dimensi 1 = "Mapel" dengan opsi "Matematika, IPA, IPS". Dimensi 2 = "Kelas" dengan opsi "7, 8, 9"</div>
-      <div id="e-variasi-builder"></div>
-      <button type="button" onclick="tambahDimensiEdit()" style="margin-top:8px;padding:7px 14px;background:var(--g100);color:var(--navy);border:1.5px dashed var(--g300);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
-        + Tambah Dimensi Variasi
+  <!-- ============ MAIN ============ -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <button class="sb-toggle" onclick="toggleSidebar()" aria-label="Buka menu">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
+      <span class="topbar-title">Panel Admin</span>
     </div>
-    <div class="form-group">
-      <label class="form-label">Tandai Stok Habis (Opsional)</label>
-      <div class="form-hint" style="margin-bottom:6px;">
-        Tulis kombinasi yang habis, pisahkan dengan koma. Format: gabungkan opsi dengan tanda "-".<br>
-        Contoh: <strong>IPA-7, Matematika-9</strong>
+
+    <div class="admin-content">
+      <div class="page-head">
+        <div>
+          <h1>Kelola Produk</h1>
+          <p><span id="activeCount">6</span> dari <span id="totalCount">7</span> produk sedang aktif di katalog</p>
+        </div>
+        <button class="btn-primary" onclick="openDrawer()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Tambah Produk
+        </button>
       </div>
-      <input id="e-stok-habis" class="form-input" type="text" placeholder="contoh: IPA-7, Matematika-9">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Link Contoh Isi Produk (Opsional)</label>
-      <input id="e-contoh" class="form-input" type="url" placeholder="https://drive.google.com/file/d/... (Word/PPT)">
-      <div class="form-hint">Link Google Drive file Word atau PPT untuk preview pembeli</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Link CO (Shopee / Lynk.id) — Opsional</label>
-      <input id="e-link" class="form-input" type="url">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Urutan</label>
-      <input id="e-urutan" class="form-input" type="number" min="0" style="max-width:120px;">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Status</label>
-      <select id="e-aktif" class="form-input" style="max-width:160px;">
-        <option value="true">Aktif (tampil)</option>
-        <option value="false">Nonaktif (sembunyi)</option>
-      </select>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-modal-cancel" onclick="tutupModal()">Batal</button>
-      <button class="btn-modal-save" onclick="simpanEdit()">Simpan</button>
+
+      <div class="maint-card">
+        <h2>Mode Pemeliharaan</h2>
+        <p>Matikan sementara fitur di toko tanpa perlu deploy ulang. Pengunjung akan diarahkan ke halaman pemberitahuan.</p>
+        <div class="toggle-row">
+          <div>
+            <div class="tr-label">Matikan fitur "Cek Pesanan"</div>
+            <div class="tr-sub">Pembeli tidak bisa mengambil link pesanan dari beranda</div>
+          </div>
+          <button class="switch" id="swCari" onclick="toggleMaintenance('cari')"></button>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="tr-label">Matikan fitur "Beli"</div>
+            <div class="tr-sub">Checkout ditutup, pembeli tidak bisa membuat pesanan baru</div>
+          </div>
+          <button class="switch" id="swBeli" onclick="toggleMaintenance('beli')"></button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Cari nama produk..." oninput="applyTableFilter(currentStatusFilter)">
+        </div>
+        <div class="status-chips" id="statusChips">
+          <button class="schip active" data-f="all">Semua</button>
+          <button class="schip" data-f="active">Aktif</button>
+          <button class="schip" data-f="inactive">Nonaktif</button>
+        </div>
+      </div>
+
+
+      <div class="table-card">
+        <table class="ptable">
+          <thead>
+            <tr>
+              <th style="width:60px;"></th>
+              <th>Nama Produk</th>
+              <th>Variasi</th>
+              <th>Harga</th>
+              <th>Status</th>
+              <th style="text-align:right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody"><!-- filled by JS --></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══ MODAL KONFIRMASI (pengganti confirm()/alert() bawaan Chrome) ══ -->
-<div class="modal-overlay" id="modal-konfirmasi">
-  <div class="modal" style="max-width:340px;text-align:center;">
-    <div id="konf-icon" style="font-size:32px;margin-bottom:10px;">⚠️</div>
-    <div id="konf-pesan" style="font-size:14px;color:var(--g700);line-height:1.6;white-space:pre-line;margin-bottom:20px;"></div>
-    <div style="display:flex;gap:10px;">
-      <button type="button" id="konf-batal" class="btn-modal-cancel" style="flex:1;">Batal</button>
-      <button type="button" id="konf-ok" class="btn-modal-save" style="flex:1;">Ya, Lanjutkan</button>
+<!-- ============ ADD/EDIT DRAWER ============ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawerPanel" aria-hidden="true">
+  <div class="drawer-head">
+    <h2 id="drawerTitle">Tambah Produk</h2>
+    <button class="icon-action" onclick="closeDrawer()" aria-label="Tutup">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+
+    <div class="field">
+      <label for="fName">Nama Produk</label>
+      <input type="text" id="fName" placeholder="Contoh: Modul Ajar Matematika Kelas 7">
+    </div>
+
+    <div class="field">
+      <label for="fPrice">Harga</label>
+      <input type="number" id="fPrice" placeholder="25000" min="0">
+      <div class="checkbox-row">
+        <input type="checkbox" id="fNoPrice" onchange="document.getElementById('fPrice').disabled=this.checked;">
+        <label for="fNoPrice">Kosongkan harga — tampilkan "Hubungi Admin" di katalog</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fDesc">Deskripsi Produk</label>
+      <textarea id="fDesc" placeholder="Jelaskan isi produk, jumlah halaman, format file, dsb."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Foto Produk</label>
+      <div class="dropzone" id="dropzone" onclick="pilihFoto()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V8a2 2 0 0 0-2-2h-3l-2-2h-4L8 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6"/><circle cx="10.5" cy="11.5" r="3"/><path d="M17 20v-4M15 18h4"/></svg>
+        <div class="dz-title">Klik atau seret foto ke sini</div>
+        <div class="dz-sub">Maks 1MB · rasio bebas</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fPreviewLink">Link Contoh (Google Drive)</label>
+      <input type="url" id="fPreviewLink" placeholder="https://drive.google.com/...">
+      <p class="hint">Ditampilkan sebagai preview di tombol "Lihat Contoh Isi Produk" pada halaman produk.</p>
+    </div>
+
+    <div class="field">
+      <label for="fUrutan">Urutan Tampil</label>
+      <input type="number" id="fUrutan" placeholder="0" min="0">
+      <p class="hint">Angka lebih kecil tampil lebih dulu di katalog.</p>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="tr-label">Produk aktif</div>
+        <div class="tr-sub">Nonaktifkan untuk menyembunyikan dari katalog tanpa menghapus data</div>
+      </div>
+      <button class="switch on" id="fActiveSwitch" onclick="this.classList.toggle('on')"></button>
+    </div>
+
+    <div class="variasi-section">
+      <div class="toggle-row" style="margin-bottom:14px;">
+        <div>
+          <div class="tr-label">Produk memiliki variasi</div>
+          <div class="tr-sub">Contoh: pilih Mapel, lalu Kelas — tiap kombinasi punya link sendiri</div>
+        </div>
+        <button class="switch on" id="fVariasiSwitch" onclick="toggleVariasi()"></button>
+      </div>
+
+      <div id="variasiBuilder">
+        <div class="tier-block">
+          <label>Nama Tingkat 1</label>
+          <input type="text" id="tier1Name" value="Mapel" style="margin-bottom:8px;">
+          <div class="chip-input-row" id="tier1Chips">
+            <input type="text" class="chip-add-input" placeholder="Ketik opsi, tekan Enter" onkeydown="addChip(event,'tier1')">
+          </div>
+        </div>
+        <div class="tier-block">
+          <label>Nama Tingkat 2 <span style="font-weight:500; color:var(--ink-faint);">(opsional)</span></label>
+          <input type="text" id="tier2Name" value="Kelas" style="margin-bottom:8px;">
+          <div class="chip-input-row" id="tier2Chips">
+            <input type="text" class="chip-add-input" placeholder="Ketik opsi, tekan Enter" onkeydown="addChip(event,'tier2')">
+          </div>
+        </div>
+        <div class="tier-block">
+          <label>Kombinasi &amp; Ketersediaan Stok</label>
+          <p class="hint" style="margin:0 0 8px;">Tandai kombinasi yang sedang habis — pembeli tidak bisa memilihnya di halaman produk. Link Google Drive tiap kombinasi diatur di dashboard admin terpisah, bukan di sini.</p>
+          <div class="combo-table" id="comboTable"><!-- diisi JS --></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="drawer-foot">
+    <button class="btn-ghost" style="color:var(--red); border-color:#EBCFC8;" id="deleteTrigger" onclick="openDeleteConfirm()">Hapus Produk</button>
+    <span style="flex:1;"></span>
+    <button class="btn-ghost" onclick="closeDrawer()">Batal</button>
+    <button class="btn-primary" onclick="saveProduct()">Simpan Produk</button>
+  </div>
+</aside>
+
+<!-- ============ DELETE CONFIRM MODAL ============ -->
+<div class="modal-overlay" id="deleteOverlay">
+  <div class="confirm-modal">
+    <div class="ic">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+    </div>
+    <h3>Hapus produk ini?</h3>
+    <p>Produk akan hilang dari katalog dan tidak bisa dikembalikan. Pesanan yang sudah masuk sebelumnya tidak terpengaruh.</p>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" onclick="closeDeleteConfirm()">Batalkan</button>
+      <button class="confirm-delete" onclick="confirmDelete()">Ya, Hapus</button>
     </div>
   </div>
 </div>
 
-<div id="toast"></div>
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastMsg">Produk disimpan</span>
+</div>
 
 <script>
-// ════════════════════════════════════════
-// KONFIGURASI
-// ════════════════════════════════════════
+/* ================= Sample data ================= */
+const LEVEL_ACCENT = { sd:{fg:'#1B3A6B',bg:'#E8EDF5'}, smp:{fg:'#B9631E',bg:'#FBEADC'}, sma:{fg:'#12294D',bg:'#EAE4D6'} };
+function docThumbSVG(level){
+  const c = LEVEL_ACCENT[level] || LEVEL_ACCENT.sd;
+  return `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><rect width="44" height="44" fill="${c.bg}"/><rect x="14" y="6" width="18" height="24" rx="2" fill="#fff" stroke="${c.fg}" stroke-width="1.2"/><rect x="17" y="11" width="12" height="2" rx="1" fill="${c.fg}" opacity="0.55"/><rect x="17" y="16" width="9" height="1.6" rx="0.8" fill="${c.fg}" opacity="0.3"/><rect x="17" y="20" width="10" height="1.6" rx="0.8" fill="${c.fg}" opacity="0.3"/></svg>`;
+}
+/* ════════════════════════════════════════════════════════════════
+   SAMBUNGAN KE BACKEND — KELOLA PRODUK KATALOG
+   Autentikasi memakai ADMIN_SECRET (header x-admin-secret), disimpan
+   di sessionStorage supaya hilang saat tab ditutup.
+   ════════════════════════════════════════════════════════════════ */
 const API = 'https://pena-digital-backend.vercel.app/api/public';
-const LOCAL_KEY = 'pd_admin_secret';
+const KUNCI_SESI = 'pd_admin_secret';
+let SECRET = sessionStorage.getItem(KUNCI_SESI) || '';
 
-// ════════════════════════════════════════
-// AUTH
-// ════════════════════════════════════════
-let SECRET = '';
+const fmtRp = n => 'Rp' + Number(n||0).toLocaleString('id-ID');
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
-function doLogin() {
-  const pw = document.getElementById('pw-input').value.trim();
-  if (!pw) return;
-  // Test koneksi dengan secret ini
-  SECRET = pw;
-  fetch(`${API}/katalog/all`, { headers: { 'x-admin-secret': pw } })
-    .then(r => {
-      if (r.status === 401) throw new Error('unauthorized');
-      return r.json();
-    })
-    .then(d => {
-      if (d.status === 'ok') {
-        sessionStorage.setItem(LOCAL_KEY, pw);
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-screen').style.display = 'block';
-        renderList(d.data || []);
-        loadMaintenance();
-      } else { throw new Error('failed'); }
-    })
-    .catch(() => {
-      SECRET = '';
-      document.getElementById('login-err').style.display = 'block';
-    });
+const ICON_BOX   = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>`;
+const ICON_ALERT = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a1.6 1.6 0 0 0 1.4 2.4h17.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+
+let PRODUCTS = [];
+
+/* Jenjang tidak disimpan di database — disimpulkan dari nama produk,
+   hanya untuk memilih warna gambar cadangan & label baris. */
+function tebakJenjang(nama){
+  const n = ' ' + String(nama||'').toUpperCase() + ' ';
+  if (/[^A-Z](SMA|MAK|SMK)[^A-Z]/.test(n) || /[^A-Z]MA[^A-Z]/.test(n)) return 'sma';
+  if (/[^A-Z](SMP|MTS)[^A-Z]/.test(n)) return 'smp';
+  if (/[^A-Z](SD|MI)[^A-Z]/.test(n))  return 'sd';
+  return 'sd';
+}
+function jsonAman(v, fallback){
+  if (v == null) return fallback;
+  if (typeof v === 'string') { try { return JSON.parse(v || 'null') ?? fallback; } catch { return fallback; } }
+  return v;
+}
+async function apiAdmin(path, opts){
+  opts = opts || {};
+  opts.headers = { ...(opts.headers||{}), 'x-admin-secret': SECRET };
+  return fetch(`${API}${path}`, opts);
 }
 
-function logout() {
-  sessionStorage.removeItem(LOCAL_KEY);
-  SECRET = '';
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('pw-input').value = '';
+/* ── Login ──────────────────────────────────────────────────── */
+function tampilkanApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  muatSemua();
 }
-
-// Auto-login jika session masih ada
-window.addEventListener('load', () => {
-  const saved = sessionStorage.getItem(LOCAL_KEY);
-  if (saved) {
-    SECRET = saved;
-    loadList();
+async function doLogin(){
+  const inp = document.getElementById('loginPw');
+  const err = document.getElementById('loginErr');
+  const pw  = inp.value.trim();
+  err.classList.remove('show'); inp.classList.remove('err');
+  if(!pw){ inp.classList.add('err'); inp.focus(); return; }
+  try {
+    const r = await fetch(`${API}/katalog/all`, { headers: { 'x-admin-secret': pw } });
+    if(!r.ok){ err.textContent = 'Kata sandi salah. Coba lagi.'; err.classList.add('show'); inp.classList.add('err'); return; }
+    SECRET = pw;
+    sessionStorage.setItem(KUNCI_SESI, pw);
+    tampilkanApp();
+  } catch {
+    err.textContent = 'Tidak bisa terhubung ke server. Periksa koneksi internet.';
+    err.classList.add('show');
   }
+}
+function logout(){
+  sessionStorage.removeItem(KUNCI_SESI);
+  location.reload();
+}
+document.getElementById('loginPw').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+
+/* ── Mode pemeliharaan ──────────────────────────────────────── */
+let maintenance = { cari:false, beli:false };
+async function muatMaintenance(){
+  try {
+    const d = await (await fetch(`${API}/maintenance`)).json();
+    maintenance = { cari: !!d.cari, beli: !!d.beli };
+  } catch { maintenance = { cari:false, beli:false }; }
+  renderMaintenance();
+}
+function renderMaintenance(){
+  document.getElementById('swCari').classList.toggle('on', maintenance.cari);
+  document.getElementById('swBeli').classList.toggle('on', maintenance.beli);
+}
+async function toggleMaintenance(kunci){
+  const nilaiBaru = { ...maintenance, [kunci]: !maintenance[kunci] };
+  try {
+    const r = await apiAdmin('/maintenance', {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(nilaiBaru)
+    });
+    if(!r.ok) throw new Error();
+    maintenance = nilaiBaru;
+    renderMaintenance();
+    showToast(nilaiBaru[kunci] ? `Fitur "${kunci}" dimatikan` : `Fitur "${kunci}" diaktifkan lagi`);
+  } catch { showToast('Gagal mengubah mode pemeliharaan'); }
+}
+
+/* ── Tabel produk ───────────────────────────────────────────── */
+let currentStatusFilter = 'all';
+
+function rowHTML(p){
+  const dim = jsonAman(p.variasi_config, []);
+  const variasiLabel = dim.length === 0 ? 'Tanpa variasi' : dim.length === 1 ? '1 tingkat' : dim.length + ' tingkat';
+  const price = p.harga
+    ? `<span class="price-cell tabular">${fmtRp(p.harga)}</span>`
+    : `<span class="price-cell contact">Hubungi Admin</span>`;
+  const jenjang = tebakJenjang(p.nama);
+  const thumb = p.foto_url
+    ? `<img src="${esc(p.foto_url)}" alt="" loading="lazy" onerror="this.closest('.row-thumb').innerHTML='${escA(docThumbSVG(jenjang))}'">`
+    : docThumbSVG(jenjang);
+  return `
+    <tr data-active="${!!p.aktif}">
+      <td><div class="row-thumb">${thumb}</div></td>
+      <td>
+        <div class="row-name">${esc(p.nama)}</div>
+        <div class="row-sub">${({sd:'SD',smp:'SMP',sma:'SMA'})[jenjang]} · urutan ${p.urutan ?? 0}</div>
+      </td>
+      <td><span class="variasi-badge">${variasiLabel}</span></td>
+      <td>${price}</td>
+      <td><button class="status-toggle ${p.aktif ? 'on' : ''}" onclick="toggleAktif(${p.id})" aria-label="Status aktif"></button></td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-action" onclick="openDrawer(${p.id})" aria-label="Edit">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="icon-action danger" onclick="openDeleteConfirm(${p.id})" aria-label="Hapus">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function skeletonRow(){
+  return `
+    <tr>
+      <td><div class="row-thumb skel skel-thumb"></div></td>
+      <td><div class="skel skel-line" style="width:70%; margin-bottom:6px;"></div><div class="skel skel-line" style="width:30%;"></div></td>
+      <td><div class="skel skel-line" style="width:60px;"></div></td>
+      <td><div class="skel skel-line" style="width:70px;"></div></td>
+      <td><div class="skel skel-line" style="width:38px; border-radius:999px;"></div></td>
+      <td></td>
+    </tr>`;
+}
+
+function emptyRowHTML(){
+  return `<tr><td colspan="6"><div class="table-empty"><div class="ic">${ICON_BOX}</div><h3>Belum ada produk</h3><p>Tambahkan produk pertama untuk mulai tampil di katalog.</p><button class="btn-primary" onclick="openDrawer()">Tambah Produk</button></div></td></tr>`;
+}
+
+function applyTableFilter(filter){
+  currentStatusFilter = filter;
+  const cari = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  let list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => filter === 'active' ? p.aktif : !p.aktif);
+  if (cari) list = list.filter(p => String(p.nama||'').toLowerCase().includes(cari));
+  const body = document.getElementById('productTableBody');
+  body.innerHTML = list.length ? list.map(rowHTML).join('') : emptyRowHTML();
+  updateActiveCount();
+}
+
+function renderTableState(state){
+  const body = document.getElementById('productTableBody');
+  if(state === 'loading')      body.innerHTML = Array(5).fill(skeletonRow()).join('');
+  else if(state === 'empty')   body.innerHTML = emptyRowHTML();
+  else if(state === 'error')   body.innerHTML = `<tr><td colspan="6"><div class="table-error"><div class="ic">${ICON_ALERT}</div><h3>Gagal memuat daftar produk</h3><p>Periksa koneksi internetmu, lalu coba lagi.</p><button class="btn-ghost" onclick="muatProduk()">Coba Lagi</button></div></td></tr>`;
+  else                         applyTableFilter(currentStatusFilter);
+}
+
+function updateActiveCount(){
+  document.getElementById('activeCount').textContent = PRODUCTS.filter(p => p.aktif).length;
+  document.getElementById('totalCount').textContent  = PRODUCTS.length;
+}
+
+async function muatProduk(){
+  renderTableState('loading');
+  try {
+    const r = await apiAdmin('/katalog/all');
+    if(r.status === 401){ sessionStorage.removeItem(KUNCI_SESI); location.reload(); return; }
+    const d = await r.json();
+    PRODUCTS = (d.data || []).slice().sort((a,b) => (a.urutan??0) - (b.urutan??0));
+    if(!PRODUCTS.length){ renderTableState('empty'); updateActiveCount(); return; }
+    applyTableFilter(currentStatusFilter);
+  } catch { renderTableState('error'); }
+}
+
+async function muatSemua(){ await Promise.all([muatProduk(), muatMaintenance()]); }
+
+document.getElementById('statusChips').addEventListener('click', e => {
+  const b = e.target.closest('.schip');
+  if(!b) return;
+  document.querySelectorAll('.schip').forEach(c => c.classList.remove('active'));
+  b.classList.add('active');
+  applyTableFilter(b.dataset.f);
 });
 
-// ════════════════════════════════════════
-// LOAD LIST
-// ════════════════════════════════════════
-async function loadList() {
+/* ── Aktif / nonaktif langsung dari tabel ───────────────────── */
+async function toggleAktif(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  if(!p) return;
+  const aktifBaru = !p.aktif;
   try {
-    const r = await fetch(`${API}/katalog/all`, { headers: { 'x-admin-secret': SECRET } });
-    if (r.status === 401) { logout(); return; }
-    const d = await r.json();
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'block';
-    renderList(d.data || []);
-    loadMaintenance();
-  } catch {
-    toast('Gagal memuat data. Coba refresh.', true);
+    const r = await apiAdmin(`/katalog/${id}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ...bodyProduk(p), aktif: aktifBaru })
+    });
+    if(!r.ok) throw new Error();
+    p.aktif = aktifBaru;
+    applyTableFilter(currentStatusFilter);
+    showToast(aktifBaru ? 'Produk diaktifkan' : 'Produk dinonaktifkan');
+  } catch { showToast('Gagal mengubah status produk'); }
+}
+
+/* Susun payload lengkap — backend memakai PUT yang menimpa seluruh baris,
+   jadi field yang tidak ada di form (mis. link_co) harus ikut dikirim ulang
+   apa adanya supaya tidak terhapus. */
+function bodyProduk(p){
+  return {
+    nama: p.nama, foto_url: p.foto_url, link_co: p.link_co ?? '',
+    harga: p.harga, deskripsi: p.deskripsi, variasi_config: p.variasi_config,
+    link_contoh: p.link_contoh, urutan: p.urutan ?? 0, stok_habis: p.stok_habis
+  };
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+function toggleSidebar(){
+  document.getElementById('adminSidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('open');
+}
+
+/* ── Pembuat variasi ────────────────────────────────────────── */
+let tierData  = { tier1: [], tier2: [] };
+let stokHabis = [];   // daftar kombinasi yang ditandai habis
+
+function renderChips(tier){
+  const wrap  = document.getElementById(tier + 'Chips');
+  const input = wrap.querySelector('.chip-add-input');
+  wrap.querySelectorAll('.opt-chip').forEach(c => c.remove());
+  tierData[tier].forEach((opt, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'opt-chip';
+    chip.innerHTML = `${esc(opt)} <button onclick="removeChip('${tier}',${i})" aria-label="Hapus">×</button>`;
+    wrap.insertBefore(chip, input);
+  });
+  renderComboTable();
+}
+function addChip(e, tier){
+  if(e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = e.target.value.trim();
+  if(val && !tierData[tier].includes(val)){ tierData[tier].push(val); e.target.value=''; renderChips(tier); }
+}
+function removeChip(tier, i){ tierData[tier].splice(i,1); renderChips(tier); }
+
+/* Kunci kombinasi memakai format yang sama dengan halaman produk:
+   dua tingkat digabung "opsi1-opsi2", satu tingkat cukup opsinya saja. */
+function kunciKombinasi(a, b){ return b == null ? a : `${a}-${b}`; }
+
+function renderComboTable(){
+  const el = document.getElementById('comboTable');
+  const t1 = tierData.tier1, t2 = tierData.tier2;
+  const combos = [];
+  if(t1.length && t2.length) t1.forEach(a => t2.forEach(b => combos.push({ label:`${a}, ${b}`, key:kunciKombinasi(a,b) })));
+  else if(t1.length)         t1.forEach(a => combos.push({ label:a, key:kunciKombinasi(a) }));
+
+  el.innerHTML = combos.length
+    ? combos.map(c => {
+        const habis = stokHabis.includes(c.key);
+        return `
+        <div class="combo-row">
+          <span class="combo-label">${esc(c.label)}</span>
+          <button class="combo-habis-btn ${habis ? 'active' : ''}" onclick="toggleStok('${escA(c.key)}', this)">${habis ? 'Habis' : 'Tersedia'}</button>
+        </div>`;
+      }).join('')
+    : `<div style="padding:14px; font-size:12px; color:var(--ink-faint); text-align:center;">Tambahkan opsi di atas untuk membuat kombinasi.</div>`;
+}
+function toggleStok(key, btn){
+  const i = stokHabis.indexOf(key);
+  if(i >= 0) stokHabis.splice(i,1); else stokHabis.push(key);
+  const habis = i < 0;
+  btn.classList.toggle('active', habis);
+  btn.textContent = habis ? 'Habis' : 'Tersedia';
+}
+
+function toggleVariasi(){
+  const on = document.getElementById('fVariasiSwitch').classList.toggle('on');
+  document.getElementById('variasiBuilder').style.display = on ? 'block' : 'none';
+}
+
+/* ── Drawer tambah/edit ─────────────────────────────────────── */
+let editingId = null;
+let fotoUrlSaatIni = '';
+let linkCoSaatIni  = '';
+
+function openDrawer(id){
+  editingId = id || null;
+  const p = id ? PRODUCTS.find(x => x.id === id) : null;
+
+  document.getElementById('drawerTitle').textContent = p ? 'Edit Produk' : 'Tambah Produk';
+  document.getElementById('deleteTrigger').style.display = p ? 'inline-flex' : 'none';
+  document.getElementById('fName').value        = p ? (p.nama || '') : '';
+  document.getElementById('fPrice').value       = p && p.harga ? p.harga : '';
+  document.getElementById('fNoPrice').checked   = !!(p && !p.harga);
+  document.getElementById('fPrice').disabled    = !!(p && !p.harga);
+  document.getElementById('fDesc').value        = p ? (p.deskripsi || '') : '';
+  document.getElementById('fPreviewLink').value = p ? (p.link_contoh || '') : '';
+  document.getElementById('fUrutan').value      = p ? (p.urutan ?? 0) : 0;
+  document.getElementById('fActiveSwitch').classList.toggle('on', p ? !!p.aktif : true);
+
+  fotoUrlSaatIni = p ? (p.foto_url || '') : '';
+  linkCoSaatIni  = p ? (p.link_co  || '') : '';
+  renderDropzone();
+
+  const dim = jsonAman(p?.variasi_config, []);
+  tierData  = { tier1: (dim[0]?.opsi || []).slice(), tier2: (dim[1]?.opsi || []).slice() };
+  stokHabis = jsonAman(p?.stok_habis, []).slice();
+  document.getElementById('tier1Name').value = dim[0]?.nama || 'Mapel';
+  document.getElementById('tier2Name').value = dim[1]?.nama || 'Kelas';
+
+  const adaVariasi = dim.length > 0 || !p;
+  document.getElementById('fVariasiSwitch').classList.toggle('on', adaVariasi);
+  document.getElementById('variasiBuilder').style.display = adaVariasi ? 'block' : 'none';
+  renderChips('tier1'); renderChips('tier2');
+
+  document.getElementById('drawerPanel').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawerPanel').setAttribute('aria-hidden','false');
+}
+function closeDrawer(){
+  document.getElementById('drawerPanel').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawerPanel').setAttribute('aria-hidden','true');
+}
+
+function getVariasiConfig(){
+  if(!document.getElementById('fVariasiSwitch').classList.contains('on')) return [];
+  const conf = [];
+  const n1 = document.getElementById('tier1Name').value.trim() || 'Pilihan';
+  const n2 = document.getElementById('tier2Name').value.trim();
+  if(tierData.tier1.length) conf.push({ nama:n1, opsi:tierData.tier1.slice() });
+  if(tierData.tier2.length && n2) conf.push({ nama:n2, opsi:tierData.tier2.slice() });
+  return conf;
+}
+
+async function saveProduct(){
+  const nama = document.getElementById('fName').value.trim();
+  if(!nama){ showToast('Nama produk wajib diisi'); return; }
+
+  const tanpaHarga = document.getElementById('fNoPrice').checked;
+  const body = {
+    nama,
+    foto_url:       fotoUrlSaatIni,
+    link_co:        linkCoSaatIni,
+    harga:          tanpaHarga ? null : (parseInt(document.getElementById('fPrice').value) || null),
+    deskripsi:      document.getElementById('fDesc').value.trim(),
+    variasi_config: getVariasiConfig(),
+    link_contoh:    document.getElementById('fPreviewLink').value.trim(),
+    urutan:         parseInt(document.getElementById('fUrutan').value) || 0,
+    stok_habis:     stokHabis,
+    aktif:          document.getElementById('fActiveSwitch').classList.contains('on')
+  };
+
+  try {
+    const r = editingId
+      ? await apiAdmin(`/katalog/${editingId}`, { method:'PUT',  headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
+      : await apiAdmin('/katalog',             { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if(!r.ok) throw new Error();
+    closeDrawer();
+    showToast(editingId ? 'Perubahan disimpan' : 'Produk baru ditambahkan');
+    await muatProduk();
+  } catch { showToast('Gagal menyimpan produk'); }
+}
+
+/* ── Hapus produk ───────────────────────────────────────────── */
+let hapusId = null;
+function openDeleteConfirm(id){
+  hapusId = id || editingId;
+  document.getElementById('deleteOverlay').classList.add('open');
+}
+function closeDeleteConfirm(){ document.getElementById('deleteOverlay').classList.remove('open'); }
+async function confirmDelete(){
+  const id = hapusId;
+  closeDeleteConfirm();
+  if(!id) return;
+  const p = PRODUCTS.find(x => x.id === id);
+  try {
+    const r = await apiAdmin(`/katalog/${id}`, { method:'DELETE' });
+    if(!r.ok) throw new Error();
+    /* Foto di Cloudinary ikut dihapus supaya tidak menumpuk jadi sampah. */
+    if(p?.foto_url) hapusFotoCloudinary(p.foto_url);
+    closeDrawer();
+    showToast('Produk dihapus');
+    await muatProduk();
+  } catch { showToast('Gagal menghapus produk'); }
+}
+
+/* ── Foto: unggah langsung ke Cloudinary ────────────────────── */
+function renderDropzone(){
+  const dz = document.getElementById('dropzone');
+  if(fotoUrlSaatIni){
+    dz.innerHTML = `
+      <img src="${esc(fotoUrlSaatIni)}" alt="Foto produk" style="max-height:120px; border-radius:8px; margin:0 auto 8px; display:block;">
+      <div class="dz-sub">Klik untuk mengganti · <span style="color:var(--red); text-decoration:underline;" onclick="event.stopPropagation(); hapusFotoInput()">hapus foto</span></div>`;
+  } else {
+    dz.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V8a2 2 0 0 0-2-2h-3l-2-2h-4L8 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6"/><circle cx="10.5" cy="11.5" r="3"/><path d="M17 20v-4M15 18h4"/></svg>
+      <div class="dz-title">Klik atau seret foto ke sini</div>
+      <div class="dz-sub">Maks 1MB · rasio bebas</div>`;
   }
 }
 
-// ════════════════════════════════════════
-// MODE MAINTENANCE
-// ════════════════════════════════════════
-let maintState = { cari:false, beli:false };
-async function loadMaintenance() {
+/* Unggah lewat signed upload: server hanya memberi tanda tangan sekali-pakai,
+   berkasnya dikirim browser LANGSUNG ke Cloudinary (API Secret tidak pernah
+   sampai ke browser, dan berkas tidak membebani server kita). */
+function pilihFoto(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = () => { if(inp.files[0]) unggahFoto(inp.files[0]); };
+  inp.click();
+}
+async function unggahFoto(file){
+  if(file.size > 1024*1024){ showToast('Ukuran foto maksimal 1MB'); return; }
+  const dz = document.getElementById('dropzone');
+  dz.innerHTML = `<div class="dz-title">Mengunggah… 0%</div>`;
   try {
-    const r = await fetch(`${API}/maintenance`);
-    const d = await r.json();
-    if (d.status === 'ok') { maintState = { cari: !!d.cari, beli: !!d.beli }; renderMaintenance(); }
-  } catch { /* biarkan switch di posisi terakhir kalau gagal load */ }
-}
-function renderMaintenance() {
-  document.getElementById('sw-cari').classList.toggle('on', maintState.cari);
-  document.getElementById('sw-beli').classList.toggle('on', maintState.beli);
-}
-async function toggleMaintenance(kunci) {
-  const next = { ...maintState, [kunci]: !maintState[kunci] };
-  try {
-    const r = await fetch(`${API}/maintenance`, {
-      method:  'PUT',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify(next)
-    });
-    if (r.status === 401) { logout(); return; }
-    const d = await r.json();
-    if (d.status !== 'ok') throw new Error(d.message || 'Gagal update');
-    maintState = { cari: !!d.cari, beli: !!d.beli };
-    renderMaintenance();
-    toast(maintState[kunci] ? 'Mode maintenance diaktifkan' : 'Mode maintenance dimatikan');
-  } catch (e) { toast('Gagal ubah status: ' + e.message, true); }
-}
+    const sig = await (await apiAdmin('/cloudinary/signature')).json();
+    const form = new FormData();
+    form.append('file', file);
+    form.append('api_key',   sig.api_key);
+    form.append('timestamp', sig.timestamp);
+    form.append('signature', sig.signature);
+    form.append('folder',    sig.folder);
 
-function renderList(items) {
-  document.getElementById('list-count').textContent = `${items.length} produk`;
-  const el = document.getElementById('produk-list');
-  if (!items.length) { el.innerHTML = '<div class="empty-state">Belum ada produk. Tambahkan di atas.</div>'; return; }
-
-  el.innerHTML = items.map(p => `
-    <div class="produk-list-item" id="item-${p.id}">
-      <div class="item-thumb">
-        ${p.foto_url
-          ? `<img src="${toImgUrl(esc(p.foto_url))}" alt="${esc(p.nama)}" onerror="this.parentNode.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/></svg>'">`
-          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`
-        }
-      </div>
-      <div class="item-info">
-        <div class="item-nama">${esc(p.nama)}</div>
-        <div class="item-link">${esc(p.link_co)}</div>
-        <div class="item-order">Urutan: ${p.urutan}</div>
-        <span class="item-badge ${p.aktif ? 'badge-aktif' : 'badge-nonaktif'}">${p.aktif ? 'Aktif' : 'Nonaktif'}</span>
-      </div>
-      <div class="item-actions">
-        <button class="btn-toggle ${p.aktif ? '' : 'off'}" title="${p.aktif ? 'Nonaktifkan' : 'Aktifkan'}" onclick="toggleAktif(${p.id}, ${p.aktif}, ${JSON.stringify(p).replace(/"/g,'&quot;')})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="${p.aktif ? 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' : 'M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24'}"/>${p.aktif ? '<circle cx="12" cy="12" r="3"/>' : '<line x1="1" y1="1" x2="23" y2="23"/>'}</svg>
-        </button>
-        <button class="btn-edit" title="Edit" onclick="bukaEdit(${JSON.stringify(p).replace(/"/g,'&quot;')})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-        <button class="btn-del" title="Hapus" onclick="hapusProduk(${p.id}, '${escA(p.nama)}', '${escA(p.foto_url)}')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── Variasi builder ───────────────────────────────────────────────
-let variasiDims = [];
-
-function tambahDimensi() {
-  variasiDims.push({ nama: '', opsi: [] });
-  renderVariasiBuilder();
-}
-
-function hapusDimensi(idx) {
-  variasiDims.splice(idx, 1);
-  renderVariasiBuilder();
-}
-
-function renderVariasiBuilder() {
-  const container = document.getElementById('variasi-builder');
-  if (!container) return;
-  container.innerHTML = variasiDims.map((dim, i) => `
-    <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;padding:12px;margin-bottom:8px;">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <input class="form-input" style="flex:1;" type="text" placeholder="Nama dimensi (contoh: Mapel)"
-          value="${esc(dim.nama)}" oninput="variasiDims[${i}].nama=this.value">
-        <button type="button" onclick="hapusDimensi(${i})" style="padding:6px 10px;background:var(--red-bg);color:var(--red);border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:12px;">✕</button>
-      </div>
-      <div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;">OPSI (pisahkan dengan koma):</div>
-      <input class="form-input" type="text" placeholder="contoh: Matematika, IPA, IPS, B. Indonesia"
-        value="${esc((dim.opsi||[]).join(', '))}"
-        oninput="variasiDims[${i}].opsi=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
-    </div>
-  `).join('');
-}
-
-function getVariasiConfig() {
-  return variasiDims.filter(d => d.nama).map(d => ({ nama: d.nama, opsi: d.opsi }));
-}
-
-function resetVariasiBuilder() {
-  variasiDims = [];
-  renderVariasiBuilder();
-}
-
-// ════════════════════════════════════════
-// TAMBAH
-// ════════════════════════════════════════
-async function tambahProduk() {
-  const nama    = document.getElementById('f-nama').value.trim();
-  const foto    = document.getElementById('f-foto').value.trim();
-  const harga   = parseInt(document.getElementById('f-harga').value) || 0;
-  const deskripsi = document.getElementById('f-deskripsi').value.trim();
-  const link    = document.getElementById('f-link').value.trim();
-  const contoh  = document.getElementById('f-contoh').value.trim();
-  const urutan  = parseInt(document.getElementById('f-urutan').value) || 0;
-  const varConf = getVariasiConfig();
-  const stokHabisRaw = document.getElementById('f-stok-habis').value.trim();
-  const stokHabis = stokHabisRaw ? stokHabisRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
-
-  if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
-
-  setBtn('btn-tambah','spin-tambah','icon-tambah', true);
-  try {
-    const r = await fetch(`${API}/katalog`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan, stok_habis: stokHabis })
-    });
-    const d = await r.json();
-    if (d.status === 'ok') {
-      toast('Produk berhasil ditambahkan!');
-      ['f-nama','f-foto','f-harga','f-deskripsi','f-link','f-contoh','f-stok-habis'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      document.getElementById('f-urutan').value = '0';
-      document.getElementById('prev-foto').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>';
-      resetVariasiBuilder();
-      loadList();
-    } else { toast(d.message || 'Gagal.', true); }
-  } catch { toast('Kesalahan jaringan.', true); }
-  finally { setBtn('btn-tambah','spin-tambah','icon-tambah', false); }
-}
-
-// ════════════════════════════════════════
-// EDIT
-// ════════════════════════════════════════
-// ── Variasi builder untuk MODAL EDIT (terpisah dari form tambah) ──
-let editVariasiDims = [];
-
-function tambahDimensiEdit() {
-  editVariasiDims.push({ nama: '', opsi: [] });
-  renderVariasiBuilderEdit();
-}
-
-function hapusDimensiEdit(idx) {
-  editVariasiDims.splice(idx, 1);
-  renderVariasiBuilderEdit();
-}
-
-function renderVariasiBuilderEdit() {
-  const container = document.getElementById('e-variasi-builder');
-  if (!container) return;
-  container.innerHTML = editVariasiDims.map((dim, i) => `
-    <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;padding:12px;margin-bottom:8px;">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <input class="form-input" style="flex:1;" type="text" placeholder="Nama dimensi (contoh: Mapel)"
-          value="${esc(dim.nama)}" oninput="editVariasiDims[${i}].nama=this.value">
-        <button type="button" onclick="hapusDimensiEdit(${i})" style="padding:6px 10px;background:var(--red-bg);color:var(--red);border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:12px;">✕</button>
-      </div>
-      <div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;">OPSI (pisahkan dengan koma):</div>
-      <input class="form-input" type="text" placeholder="contoh: Matematika, IPA, IPS, B. Indonesia"
-        value="${esc((dim.opsi||[]).join(', '))}"
-        oninput="editVariasiDims[${i}].opsi=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
-    </div>
-  `).join('');
-}
-
-function getVariasiConfigEdit() {
-  return editVariasiDims.filter(d => d.nama).map(d => ({ nama: d.nama, opsi: d.opsi }));
-}
-
-function bukaEdit(p) {
-  document.getElementById('e-id').value        = p.id;
-  document.getElementById('e-nama').value      = p.nama;
-  document.getElementById('e-foto').value      = p.foto_url;
-  document.getElementById('e-harga').value     = p.harga || 0;
-  document.getElementById('e-deskripsi').value = p.deskripsi || '';
-  document.getElementById('e-contoh').value    = p.link_contoh || '';
-  document.getElementById('e-link').value      = p.link_co || '';
-  document.getElementById('e-urutan').value    = p.urutan;
-  document.getElementById('e-aktif').value     = String(p.aktif);
-
-  // Stok habis
-  let stokHabis = p.stok_habis;
-  if (typeof stokHabis === 'string') { try { stokHabis = JSON.parse(stokHabis); } catch { stokHabis = []; } }
-  if (!Array.isArray(stokHabis)) stokHabis = [];
-  document.getElementById('e-stok-habis').value = stokHabis.join(', ');
-
-  // Load variasi config ke builder
-  let varConf = p.variasi_config;
-  if (typeof varConf === 'string') {
-    try { varConf = JSON.parse(varConf); } catch { varConf = []; }
-  }
-  editVariasiDims = Array.isArray(varConf) ? JSON.parse(JSON.stringify(varConf)) : [];
-  renderVariasiBuilderEdit();
-
-  previewFoto('e-foto','e-prev-foto');
-  document.getElementById('modal-edit').classList.add('open');
-}
-
-function tutupModal() {
-  document.getElementById('modal-edit').classList.remove('open');
-  editVariasiDims = [];
-}
-
-async function simpanEdit() {
-  const id        = parseInt(document.getElementById('e-id').value);
-  const nama      = document.getElementById('e-nama').value.trim();
-  const foto      = document.getElementById('e-foto').value.trim();
-  const harga     = parseInt(document.getElementById('e-harga').value) || 0;
-  const deskripsi = document.getElementById('e-deskripsi').value.trim();
-  const contoh    = document.getElementById('e-contoh').value.trim();
-  const link      = document.getElementById('e-link').value.trim();
-  const urutan    = parseInt(document.getElementById('e-urutan').value) || 0;
-  const aktif     = document.getElementById('e-aktif').value === 'true';
-  const varConf   = getVariasiConfigEdit();
-  const stokHabisRaw = document.getElementById('e-stok-habis').value.trim();
-  const stokHabis = stokHabisRaw ? stokHabisRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
-
-  if (!nama || !foto) { toast('Nama dan foto wajib diisi.', true); return; }
-
-  try {
-    const r = await fetch(`${API}/katalog/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama, foto_url: foto, link_co: link, harga, deskripsi, variasi_config: varConf, link_contoh: contoh, urutan, aktif, stok_habis: stokHabis })
-    });
-    const d = await r.json();
-    if (d.status === 'ok') { toast('Produk diperbarui!'); tutupModal(); loadList(); }
-    else { toast(d.message || 'Gagal.', true); }
-  } catch { toast('Kesalahan jaringan.', true); }
-}
-
-// ════════════════════════════════════════
-// TOGGLE AKTIF
-// ════════════════════════════════════════
-async function toggleAktif(id, aktifSekarang, p) {
-  const newAktif = !aktifSekarang;
-  try {
-    const r = await fetch(`${API}/katalog/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
-      body: JSON.stringify({ nama: p.nama, foto_url: p.foto_url, link_co: p.link_co, harga: p.harga, deskripsi: p.deskripsi, variasi_config: p.variasi_config, link_contoh: p.link_contoh, urutan: p.urutan, aktif: newAktif, stok_habis: p.stok_habis })
-    });
-    const d = await r.json();
-    if (d.status === 'ok') { toast(newAktif ? 'Produk diaktifkan.' : 'Produk disembunyikan.'); loadList(); }
-    else { toast(d.message || 'Gagal.', true); }
-  } catch { toast('Kesalahan jaringan.', true); }
-}
-
-// ════════════════════════════════════════
-// HAPUS
-// ════════════════════════════════════════
-async function hapusProduk(id, nama, fotoUrl) {
-  if (!(await konfirmasi(`Hapus produk "${nama}"? Tindakan ini tidak bisa dibatalkan.`, {icon:'🗑️'}))) return;
-  try {
-    const r = await fetch(`${API}/katalog/${id}`, {
-      method: 'DELETE',
-      headers: { 'x-admin-secret': SECRET }
-    });
-    const d = await r.json();
-    if (d.status === 'ok') {
-      toast('Produk dihapus.');
-      hapusFotoCloudinary(fotoUrl); // best-effort, tidak ditunggu -- produk sudah terhapus duluan
-      loadList();
-    }
-    else { toast(d.message || 'Gagal.', true); }
-  } catch { toast('Kesalahan jaringan.', true); }
-}
-
-// ════════════════════════════════════════
-// UTILS
-// ════════════════════════════════════════
-function previewFoto(inputId, previewId) {
-  const url  = document.getElementById(inputId).value.trim();
-  const wrap = document.getElementById(previewId);
-  if (!url) {
-    wrap.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg>';
-    return;
-  }
-  const imgUrl = toImgUrl(url);
-  wrap.innerHTML = `<img src="${esc(imgUrl)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/></svg>'">`;
-}
-
-// ════════════════════════════════════════
-// UPLOAD FOTO KE CLOUDINARY (signed upload)
-// Backend cuma kasih "izin" (signature) sekali-pakai; file-nya sendiri
-// diupload LANGSUNG dari browser ke Cloudinary, tidak lewat server kita.
-// ════════════════════════════════════════
-async function uploadFoto(fileInput, urlInputId, previewId, btnId) {
-  const file = fileInput.files[0];
-  fileInput.value = ''; // reset supaya pilih file yang sama lagi tetap trigger onchange
-  if (!file) return;
-
-  if (!file.type.startsWith('image/')) { toast('File harus berupa gambar.', true); return; }
-  if (file.size > 1 * 1024 * 1024) { toast('Ukuran file maksimal 1MB.', true); return; }
-
-  const urlInput = document.getElementById(urlInputId);
-  const preview  = document.getElementById(previewId);
-  const btn      = document.getElementById(btnId);
-  const progWrap = document.getElementById(btnId.replace('-btn','-progress-wrap'));
-  const progBar  = document.getElementById(btnId.replace('-btn','-progress-bar'));
-  const previewSebelum = preview.innerHTML;
-
-  btn.disabled = true;
-  preview.innerHTML = '<div style="width:20px;height:20px;border:2.5px solid var(--g200);border-top-color:var(--orange);border-radius:50%;animation:spin .6s linear infinite;"></div>';
-  if (progBar) progBar.style.width = '0%';
-  if (progWrap) progWrap.classList.add('show');
-
-  try {
-    const sigRes = await fetch(`${API}/cloudinary/signature`, { headers: { 'x-admin-secret': SECRET } });
-    if (sigRes.status === 401) { logout(); return; }
-    const sig = await sigRes.json();
-    if (sig.status !== 'ok') throw new Error(sig.message || 'Gagal menyiapkan upload.');
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('api_key', sig.api_key);
-    formData.append('timestamp', sig.timestamp);
-    formData.append('signature', sig.signature);
-    formData.append('folder', sig.folder);
-
-    // Pakai XMLHttpRequest (bukan fetch) supaya bisa pantau progres upload
-    // byte-per-byte -- fetch() tidak punya event progress untuk body request.
-    const upData = await new Promise((resolve, reject) => {
+    const hasil = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`);
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable && progBar) progBar.style.width = Math.round((e.loaded / e.total) * 100) + '%';
+      xhr.upload.onprogress = e => {
+        if(e.lengthComputable) dz.innerHTML = `<div class="dz-title">Mengunggah… ${Math.round(e.loaded/e.total*100)}%</div>`;
       };
-      xhr.onload = () => {
-        try { resolve(JSON.parse(xhr.responseText)); }
-        catch { reject(new Error('Respons upload tidak valid.')); }
-      };
-      xhr.onerror = () => reject(new Error('Koneksi ke Cloudinary gagal.'));
-      xhr.send(formData);
+      xhr.onload  = () => xhr.status === 200 ? resolve(JSON.parse(xhr.responseText)) : reject();
+      xhr.onerror = reject;
+      xhr.send(form);
     });
-    if (!upData.secure_url) throw new Error(upData.error?.message || 'Upload ke Cloudinary gagal.');
 
-    urlInput.value = upData.secure_url;
-    previewFoto(urlInputId, previewId);
-    toast('Foto berhasil diupload!');
-  } catch (e) {
-    preview.innerHTML = previewSebelum;
-    toast('Gagal upload: ' + e.message, true);
-  } finally {
-    btn.disabled = false;
-    if (progWrap) setTimeout(() => progWrap.classList.remove('show'), 400);
+    fotoUrlSaatIni = hasil.secure_url;
+    renderDropzone();
+    showToast('Foto berhasil diunggah');
+  } catch {
+    renderDropzone();
+    showToast('Gagal mengunggah foto');
   }
 }
-
-// ════════════════════════════════════════
-// HAPUS FOTO DI CLOUDINARY
-// ════════════════════════════════════════
-
-// Ambil public_id dari URL hasil upload kita, mis.
-// ".../upload/v1755678901/penadigital/produk/abc123.jpg" -> "penadigital/produk/abc123".
-// Balikin null kalau bukan format URL upload Cloudinary yang kita kenali
-// (mis. link Google Drive lama / ditempel manual) -- di titik pemanggil,
-// null berarti "tidak ada yang perlu dihapus di Cloudinary", dilewati saja.
-function extractCloudinaryPublicId(url) {
-  if (!url) return null;
-  const m = String(url).match(/\/upload\/(?:v\d+\/)?(.+?)\.[a-zA-Z0-9]+(?:[?#].*)?$/);
+function ambilPublicId(url){
+  const m = String(url||'').match(/\/upload\/(?:v\d+\/)?(.+?)\.[a-z]+$/i);
   return m ? m[1] : null;
 }
-
-// Hapus 1 foto di Cloudinary. Best-effort & fail-open (tidak melempar
-// error) -- dipakai juga oleh alur hapus produk yang tidak boleh gagal
-// gara-gara Cloudinary bermasalah, foto produk sudah terlanjur dihapus
-// dari DB duluan.
-async function hapusFotoCloudinary(url) {
-  const publicId = extractCloudinaryPublicId(url);
-  if (!publicId) return;
+async function hapusFotoCloudinary(url){
+  const publicId = ambilPublicId(url);
+  if(!publicId) return;
   try {
-    await fetch(`${API}/cloudinary/delete`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
+    await apiAdmin('/cloudinary/delete', {
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ public_id: publicId })
     });
-  } catch (e) { console.warn('Gagal hapus foto Cloudinary:', e.message); }
+  } catch {}
+}
+async function hapusFotoInput(){
+  if(fotoUrlSaatIni) hapusFotoCloudinary(fotoUrlSaatIni);
+  fotoUrlSaatIni = '';
+  renderDropzone();
+  showToast('Foto dihapus');
 }
 
-// Dipanggil tombol "Hapus Foto" di form Tambah/Edit Produk -- ini hapus
-// PERMANEN di Cloudinary, bukan cuma mengosongkan field.
-async function hapusFotoInput(urlInputId, previewId) {
-  const urlInput = document.getElementById(urlInputId);
-  const url = urlInput.value.trim();
-  if (!url) return;
-  if (!(await konfirmasi('Hapus foto ini secara permanen dari Cloudinary?\n\nKalau produk ini sudah tersimpan dengan foto ini, pastikan upload foto baru & klik Simpan setelahnya supaya tidak ada gambar rusak di katalog.', {icon:'🗑️'}))) return;
-  await hapusFotoCloudinary(url);
-  urlInput.value = '';
-  previewFoto(urlInputId, previewId);
-  toast('Foto dihapus.');
+/* ── Toast ──────────────────────────────────────────────────── */
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-function toImgUrl(url) {
-  if (!url) return url;
-  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
-  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w400`;
-  return url;
-}
-
-function setBtn(btnId, spinId, iconId, loading) {
-  document.getElementById(btnId).disabled = loading;
-  document.getElementById(spinId).style.display = loading ? 'block' : 'none';
-  document.getElementById(iconId).style.display = loading ? 'none' : 'block';
-}
-
-function toast(msg, err=false) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.style.background = err ? '#DC2626' : '#1B3A6B';
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
-}
-
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
-
-// ════════════════════════════════════════
-// MODAL KONFIRMASI -- pengganti confirm()/alert() bawaan Chrome, gaya
-// tampilan menyesuaikan desain situs sendiri. konfirmasi() balikin Promise
-// yang resolve true/false (mirip confirm()); tampilkanInfo() cuma 1 tombol
-// OK (mirip alert()), selalu resolve true.
-// ════════════════════════════════════════
-function konfirmasi(pesan, opsi) {
-  opsi = opsi || {};
-  return new Promise(resolve => {
-    document.getElementById('konf-icon').textContent = opsi.icon || '⚠️';
-    document.getElementById('konf-pesan').textContent = pesan;
-    const okBtn = document.getElementById('konf-ok');
-    const batalBtn = document.getElementById('konf-batal');
-    okBtn.textContent = opsi.okText || 'Ya, Lanjutkan';
-    batalBtn.style.display = opsi.alertOnly ? 'none' : 'block';
-    document.getElementById('modal-konfirmasi').classList.add('open');
-
-    function selesai(hasil) {
-      document.getElementById('modal-konfirmasi').classList.remove('open');
-      okBtn.onclick = null; batalBtn.onclick = null;
-      resolve(hasil);
-    }
-    okBtn.onclick = () => selesai(true);
-    batalBtn.onclick = () => selesai(false);
-  });
-}
-function tampilkanInfo(pesan, opsi) {
-  opsi = opsi || {};
-  return konfirmasi(pesan, { ...opsi, alertOnly: true, okText: opsi.okText || 'OK' });
-}
-document.getElementById('modal-konfirmasi').addEventListener('click', function(e) {
-  if (e.target === this) document.getElementById('konf-batal').click();
-});
-
-// Tutup modal klik di luar
-document.getElementById('modal-edit').addEventListener('click', function(e) {
-  if (e.target === this) tutupModal();
-});
+/* ── Init ───────────────────────────────────────────────────── */
+if(SECRET) tampilkanApp();
+else document.getElementById('loginPw').focus();
 </script>
 </body>
 </html>

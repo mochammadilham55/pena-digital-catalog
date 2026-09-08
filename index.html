@@ -34,759 +34,1014 @@
 <meta name="apple-mobile-web-app-title" content="PenaDigital">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy:    #1B3A6B;
-  --navy2:   #2A4F8F;
-  --orange:  #E07B2A;
-  --orange2: #F5A040;
-  --cream:   #F5EFE6;
-  --cream2:  #EDE4D6;
-  --white:   #FFFFFF;
-  --g100:    #F1F5F9;
-  --g300:    #CBD5E1;
-  --g500:    #64748B;
-  --g700:    #334155;
-  --green:   #16A34A;
-  --red:     #DC2626;
-  --red-bg:  #FEE2E2;
-  --yellow-bg: #FEFCE8;
-  --green-bg:  #DCFCE7;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;}
+  :root{
+    --navy: #1B3A6B;
+    --navy-dark: #12294D;
+    --navy-tint: #E8EDF5;
+    --orange: #E07B2A;
+    --orange-dark: #B9631E;
+    --cream: #F5EFE6;
+    --paper: #FFFFFF;
+    --line: #E4DBC9;
+    --ink: #24211B;
+    --ink-soft: #6B6459;
+    --wa: #25D366;
+    --wa-dark: #1DA851;
+    --amber: #A9670F;
+    --amber-bg: #FBF0DD;
+    --red: #B3392C;
+    --red-bg: #FAEBE8;
+    --success: #1E7A4C;
+    --success-bg: #E6F3EC;
+    --radius-s: 8px;
+    --radius-m: 14px;
+    --radius-l: 20px;
+    --shadow: 0 1px 2px rgba(27,58,107,0.06), 0 6px 20px rgba(27,58,107,0.07);
+  }
 
-/* ── HEADER ── */
-header{
-  background:var(--navy);
-  padding:14px 20px;
-  display:flex;align-items:center;gap:10px;
-  position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 12px rgba(0,0,0,.2);
-}
-.logo-box{
-  width:38px;height:38px;background:var(--cream);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.logo-box svg{width:24px;height:24px;}
-.brand{display:flex;flex-direction:column;}
-.brand-name{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1;}
-.brand-sub{font-size:10px;color:var(--orange2);font-weight:600;letter-spacing:.6px;margin-top:2px;}
-.header-spacer{flex:1;}
-.btn-admin-link{
-  font-size:11px;font-weight:700;color:rgba(255,255,255,.55);
-  text-decoration:none;padding:5px 10px;border-radius:6px;
-  border:1px solid rgba(255,255,255,.15);
-  transition:all .15s;
-}
-.btn-admin-link:hover{color:#fff;border-color:rgba(255,255,255,.4);}
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  /* Footer dijaga tetap di dasar layar walau isi halaman pendek (mis. katalog
+     kosong atau gagal dimuat): body jadi kolom setinggi layar, lalu bagian
+     katalog yang memanjang mengisi sisa ruang. Elemen position:fixed (tombol
+     WA, sidebar) tidak terpengaruh karena keluar dari alur. */
+  body{
+    margin:0;
+    font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh; min-height:100dvh;
+    display:flex; flex-direction:column;
+  }
+  .catalog-section{flex:1;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;}
+  a{color:inherit;}
+  :focus-visible{outline:2.5px solid var(--orange); outline-offset:2px;}
 
-/* ── TOMBOL CHAT WA (HEADER) ── */
-.btn-wa-header{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  background:#25D366;border-radius:8px;
-  padding:0 12px;height:36px;margin-right:6px;
-  flex-shrink:0;transition:background .15s,transform .1s;
-  color:#fff;font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:12px;font-weight:700;white-space:nowrap;
-  text-decoration:none;
-}
-.btn-wa-header:hover{background:#1EBE5A;}
-.btn-wa-header:active{transform:scale(.96);}
-.btn-wa-header svg{width:16px;height:16px;flex-shrink:0;}
-@media (max-width:480px){
-  .btn-wa-header span{display:none;}
-  .btn-wa-header{padding:0;width:36px;}
-  .brand-sub{display:none;}
-}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 20px;}
 
-/* ── TOMBOL CHAT WA (MENGAMBANG) ── */
-.btn-wa-float{
-  position:fixed;right:18px;bottom:18px;z-index:200;
-  display:flex;align-items:center;justify-content:center;
-  width:56px;height:56px;border-radius:50%;
-  background:#25D366;color:#fff;
-  box-shadow:0 4px 16px rgba(0,0,0,.25);
-  transition:background .15s,transform .15s;
-  animation:wa-pulse 2.2s infinite;
-}
-.btn-wa-float:hover{background:#1EBE5A;transform:scale(1.06);}
-.btn-wa-float:active{transform:scale(.95);}
-.btn-wa-float svg{width:28px;height:28px;}
-@keyframes wa-pulse{
-  0%{box-shadow:0 4px 16px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,.5);}
-  70%{box-shadow:0 4px 16px rgba(0,0,0,.25),0 0 0 12px rgba(37,211,102,0);}
-  100%{box-shadow:0 4px 16px rgba(0,0,0,.25),0 0 0 0 rgba(37,211,102,0);}
-}
-@media (max-width:480px){
-  .btn-wa-float{right:14px;bottom:14px;width:52px;height:52px;}
-}
+  /* ---------- Header ---------- */
+  .site-header{
+    position:sticky; top:0; z-index:40;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+  }
+  .site-header .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:64px;
+  }
+  .menu-btn{margin-right:auto;}
+  .logo-mark{
+    width:32px; height:32px; border-radius:9px;
+    background:var(--navy);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--cream); font-weight:800; font-size:15px;
+    flex-shrink:0;
+  }
+  .header-actions{display:flex; align-items:center; gap:6px;}
+  .icon-btn{
+    position:relative;
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:10px; border:1px solid transparent; background:none;
+    color:var(--navy); cursor:pointer;
+  }
+  .icon-btn:hover{background:var(--navy-tint);}
+  .icon-btn.wa-header{color:var(--wa-dark);}
+  .icon-btn.wa-header:hover{background:#E7FAEF;}
+  .cart-badge{
+    position:absolute; top:2px; right:2px;
+    min-width:16px; height:16px; padding:0 3px;
+    border-radius:8px; background:var(--orange); color:#fff;
+    font-size:10px; font-weight:700; line-height:16px; text-align:center;
+  }
 
-/* ── SECTION: CEK PESANAN ── */
-.section-pesanan{
-  background:var(--navy);
-  padding:28px 20px 32px;
-}
-.pesanan-inner{max-width:500px;margin:0 auto;}
-.pesanan-title{
-  font-size:13px;font-weight:700;color:var(--orange2);
-  letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;
-  display:flex;align-items:center;gap:6px;
-}
-.pesanan-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--orange);border-radius:2px;}
-.input-row{display:flex;gap:10px;}
-.input-wrap{position:relative;flex:1;}
-.input-wrap svg{
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  width:16px;height:16px;color:var(--g500);pointer-events:none;
-}
-.pesanan-input{
-  width:100%;padding:13px 13px 13px 38px;
-  background:rgba(255,255,255,.1);
-  border:1.5px solid rgba(255,255,255,.2);
-  border-radius:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;font-weight:600;color:#fff;
-  letter-spacing:.8px;text-transform:uppercase;
-  outline:none;transition:all .2s;
-}
-.pesanan-input::placeholder{text-transform:none;letter-spacing:0;color:rgba(255,255,255,.4);font-weight:400;}
-.pesanan-input:focus{background:rgba(255,255,255,.15);border-color:var(--orange);box-shadow:0 0 0 3px rgba(224,123,42,.25);}
-.btn-cek{
-  padding:13px 20px;
-  background:var(--orange);color:#fff;
-  border:none;border-radius:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:14px;font-weight:700;
-  cursor:pointer;white-space:nowrap;
-  display:flex;align-items:center;gap:6px;
-  transition:background .15s,transform .1s;
-  flex-shrink:0;
-}
-.btn-cek:hover{background:#C96E1F;}
-.btn-cek:active{transform:scale(.97);}
-.btn-cek:disabled{background:rgba(255,255,255,.2);cursor:not-allowed;}
+  /* ---------- Sidebar menu ---------- */
+  .sidebar-overlay{
+    position:fixed; inset:0; background:rgba(18,41,77,0.45);
+    opacity:0; pointer-events:none; transition:opacity .22s ease; z-index:60;
+  }
+  .sidebar-overlay.open{opacity:1; pointer-events:auto;}
+  .sidebar-panel{
+    position:fixed; top:0; left:0; height:100%; width:280px; max-width:82vw;
+    background:#fff; z-index:70; transform:translateX(-100%);
+    transition:transform .25s ease; box-shadow:8px 0 24px rgba(18,41,77,0.18);
+    display:flex; flex-direction:column;
+  }
+  .sidebar-panel.open{transform:translateX(0);}
+  .sidebar-head{
+    display:flex; align-items:center; gap:10px;
+    padding:16px 14px; border-bottom:1px solid var(--line);
+  }
+  .sidebar-title{flex:1; font-weight:800; font-size:15px; color:var(--navy); letter-spacing:-0.01em;}
+  .sidebar-nav{display:flex; flex-direction:column; padding:8px;}
+  .sidebar-nav a{
+    display:block; padding:12px 12px; border-radius:9px;
+    font-size:14px; font-weight:600; color:var(--ink); text-decoration:none;
+  }
+  .sidebar-nav a:hover{background:var(--navy-tint); color:var(--navy);}
+  .sidebar-divider{height:1px; background:var(--line); margin:8px 4px;}
 
-/* ── RESULT BOX ── */
-#result-box{display:none;margin-top:14px;}
-.rbox{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:12px;overflow:hidden;
-}
-.rbox-header{
-  padding:14px 16px;display:flex;align-items:flex-start;gap:12px;
-}
-.rbox-icon{font-size:20px;line-height:1;flex-shrink:0;margin-top:2px;}
-.rbox-title{font-size:14px;font-weight:800;color:#fff;}
-.rbox-sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;}
-.rbox-no{
-  display:inline-block;background:rgba(255,255,255,.12);
-  color:rgba(255,255,255,.9);font-size:11px;font-weight:700;
-  padding:2px 8px;border-radius:5px;margin-top:4px;letter-spacing:.8px;
-}
-.rbox-divider{height:1px;background:rgba(255,255,255,.1);}
-.rbox-body{padding:14px 16px;}
+  /* ---------- Pending banner ---------- */
+  .pending-banner{
+    background:var(--amber-bg); border-bottom:1px solid #EBD9AE;
+  }
+  .pending-banner .wrap{
+    display:flex; align-items:center; gap:12px;
+    padding:11px 20px;
+    font-size:13.5px; color:var(--amber);
+  }
+  .pending-banner strong{font-weight:700;}
+  .pending-banner .dot{width:6px; height:6px; border-radius:50%; background:var(--amber); flex-shrink:0;}
+  .pending-banner a{
+    margin-left:auto; flex-shrink:0;
+    font-weight:700; text-decoration:underline; text-underline-offset:2px;
+    white-space:nowrap;
+  }
 
-/* produk item dalam result */
-.produk-item{
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:8px;padding:12px;margin-bottom:8px;
-}
-.produk-item:last-child{margin-bottom:0;}
-.produk-nama{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:6px;}
-.produk-url{
-  font-size:11px;color:rgba(255,255,255,.45);
-  word-break:break-all;font-family:monospace;
-  background:rgba(0,0,0,.2);padding:6px 8px;border-radius:5px;margin-bottom:8px;line-height:1.5;
-}
-.btn-salin{
-  width:100%;padding:8px;
-  background:var(--navy2);color:#fff;
-  border:none;border-radius:6px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:12px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:5px;
-  transition:background .15s;
-}
-.btn-salin:hover{background:rgba(255,255,255,.2);}
-.btn-salin.copied{background:var(--green);}
-.aksi-btns{display:flex;gap:8px;margin-top:12px;}
-.btn-aksi{
-  flex:1;padding:10px;border-radius:8px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:12px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:5px;
-  text-decoration:none;border:none;transition:opacity .15s;
-}
-.btn-aksi:active{transform:scale(.97);}
-.btn-aksi-email{background:rgba(255,255,255,.9);color:var(--navy);}
-.btn-aksi-wa{background:#25D366;color:#fff;}
-.btn-wa-admin{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  width:100%;padding:11px;margin-top:10px;
-  background:#25D366;color:#fff;
-  border:none;border-radius:8px;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:13px;font-weight:700;cursor:pointer;
-  text-decoration:none;transition:opacity .15s;
-}
-.rbox-msg{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;}
+  /* ---------- Lookup card ---------- */
+  .lookup-section{padding:14px 0 8px;}
+  .lookup-card{
+    background:var(--navy);
+    background-image: radial-gradient(720px 240px at 100% -40%, rgba(255,255,255,0.06), transparent 60%);
+    border-radius:var(--radius-l);
+    color:#fff;
+  }
+  .lookup-toggle{
+    width:100%; display:flex; align-items:center; gap:12px;
+    background:none; border:none; padding:14px 18px; cursor:pointer;
+    color:#fff; text-align:left; border-radius:var(--radius-l);
+  }
+  .lookup-toggle:hover{background:rgba(255,255,255,0.05);}
+  .lt-icon{
+    width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,0.14);
+    display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+  }
+  .lt-text{flex:1; min-width:0;}
+  .lt-title{display:block; font-size:14px; font-weight:700; margin:0 0 1px;}
+  .lt-sub{display:block; font-size:11.5px; color:#C7D3E8; margin:0;}
+  .lt-chevron{font-size:12px; color:#C7D3E8; transition:transform .2s ease; flex-shrink:0;}
+  .lookup-card.expanded .lt-chevron{transform:rotate(180deg);}
 
-/* spinner */
-.spin{
-  width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);
-  border-top-color:#fff;border-radius:50%;
-  animation:spin .6s linear infinite;display:none;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
+  .lookup-body-wrap{
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .28s ease;
+  }
+  .lookup-card.expanded .lookup-body-wrap{grid-template-rows:1fr;}
+  .lookup-body{overflow:hidden;}
+  .lookup-body-inner{padding:0 18px 20px;}
+  .lookup-eyebrow{
+    font-size:12.5px; color:#B9C8E2; font-weight:600; margin:0 0 4px;
+  }
+  .lookup-card p.sub{
+    margin:0 0 16px; font-size:13.5px; color:#C7D3E8; line-height:1.5;
+  }
+  .lookup-form{display:flex; gap:8px;}
+  .lookup-form input{
+    flex:1; min-width:0;
+    height:46px; padding:0 14px;
+    border-radius:var(--radius-s); border:1.5px solid transparent;
+    background:#fff; color:var(--ink);
+    font-size:15px; font-weight:600; letter-spacing:0.02em;
+    text-transform:uppercase;
+  }
+  .lookup-form input::placeholder{color:#9A9384; text-transform:none; font-weight:500; letter-spacing:normal;}
+  .lookup-form input.err{border-color:#F0B8AE; box-shadow:0 0 0 3px rgba(240,184,174,0.35);}
+  .btn-check{
+    height:46px; padding:0 20px; flex-shrink:0;
+    background:var(--orange); color:#fff; font-weight:700; font-size:14.5px;
+    border:none; border-radius:var(--radius-s); cursor:pointer;
+    transition:background .15s ease;
+  }
+  .btn-check:hover{background:var(--orange-dark);}
+  .btn-check:disabled{background:#8CA0C2; cursor:not-allowed;}
+  .field-msg{font-size:12.5px; margin-top:7px; color:#F0B8AE; display:none;}
+  .field-msg.show{display:block;}
 
-/* ── SECTION: KATALOG ── */
-.section-katalog{padding:28px 16px 48px;}
-.katalog-inner{max-width:600px;margin:0 auto;}
-.katalog-seo-title{
-  font-size:15px;font-weight:800;color:var(--navy);
-  line-height:1.4;margin-bottom:6px;
-}
-.katalog-seo-desc{
-  font-size:12.5px;color:var(--g500);line-height:1.6;margin-bottom:22px;
-  max-width:560px;
-}
-.katalog-header{
-  display:flex;align-items:center;gap:8px;margin-bottom:20px;
-}
-.katalog-title{
-  font-size:13px;font-weight:700;color:var(--g500);
-  text-transform:uppercase;letter-spacing:.7px;
-  margin:0;
-}
-.katalog-line{flex:1;height:1px;background:var(--cream2);}
+  .lookup-result{margin-top:16px;}
+  .result-card{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:var(--radius-m);
+    padding:16px;
+  }
+  .result-hint{font-size:13px; color:#B9C8E2; padding:2px 0;}
 
-/* grid — 3 kolom di mobile juga, persis mockup */
-.katalog-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
-}
+  .status-row{display:flex; align-items:flex-start; gap:11px;}
+  .status-icon{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:17px;
+  }
+  .status-icon.ok{background:var(--success);}
+  .status-icon.warn{background:var(--orange);}
+  .status-icon.bad{background:var(--red);}
+  .status-title{font-weight:700; font-size:14.5px; margin:0 0 2px;}
+  .status-desc{font-size:13px; color:#C7D3E8; margin:0; line-height:1.5;}
 
-.produk-card{
-  display:flex;flex-direction:column;
-  min-width:0;
-  text-decoration:none;
-  cursor:pointer;
-}
-.produk-thumb-wrap{
-  position:relative;
-  aspect-ratio:1/1;
-  background:var(--g300);
-  border-radius:10px;
-  overflow:hidden;
-  margin-bottom:7px;
-}
-.produk-thumb{
-  width:100%;height:100%;object-fit:cover;
-  display:block;
-  transition:transform .25s;
-}
-.produk-card:hover .produk-thumb{transform:scale(1.05);}
-.produk-thumb-placeholder{
-  width:100%;height:100%;
-  background:var(--g300);
-  display:flex;align-items:center;justify-content:center;
-}
-.produk-thumb-placeholder svg{width:28px;height:28px;color:var(--g500);}
-.produk-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(27,58,107,.7) 0%,transparent 50%);
-  opacity:0;transition:opacity .2s;
-  display:flex;align-items:flex-end;padding:8px;
-}
-.produk-card:hover .produk-overlay{opacity:1;}
-.overlay-text{
-  font-size:10px;font-weight:700;color:#fff;
-  display:flex;align-items:center;gap:4px;
-}
-.produk-card-name{
-  font-size:11px;font-weight:700;color:var(--navy);
-  line-height:1.35;text-align:center;
-  overflow-wrap:anywhere;word-break:break-word;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-}
-.produk-card-price{
-  font-size:12px;font-weight:800;color:var(--orange2);
-  text-align:center;margin-top:3px;
-}
-.produk-card-price-empty{visibility:hidden;height:0;margin:0;}
+  .spinner{
+    width:20px; height:20px; border-radius:50%;
+    border:2.5px solid rgba(255,255,255,0.25); border-top-color:#fff;
+    animation:spin .7s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
 
-/* loading skeleton */
-.skeleton{
-  background:linear-gradient(90deg,var(--cream2) 25%,var(--cream) 50%,var(--cream2) 75%);
-  background-size:200% 100%;
-  animation:skel 1.2s ease-in-out infinite;
-  border-radius:10px;
-}
-@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.skel-thumb{aspect-ratio:1/1;}
-.skel-name{height:12px;border-radius:4px;margin-top:7px;width:80%;margin-left:auto;margin-right:auto;}
+  .link-list{margin:14px 0 0; display:flex; flex-direction:column; gap:8px;}
+  .link-row{
+    display:flex; align-items:center; gap:10px;
+    background:rgba(255,255,255,0.9);
+    border-radius:10px; padding:10px 12px;
+  }
+  .link-row .link-name{
+    flex:1; min-width:0; color:var(--ink);
+  }
+  .link-row .link-name b{display:block; font-size:13px; font-weight:700; margin-bottom:2px;}
+  .link-row .link-name span{
+    display:block; font-size:11.5px; color:var(--ink-soft);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .link-row .link-name span.pending-note{color:var(--amber); font-weight:600;}
+  .copy-btn{
+    flex-shrink:0; height:34px; padding:0 13px;
+    border-radius:8px; border:1.5px solid var(--navy);
+    background:#fff; color:var(--navy); font-weight:700; font-size:12.5px;
+    cursor:pointer; transition:all .12s ease;
+  }
+  .copy-btn:hover{background:var(--navy); color:#fff;}
+  .copy-btn.copied{background:var(--success); border-color:var(--success); color:#fff;}
 
-.katalog-empty{
-  text-align:center;padding:40px 20px;color:var(--g500);
-  grid-column:1/-1;font-size:13px;
-}
+  .share-row{display:flex; gap:8px; margin-top:12px;}
+  .share-row button{
+    flex:1; height:38px; border-radius:9px; border:1px solid rgba(255,255,255,0.22);
+    background:transparent; color:#fff; font-size:12.5px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .share-row button:hover{background:rgba(255,255,255,0.1);}
 
-/* ── FOOTER ── */
-footer{
-  text-align:center;padding:16px 20px;
-  font-size:11px;color:var(--g500);
-  border-top:1px solid var(--cream2);background:var(--white);
-}
-footer a{color:var(--orange);text-decoration:none;font-weight:600;}
+  .cta-outline{
+    display:inline-flex; align-items:center; gap:7px; margin-top:12px;
+    height:38px; padding:0 15px; border-radius:9px;
+    background:var(--wa); color:#fff; font-weight:700; font-size:13px;
+    text-decoration:none; width:fit-content;
+  }
 
-/* ── RESPONSIVE ── */
-@media(max-width:360px){
-  .katalog-grid{gap:8px;}
-  .produk-card-name{font-size:10px;}
-}
-@media(min-width:700px){
-  .katalog-inner{max-width:820px;}
-  .katalog-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
-}
-@media(min-width:1000px){
-  .katalog-inner{max-width:1040px;}
-  .katalog-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
-}
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;transition-duration:.01ms!important;}
-}
+  /* ---------- Catalog ---------- */
+  .catalog-section{padding:24px 0 60px;}
+  .catalog-head{margin-bottom:14px;}
+  .catalog-head h1{
+    margin:0 0 4px; font-size:14px; font-weight:700; letter-spacing:-0.005em; color:var(--ink-soft);
+  }
+  .catalog-head p{margin:0; font-size:12px; color:var(--ink-soft); max-width:62ch; line-height:1.5; opacity:0.85;}
+
+  .catalog-controls{
+    display:flex; flex-direction:column; gap:10px; margin:18px 0 18px;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:8px;
+    height:44px; padding:0 14px; border-radius:11px;
+    background:#fff; border:1.5px solid var(--line);
+  }
+  .search-box input{
+    border:none; outline:none; background:none; flex:1; font-size:14px; font-family:inherit; color:var(--ink);
+  }
+  .search-box .sic{color:var(--ink-soft); display:flex; align-items:center; flex-shrink:0;}
+
+  .filter-chips{display:flex; gap:7px; flex-wrap:wrap;}
+  .chip{
+    height:34px; padding:0 14px; border-radius:999px;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink);
+    font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .chip.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .chip:hover:not(.active){border-color:var(--navy);}
+
+  .product-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+  }
+  .product-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-m);
+    overflow:hidden; text-align:left; cursor:pointer; display:flex; flex-direction:column;
+    transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .product-card:hover{box-shadow:var(--shadow); transform:translateY(-2px);}
+  /* Kotak foto dibuat PERSEGI karena seluruh foto produk di Cloudinary
+     berukuran 1:1 (1024×1024 / 2000×2000). Dengan kotak 4/3 seperti
+     sebelumnya, bagian atas & bawah foto terpotong sekitar 25%.
+     object-fit:contain dipilih supaya kalau suatu saat admin mengunggah foto
+     yang tidak persegi, isinya tetap utuh (tidak ada yang terpotong) — hanya
+     tersisa bidang kosong berwarna latar di sisinya. */
+  .product-thumb{
+    width:100%; aspect-ratio:1/1; background:var(--navy-tint);
+    display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+  }
+  .product-thumb img, .product-thumb svg{width:100%; height:100%; object-fit:contain; display:block;}
+  .product-thumb .ph-broken{color:#9CB0CE; display:flex; align-items:center; justify-content:center; width:100%; height:100%;}
+  .level-badge{
+    position:absolute; top:8px; left:8px;
+    background:rgba(27,58,107,0.88); color:#fff;
+    font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px;
+  }
+  .product-body{padding:11px 12px 13px; display:flex; flex-direction:column; gap:6px; flex:1;}
+  .product-name{
+    font-size:12.5px; font-weight:700; line-height:1.35; color:var(--ink);
+    display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    text-transform:none;
+  }
+  .product-meta{font-size:11px; color:var(--ink-soft);}
+  .product-price{margin-top:auto; font-size:14.5px; font-weight:800; color:var(--orange-dark);}
+  .product-price.contact{font-size:12.5px; font-weight:700; color:var(--navy);}
+
+  .skeleton-card .product-thumb, .skeleton-line{
+    background:linear-gradient(90deg, #E9E2D4 25%, #F2ECE0 37%, #E9E2D4 63%);
+    background-size:400% 100%; animation:shimmer 1.4s ease infinite;
+  }
+  .skeleton-line{height:11px; border-radius:5px; margin:2px 0;}
+  @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
+
+  .catalog-empty, .catalog-error{
+    grid-column:1/-1; text-align:center; padding:44px 20px;
+    background:#fff; border:1px dashed var(--line); border-radius:var(--radius-m);
+  }
+  .catalog-empty .ic, .catalog-error .ic{font-size:30px; margin-bottom:8px;}
+  .catalog-empty h3, .catalog-error h3{margin:0 0 4px; font-size:14.5px; font-weight:700;}
+  .catalog-empty p, .catalog-error p{margin:0 auto 14px; font-size:12.5px; color:var(--ink-soft); max-width:34ch;}
+  .catalog-error{background:var(--red-bg); border-color:#EBCFC8;}
+  .retry-btn{
+    height:36px; padding:0 16px; border-radius:9px; border:1.5px solid var(--navy);
+    background:#fff; color:var(--navy); font-weight:700; font-size:12.5px; cursor:pointer;
+  }
+
+  /* ---------- SEO text block (must stay real text, per brief §10) ---------- */
+  .seo-block{
+    margin-top:26px; padding:18px 0 4px; border-top:1px solid var(--line);
+    font-size:12px; color:var(--ink-soft); line-height:1.6; max-width:70ch;
+  }
+  .seo-block strong{color:var(--ink);}
+
+  /* ---------- Floating WA ---------- */
+  .wa-float{
+    position:fixed; right:16px; bottom:16px; z-index:50;
+    width:54px; height:54px; border-radius:50%;
+    background:var(--wa); color:#fff; border:none;
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+    box-shadow:0 6px 18px rgba(37,211,102,0.45); cursor:pointer;
+    animation:pulse 2.6s ease infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 6px 18px rgba(37,211,102,0.45);}
+    50%{box-shadow:0 6px 22px rgba(37,211,102,0.7), 0 0 0 7px rgba(37,211,102,0.12);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .wa-float{animation:none;}
+    .skeleton-card .product-thumb, .skeleton-line{animation:none;}
+  }
+
+  /* ---------- Footer ---------- */
+  .site-footer{
+    background:var(--navy-dark); color:#C7D3E8; margin-top:10px;
+  }
+  .site-footer .wrap{padding:30px 20px 26px;}
+  .footer-links{
+    display:flex; flex-wrap:wrap; gap:14px 18px; margin-bottom:16px;
+    font-size:12.5px;
+  }
+  .footer-links a{text-decoration:none; color:#C7D3E8;}
+  .footer-links a:hover{color:#fff; text-decoration:underline;}
+  .footer-bottom{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+    border-top:1px solid rgba(255,255,255,0.12); padding-top:14px;
+    font-size:11.5px; color:#93A3C2;
+  }
+  .footer-bottom a{color:#93A3C2;}
+
+  /* ---------- Desktop ---------- */
+  @media (min-width:860px){
+    .lookup-section{padding:26px 0 8px;}
+    .lookup-toggle{padding:18px 40px;}
+    .lt-title{font-size:15px;}
+    .lookup-body-inner{padding:4px 40px 32px; display:grid; grid-template-columns:1.05fr 1fr; gap:36px; align-items:start;}
+    .lookup-card .lookup-copy{padding-right:8px;}
+    .lookup-card p.sub{font-size:14.5px;}
+    .lookup-result{margin-top:0;}
+
+    .catalog-section{padding:44px 0 60px;}
+
+    .catalog-controls{flex-direction:row; align-items:center; justify-content:space-between;}
+    .search-box{max-width:320px;}
+
+    .product-grid{grid-template-columns:repeat(4,1fr); gap:18px;}
+    .product-body{padding:14px 15px 16px;}
+    .product-name{font-size:13.5px;}
+    .product-price{font-size:16px;}
+
+    .catalog-head h1{font-size:14px;}
+    .catalog-head p{font-size:12.5px;}
+  }
+  @media (min-width:1080px){
+    .product-grid{grid-template-columns:repeat(4,1fr);}
+  }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo-box">
-    <img src="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg" alt="PenaDigital" style="width:100%;height:100%;object-fit:cover;">
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="wrap">
+    <button class="icon-btn menu-btn" onclick="toggleSidebar()" aria-label="Buka menu" aria-expanded="false" aria-controls="sidebarPanel">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="12" cy="19" r="2.1"/></svg>
+    </button>
+    <div class="header-actions">
+      <a class="icon-btn wa-header" href="https://wa.me/6282228225791" target="_blank" rel="noopener" aria-label="Chat dengan Penjual di WhatsApp" title="Chat dengan Penjual">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.06c-.24.68-1.4 1.3-1.93 1.38-.49.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.72-2.09.98-2.37c.25-.28.55-.35.74-.35h.53c.17 0 .4-.02.61.47.24.57.8 1.97.87 2.11.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.13.07.7-.17 1.38Z"/></svg>
+      </a>
+      <a class="icon-btn" href="cart.html" aria-label="Keranjang">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="headerCartBadge" style="display:none">0</span>
+      </a>
+    </div>
   </div>
-  <div class="brand">
-    <span class="brand-name">Pena Digital Store</span>
-    <span class="brand-sub">PERANGKAT AJAR GURU</span>
-  </div>
-  <div class="header-spacer"></div>
-  <a href="cart.html" style="position:relative;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;margin-right:6px;" id="cart-icon-link">
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-    <span id="cart-count" style="display:none;position:absolute;top:-6px;right:-6px;background:#E07B2A;color:#fff;font-size:10px;font-weight:800;width:17px;height:17px;border-radius:50%;align-items:center;justify-content:center;"></span>
-  </a>
-  <a href="https://wa.me/6282228225791" target="_blank" rel="noopener" class="btn-wa-header" aria-label="Chat dengan Penjual via WhatsApp">
-    <svg viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-    <span>Chat dengan Penjual</span>
-  </a>
-  <a href="admin.html" class="btn-admin-link">Admin</a>
 </header>
 
-<!-- ══ TOMBOL CHAT WA MENGAMBANG ══ -->
-<a href="https://wa.me/6282228225791" target="_blank" rel="noopener" class="btn-wa-float" aria-label="Chat dengan Penjual via WhatsApp">
-  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+<!-- ============ SIDEBAR MENU ============ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar-panel" id="sidebarPanel" aria-hidden="true">
+  <div class="sidebar-head">
+    <span class="logo-mark">PD</span>
+    <span class="sidebar-title">Pena Digital</span>
+    <button class="icon-btn" onclick="toggleSidebar()" aria-label="Tutup menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" onclick="toggleSidebar()">Beranda</a>
+    <a href="#lookupCard" onclick="expandLookup(); toggleSidebar();">Ambil Link Pesanan</a>
+    <a href="cart.html">Keranjang</a>
+    <a href="pending.html">Pembayaran Tertunda</a>
+    <a href="contact.html">Kontak</a>
+    <a href="tnc.html">Syarat &amp; Ketentuan</a>
+    <a href="refund.html">Kebijakan Refund</a>
+    <div class="sidebar-divider"></div>
+    <a href="admin.html">Admin</a>
+    <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">Hubungi Admin (WhatsApp)</a>
+  </nav>
+</aside>
+
+<!-- ============ PENDING ORDER BANNER (conditional) ============ -->
+<div class="pending-banner" id="pendingBanner">
+  <div class="wrap">
+    <span class="dot"></span>
+    <span>Ada pesanan <strong>belum dibayar</strong> · sisa waktu 01:48:12</span>
+    <a href="pending.html">Lanjutkan →</a>
+  </div>
+</div>
+
+<!-- ============ LOOKUP (order pickup) ============ -->
+<section class="lookup-section">
+  <div class="wrap">
+    <div class="lookup-card" id="lookupCard">
+      <button class="lookup-toggle" id="lookupToggle" onclick="toggleLookup()" aria-expanded="false" aria-controls="lookupBody">
+        <span class="lt-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <span class="lt-text">
+          <span class="lt-title">Ambil Link Pesanan (Shopee &amp; Website)</span>
+          <span class="lt-sub">Sudah bayar? Masukkan nomor pesanan di sini</span>
+        </span>
+        <span class="lt-chevron">▾</span>
+      </button>
+      <div class="lookup-body-wrap">
+        <div class="lookup-body" id="lookupBody">
+          <div class="lookup-body-inner">
+            <div class="lookup-copy">
+              <p class="sub">Masukkan nomor pesanan Shopee atau nomor pesanan website — link Google Drive langsung muncul di sini.</p>
+              <form class="lookup-form" id="lookupForm" onsubmit="return false;">
+                <input type="text" id="orderInput" placeholder="Contoh: 260620JAPWVC53" maxlength="25" autocomplete="off">
+                <button class="btn-check" id="checkBtn" type="submit">Cek</button>
+              </form>
+              <p class="field-msg" id="fieldMsg">Masukkan nomor pesanan terlebih dahulu.</p>
+            </div>
+            <div class="lookup-result" id="lookupResult"><!-- filled by JS --></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATALOG ============ -->
+<section class="catalog-section">
+  <div class="wrap">
+    <div class="catalog-head">
+      <h1>Modul Ajar &amp; Perangkat Ajar Digital — RPP, LKPD, Kurikulum Merdeka</h1>
+      <p>Pena Digital Store menyediakan Modul Ajar, Perangkat Ajar, RPP, LKPD, ATP, Prota, dan Promes siap pakai untuk guru SD, SMP, dan SMA se-Indonesia — termasuk Deep Learning dan KBC — sesuai Capaian Pembelajaran (CP) tiap fase &amp; jenjang. Beli sekali, link Google Drive dikirim otomatis.</p>
+    </div>
+
+    <div class="catalog-controls">
+      <div class="search-box">
+        <span class="sic">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input type="text" placeholder="Cari mapel, jenjang, atau kurikulum...">
+      </div>
+      <div class="filter-chips" id="filterChips">
+        <button class="chip active" data-filter="all">Semua</button>
+        <button class="chip" data-filter="sd">SD</button>
+        <button class="chip" data-filter="smp">SMP</button>
+        <button class="chip" data-filter="sma">SMA</button>
+      </div>
+    </div>
+
+    <div class="product-grid" id="productGrid"><!-- filled by JS --></div>
+  </div>
+
+  <div class="wrap">
+    <p class="seo-block">
+      <strong>Pena Digital</strong> menyediakan Modul Ajar, RPP, LKPD, ATP, Prota, dan Promes untuk guru se-Indonesia yang mengajar dengan Kurikulum Merdeka. Setiap perangkat ajar disusun sesuai jenjang dan mata pelajaran, siap diunduh dan digunakan langsung di kelas tanpa perlu menyusun dari awal.
+    </p>
+  </div>
+</section>
+
+<!-- ============ FLOATING WA ============ -->
+<a href="https://wa.me/6282228225791" target="_blank" rel="noopener" class="wa-float" aria-label="Chat WhatsApp Admin">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.06c-.24.68-1.4 1.3-1.93 1.38-.49.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.72-2.09.98-2.37c.25-.28.55-.35.74-.35h.53c.17 0 .4-.02.61.47.24.57.8 1.97.87 2.11.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.13.07.7-.17 1.38Z"/></svg>
 </a>
 
-<!-- ══ CEK PESANAN ══ -->
-<div id="pending-banner"></div>
-
-<section class="section-pesanan">
-  <div class="pesanan-inner">
-    <div class="pesanan-title">Ambil Link Pesanan (Shopee & Website)</div>
-    <div class="input-row">
-      <div class="input-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/>
-        </svg>
-        <input
-          id="inp"
-          class="pesanan-input"
-          type="text"
-          placeholder="Masukkan nomor pesanan"
-          maxlength="25"
-          autocomplete="off"
-          spellcheck="false"
-        >
-      </div>
-      <button class="btn-cek" id="btn-cek" onclick="cekPesanan()">
-        <div class="spin" id="spin"></div>
-        <svg id="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-        </svg>
-        <span id="btn-txt">Cek</span>
-      </button>
+<!-- ============ FOOTER ============ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-links">
+      <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">Hubungi Admin (WhatsApp)</a>
+      <a href="pending.html">Pembayaran Tertunda</a>
+      <a href="contact.html">Kontak</a>
+      <a href="tnc.html">Syarat &amp; Ketentuan</a>
+      <a href="refund.html">Kebijakan Refund</a>
+      <a href="admin.html">Admin</a>
     </div>
-
-    <!-- RESULT -->
-    <div id="result-box"></div>
-  </div>
-</section>
-
-<!-- ══ KATALOG PRODUK ══ -->
-<section class="section-katalog">
-  <div class="katalog-inner">
-    <h1 class="katalog-seo-title">Modul Ajar & Perangkat Ajar Digital — RPP, LKPD, Kurikulum Merdeka</h1>
-    <p class="katalog-seo-desc">Pena Digital Store menyediakan Modul Ajar, Perangkat Ajar, RPP, LKPD, ATP, Prota, dan Promes siap pakai untuk guru se-Indonesia — termasuk Deep Learning dan KBC — sesuai Capaian Pembelajaran (CP) tiap fase &amp; jenjang.</p>
-    <div class="katalog-header">
-      <h2 class="katalog-title">Produk Kami</h2>
-      <div class="katalog-line"></div>
-    </div>
-    <div class="katalog-grid" id="katalog-grid">
-      <!-- skeleton -->
-      <div><div class="skeleton skel-thumb"></div><div class="skeleton skel-name"></div></div>
-      <div><div class="skeleton skel-thumb"></div><div class="skeleton skel-name"></div></div>
-      <div><div class="skeleton skel-thumb"></div><div class="skeleton skel-name"></div></div>
-      <div><div class="skeleton skel-thumb"></div><div class="skeleton skel-name"></div></div>
-      <div><div class="skeleton skel-thumb"></div><div class="skeleton skel-name"></div></div>
-      <div><div class="skeleton skel-thumb"></div><div class="skeleton skel-name"></div></div>
+    <div class="footer-bottom">
+      <span>© 2026 Pena Digital. Perangkat ajar untuk guru se-Indonesia.</span>
+      <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">0822-2822-5791</a>
     </div>
   </div>
-</section>
-
-<footer>
-  &copy; 2025 PenaDigital &nbsp;·&nbsp;
-  Butuh bantuan? <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">WhatsApp Admin</a>
-  &nbsp;·&nbsp; <a href="pending.html">Pembayaran Tertunda</a>
-  &nbsp;·&nbsp; <a href="contact.html">Kontak</a>
-  &nbsp;·&nbsp; <a href="tnc.html">Syarat & Ketentuan</a>
-  &nbsp;·&nbsp; <a href="refund.html">Kebijakan Refund</a>
 </footer>
 
 <script>
-// ════════════════════════════════════════
-// KONFIGURASI — ganti setelah deploy
-// ════════════════════════════════════════
+/* ================= Sample data — shaped like real production data, per brief §07 ================= */
+
+const fmtRp = n => 'Rp' + n.toLocaleString('id-ID');
+
+const ICON_IMG_BROKEN = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V5a2 2 0 0 0-2-2H8"/><path d="M3 8v11a2 2 0 0 0 2 2h13"/><path d="m3 16 4-4 3 3 5-5 3 3"/><path d="M3 3l18 18"/></svg>`;
+
+const ICON_BOX = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>`;
+const ICON_ALERT = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a1.6 1.6 0 0 0 1.4 2.4h17.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+const ICON_CHECK = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+const ICON_X = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+const ICON_ALERT_SM = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a1.6 1.6 0 0 0 1.4 2.4h17.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+const ICON_CLOCK = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`;
+const ICON_MAIL = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 6.5 9 6.5 9-6.5"/></svg>`;
+const ICON_MAIL_GHOST = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 6.5 9 6.5 9-6.5"/></svg>`;
+const ICON_WA_SM = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.06c-.24.68-1.4 1.3-1.93 1.38-.49.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.72-2.09.98-2.37c.25-.28.55-.35.74-.35h.53c.17 0 .4-.02.61.47.24.57.8 1.97.87 2.11.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.13.07.7-.17 1.38Z"/></svg>`;
+const ICON_CHAT = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>`;
+
+const LEVEL_ACCENT = {
+  sd:  { fg:'#1B3A6B', bg:'#E8EDF5' },
+  smp: { fg:'#B9631E', bg:'#FBEADC' },
+  sma: { fg:'#12294D', bg:'#EAE4D6' },
+};
+
+function docThumbSVG(level){
+  const c = LEVEL_ACCENT[level] || LEVEL_ACCENT.sd;
+  return `
+  <svg width="100%" height="100%" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="150" fill="${c.bg}"/>
+    <rect x="61" y="21" width="70" height="92" rx="5" fill="${c.fg}" opacity="0.10"/>
+    <rect x="70" y="30" width="70" height="92" rx="5" fill="#fff" stroke="${c.fg}" stroke-width="1.6" opacity="0.9"/>
+    <rect x="80" y="44" width="50" height="5.5" rx="2.75" fill="${c.fg}" opacity="0.55"/>
+    <rect x="80" y="57" width="38" height="4.5" rx="2.25" fill="${c.fg}" opacity="0.3"/>
+    <rect x="80" y="67" width="44" height="4.5" rx="2.25" fill="${c.fg}" opacity="0.3"/>
+    <rect x="80" y="77" width="30" height="4.5" rx="2.25" fill="${c.fg}" opacity="0.3"/>
+    <rect x="80" y="93" width="50" height="15" rx="4" fill="${c.fg}" opacity="0.12"/>
+    <rect x="87" y="98.5" width="20" height="5" rx="2.5" fill="${c.fg}" opacity="0.55"/>
+  </svg>`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SAMBUNGAN KE BACKEND
+   Markup tiap state di bawah tetap sama persis dengan rancangan
+   desainer; yang berubah hanya sumber datanya — dari data contoh
+   menjadi API asli.
+   ════════════════════════════════════════════════════════════════ */
 const API = 'https://pena-digital-backend.vercel.app/api/public';
 const ADMIN_WA = '6282228225791';
 
-// ════════════════════════════════════════
-// KATALOG
-// ════════════════════════════════════════
-async function loadKatalog() {
-  try {
-    const r = await fetch(`${API}/katalog`);
-    const d = await r.json();
-    renderKatalog(d.data || []);
-  } catch {
-    document.getElementById('katalog-grid').innerHTML = '<div class="katalog-empty">Gagal memuat katalog. Coba refresh halaman.</div>';
-  }
-}
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
-// Format angka jadi Rupiah, mis. 150000 -> "Rp 150.000"
-function formatRupiah(n) {
-  const num = Number(n);
-  if (isNaN(num)) return '';
-  return 'Rp ' + num.toLocaleString('id-ID');
-}
-
-// Deteksi field harga secara otomatis dari beberapa kemungkinan nama field backend
-function getHarga(p) {
-  const candidates = ['harga', 'harga_jual', 'price', 'harga_produk', 'harga_diskon'];
-  for (const key of candidates) {
-    if (p[key] !== undefined && p[key] !== null && p[key] !== '') return p[key];
-  }
+/* Backend tidak menyimpan kolom jenjang, jadi jenjang disimpulkan dari nama
+   produk. Diurutkan SMA → SMP → SD karena "SMA/MA/SMK" juga memuat pola
+   yang lebih pendek. Produk yang tidak cocok pola mana pun tetap tampil di
+   tab "Semua" — hanya tidak muncul saat difilter per jenjang. */
+function tebakJenjang(nama){
+  const n = ' ' + String(nama||'').toUpperCase() + ' ';
+  if (/[^A-Z](SMA|MAK|SMK)[^A-Z]/.test(n) || /[^A-Z]MA[^A-Z]/.test(n)) return 'sma';
+  if (/[^A-Z](SMP|MTS)[^A-Z]/.test(n)) return 'smp';
+  if (/[^A-Z](SD|MI)[^A-Z]/.test(n))  return 'sd';
   return null;
 }
 
-function renderKatalog(items) {
-  const grid = document.getElementById('katalog-grid');
-  if (!items.length) {
-    grid.innerHTML = '<div class="katalog-empty">Katalog belum tersedia.</div>';
-    return;
-  }
-  grid.innerHTML = items.map(p => {
-    const harga = getHarga(p);
-    const hargaHtml = `<div class="produk-card-price">${harga !== null ? formatRupiah(harga) : 'Hubungi Admin'}</div>`;
-    return `
-    <a class="produk-card" href="produk.html?id=${p.id}">
-      <div class="produk-thumb-wrap">
-        ${p.foto_url
-          ? `<img class="produk-thumb" src="${toImgUrl(esc(p.foto_url))}" alt="${esc(p.nama)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=produk-thumb-placeholder><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/>\\x3cpath d=\\'M3 9l4-4 4 4 4-4 4 4\\'/>\\x3ccircle cx=\\'8.5\\' cy=\\'13.5\\' r=\\'1.5\\'/></svg></div>'">`
-          : `<div class="produk-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="13.5" r="1.5"/></svg></div>`
-        }
-        <div class="produk-overlay"><div class="overlay-text">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Lihat Detail
-        </div></div>
+/* Baris keterangan kecil di kartu — disusun dari penanda yang memang ada di
+   nama produk (endpoint daftar katalog tidak mengirim variasi/deskripsi). */
+function metaProduk(nama, jenjang){
+  const n = String(nama||'').toUpperCase();
+  const tag = [];
+  if (n.includes('DEEP LEARNING')) tag.push('Deep Learning');
+  if (n.includes('KBC'))           tag.push('KBC');
+  if (n.includes('PAI'))           tag.push('PAI');
+  const cp = n.match(/CP\s*(\d{2,3})/);
+  if (cp) tag.push('CP ' + cp[1]);   // pertahankan angka apa adanya, mis. "046" bukan "46"
+  const label = { sd:'SD/MI', smp:'SMP/MTs', sma:'SMA/MA/SMK' }[jenjang];
+  if (label) tag.push(label);
+  return tag.length ? tag.join(' · ') : 'Perangkat ajar digital';
+}
+
+function productCardHTML(p){
+  const jenjang    = p._jenjang;
+  const levelLabel = { sd:'SD', smp:'SMP', sma:'SMA' }[jenjang];
+  const price = p.harga
+    ? `<div class="product-price">${fmtRp(Number(p.harga))}</div>`
+    : `<div class="product-price contact">Hubungi Admin</div>`;
+  /* Foto asli dari Cloudinary. Kalau gagal dimuat, diganti gambar cadangan
+     buatan (docThumbSVG) supaya kartu tidak pernah tampil bolong. */
+  const thumb = p.foto_url
+    ? `<img src="${esc(p.foto_url)}" alt="${esc(p.nama)}" loading="lazy"
+           onerror="this.closest('.product-thumb').innerHTML='${escA(docThumbSVG(jenjang||'sd'))}'">`
+    : docThumbSVG(jenjang || 'sd');
+  return `
+    <a class="product-card" href="produk.html?id=${encodeURIComponent(p.id)}" data-level="${jenjang||''}">
+      <div class="product-thumb">
+        ${levelLabel ? `<span class="level-badge">${levelLabel}</span>` : ''}
+        ${thumb}
       </div>
-      <div class="produk-card-name">${esc(p.nama)}</div>
-      ${hargaHtml}
-    </a>
-  `;
-  }).join('');
+      <div class="product-body">
+        <div class="product-name">${esc(p.nama)}</div>
+        <div class="product-meta">${esc(metaProduk(p.nama, jenjang))}</div>
+        ${price}
+      </div>
+    </a>`;
 }
 
-// Konversi Google Drive share link ke direct image link
-function toImgUrl(url) {
-  if (!url) return url;
-  // Kalau sudah format uc?export=view, langsung pakai
-  if (url.includes('uc?export=view') || url.includes('uc&export=view')) return url;
-  // Format: https://drive.google.com/file/d/FILE_ID/view
-  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
-  // Format: https://drive.google.com/open?id=FILE_ID
-  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m2) return `https://drive.google.com/uc?export=view&id=${m2[1]}`;
-  return url;
+function skeletonCardHTML(){
+  return `
+    <div class="product-card skeleton-card">
+      <div class="product-thumb"></div>
+      <div class="product-body">
+        <div class="skeleton-line" style="width:95%"></div>
+        <div class="skeleton-line" style="width:60%"></div>
+        <div class="skeleton-line" style="width:40%; height:15px; margin-top:6px;"></div>
+      </div>
+    </div>`;
 }
 
-// ════════════════════════════════════════
-// CEK PESANAN
-// ════════════════════════════════════════
-document.getElementById('inp').addEventListener('keydown', e => { if (e.key==='Enter') cekPesanan(); });
+/* ── Katalog ─────────────────────────────────────────────────── */
+let PRODUCTS = [];
+let currentFilter = 'all';
 
-async function cekPesanan() {
-  const inp = document.getElementById('inp');
-  const no  = inp.value.trim().toUpperCase().replace(/\s+/g,'');
-  if (!no) { inp.focus(); inp.style.borderColor='var(--orange)'; setTimeout(()=>inp.style.borderColor='',1500); return; }
+function renderCatalogState(state){
+  const grid = document.getElementById('productGrid');
+  if(state === 'skeleton'){
+    grid.innerHTML = Array(6).fill(skeletonCardHTML()).join('');
+  } else if(state === 'empty'){
+    grid.innerHTML = `
+      <div class="catalog-empty">
+        <div class="ic">${ICON_BOX}</div>
+        <h3>Belum ada produk di kategori ini</h3>
+        <p>Coba pilih jenjang lain, atau kembali lagi nanti.</p>
+      </div>`;
+  } else if(state === 'error'){
+    grid.innerHTML = `
+      <div class="catalog-error">
+        <div class="ic">${ICON_ALERT}</div>
+        <h3>Katalog gagal dimuat</h3>
+        <p>Periksa koneksi internetmu, lalu coba lagi.</p>
+        <button class="retry-btn" onclick="loadKatalog()">Coba Lagi</button>
+      </div>`;
+  } else {
+    applyFilter(currentFilter);
+  }
+}
 
-  currentNoPesanan = no;
-  sudahTandai = false;
-  setLoad(true);
-  document.getElementById('result-box').style.display = 'none';
+function applyFilter(filter){
+  currentFilter = filter;
+  const grid = document.getElementById('productGrid');
+  const list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p._jenjang === filter);
+  grid.innerHTML = list.length
+    ? list.map(productCardHTML).join('')
+    : `<div class="catalog-empty"><div class="ic">${ICON_BOX}</div><h3>Belum ada produk di kategori ini</h3><p>Coba pilih jenjang lain, atau kembali lagi nanti.</p></div>`;
+}
+
+async function loadKatalog(){
+  renderCatalogState('skeleton');
+  try {
+    const r = await fetch(`${API}/katalog`);
+    const d = await r.json();
+    PRODUCTS = (d.data || []).map(p => ({ ...p, _jenjang: tebakJenjang(p.nama) }));
+    if (!PRODUCTS.length) { renderCatalogState('empty'); return; }
+    applyFilter(currentFilter);
+  } catch {
+    renderCatalogState('error');
+  }
+}
+
+document.getElementById('filterChips').addEventListener('click', e => {
+  const btn = e.target.closest('.chip');
+  if(!btn) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter(btn.dataset.filter);
+});
+
+/* ── Cek pesanan ─────────────────────────────────────────────── */
+let noPesananAktif = null;
+let sumberAktif    = null;   // 'shopee' | 'website'
+let sudahDitandai  = false;
+
+function baris(item){
+  if (item.url) {
+    return `<div class="link-row"><div class="link-name"><b>${esc(item.label)}</b><span>${esc(item.url)}</span></div>` +
+           `<button class="copy-btn" onclick="copyLink(this,'${escA(item.url)}')">Salin Link</button></div>`;
+  }
+  return `<div class="link-row"><div class="link-name"><b>${esc(item.label)}</b><span class="pending-note">Sedang disiapkan admin</span></div></div>`;
+}
+
+function teksEmail(list, no){
+  let b = `Halo,\n\nBerikut link pesanan PenaDigital Anda:\nNo. Pesanan: ${no}\n\n`;
+  list.forEach((p,i) => { b += `${i+1}. ${p.label}\n` + (p.url ? `   ${p.url}\n\n` : `   (Link belum tersedia)\n\n`); });
+  return b + `Salam,\nPena Digital Store | WA: 0822-2822-5791`;
+}
+function teksWA(list, no){
+  let t = `*Link Pesanan PenaDigital*\nNo: ${no}\n\n`;
+  list.forEach((p,i) => { t += `*${i+1}. ${p.label}*\n` + (p.url ? `${p.url}\n\n` : `(Link belum tersedia)\n\n`); });
+  return t;
+}
+
+function renderLookupState(state, d){
+  const el       = document.getElementById('lookupResult');
+  const input    = document.getElementById('orderInput');
+  const fieldMsg = document.getElementById('fieldMsg');
+  fieldMsg.classList.remove('show');
+  input.classList.remove('err');
+  d = d || {};
+  const list = d.produk_list || [];
+  const no   = esc(d.no_pesanan || '');
+
+  const templates = {
+    idle: () => `<div class="result-card"><p class="result-hint">Hasil pencarianmu akan muncul di sini.</p></div>`,
+
+    empty: () => { fieldMsg.classList.add('show'); input.classList.add('err'); return `<div class="result-card"><p class="result-hint">Hasil pencarianmu akan muncul di sini.</p></div>`; },
+
+    loading: () => `
+      <div class="result-card">
+        <div class="status-row"><div class="spinner"></div>
+          <div><p class="status-title" style="margin:0;">Mencari pesanan...</p></div>
+        </div>
+      </div>`,
+
+    found: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="status-icon ok">${ICON_CHECK}</div>
+          <div><p class="status-title">Pesanan ditemukan</p><p class="status-desc">${no} · ${list.length} produk</p></div>
+        </div>
+        <div class="link-list">${list.map(baris).join('')}</div>
+        <div class="share-row">
+          <button onclick="kirimEmail()">${ICON_MAIL_GHOST} Kirim ke Email</button>
+          <button onclick="kirimWA()">${ICON_WA_SM} Kirim ke WhatsApp</button>
+        </div>
+      </div>`,
+
+    partial: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="status-icon warn">${ICON_ALERT_SM}</div>
+          <div><p class="status-title">Sebagian link belum tersedia</p><p class="status-desc">${no} · ${list.length} produk</p></div>
+        </div>
+        <div class="link-list">${list.map(baris).join('')}</div>
+        <a class="cta-outline" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(
+          `Halo min, saya belum mendapatkan sebagian pesanan saya\nno pesanan: ${d.no_pesanan||''}\nproduk: ${list.filter(p=>!p.url).map(p=>p.label).join(', ')}`
+        )}" target="_blank" rel="noopener">${ICON_CHAT} Tanyakan ke Admin</a>
+      </div>`,
+
+    processing: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="spinner" style="border-top-color:var(--orange); border-color:rgba(224,123,42,0.25); border-top-width:2.5px;"></div>
+          <div><p class="status-title">Sedang diproses</p><p class="status-desc">${esc(d.message || 'Biasanya selesai dalam waktu kurang dari 1 menit. Coba cek lagi sebentar.')}</p></div>
+        </div>
+      </div>`,
+
+    manual: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="status-icon warn">${ICON_MAIL}</div>
+          <div><p class="status-title">Link akan dikirim admin</p><p class="status-desc">Produk ini perlu dikirim secara manual. Tunggu pesan dari admin, atau hubungi langsung.</p></div>
+        </div>
+        <a class="cta-outline" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(
+          `Halo min, saya belum mendapatkan pesanan saya\nno pesanan: ${d.no_pesanan||''}\nproduk: ${list.filter(p=>!p.url).map(p=>p.label).join(', ') || 'produk yang dipesan'}`
+        )}" target="_blank" rel="noopener">${ICON_CHAT} Hubungi Admin Sekarang</a>
+      </div>`,
+
+    unpaid: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="status-icon warn">${ICON_CLOCK}</div>
+          <div><p class="status-title">Pesanan belum dibayar</p><p class="status-desc">${esc(d.message || 'Selesaikan pembayaran untuk menerima link produk.')}</p></div>
+        </div>
+        <a class="cta-outline" style="background:var(--orange);" href="pending.html">Lanjutkan Pembayaran</a>
+      </div>`,
+
+    blocked: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="status-icon bad">${ICON_X}</div>
+          <div><p class="status-title">Akun tidak dapat memproses permintaan ini</p><p class="status-desc">${esc(d.message || 'Hubungi admin untuk bantuan lebih lanjut.')}</p></div>
+        </div>
+        <a class="cta-outline" href="https://wa.me/${ADMIN_WA}" target="_blank" rel="noopener">${ICON_CHAT} Hubungi Admin</a>
+      </div>`,
+
+    offline: () => `
+      <div class="result-card">
+        <div class="status-row">
+          <div class="status-icon bad">${ICON_ALERT_SM}</div>
+          <div><p class="status-title">Tidak bisa terhubung ke server</p><p class="status-desc">Periksa koneksi internetmu, lalu coba lagi.</p></div>
+        </div>
+        <button class="retry-btn" style="background:transparent;border-color:#fff;color:#fff;" onclick="cekPesanan()">Coba Lagi</button>
+      </div>`,
+  };
+
+  el.innerHTML = (templates[state] || templates.idle)();
+}
+
+let hasilTerakhir = { list: [], no: '' };
+
+async function cekPesanan(){
+  const input = document.getElementById('orderInput');
+  const no = input.value.trim().toUpperCase().replace(/\s+/g,'');
+  expandLookup();
+  if (!no) { renderLookupState('empty'); input.focus(); return; }
+
+  noPesananAktif = no;
+  sudahDitandai  = false;
+  renderLookupState('loading');
 
   try {
     const r = await fetch(`${API}/pesanan/${encodeURIComponent(no)}`);
     const d = await r.json();
+
     if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=cari'; return; }
-    currentSumber = d.sumber || null; // 'shopee' atau 'website' -- dipakai tandaiTerkirim()
-    renderResult(d);
+    if (d.status === 'rate_limited') {
+      renderLookupState('processing', { message: d.message || 'Terlalu banyak percobaan. Coba lagi sebentar.' });
+      return;
+    }
+
+    sumberAktif   = d.sumber || null;
+    hasilTerakhir = { list: d.produk_list || [], no: d.no_pesanan || no };
+
+    if (d.status === 'found') {
+      const adaKosong = (d.produk_list || []).some(p => !p.url);
+      renderLookupState(adaKosong ? 'partial' : 'found', d);
+    }
+    else if (d.status === 'not_found') renderLookupState('processing', d);
+    else if (d.status === 'no_link')   renderLookupState('manual', d);
+    else if (d.status === 'not_paid')  renderLookupState('unpaid', d);
+    else if (d.status === 'blocked')   renderLookupState('blocked', d);
+    else renderLookupState('offline', d);
+
   } catch {
-    renderResult({ status:'error', message:'Tidak dapat terhubung ke server. Coba lagi.' });
-  } finally {
-    setLoad(false);
+    renderLookupState('offline');
   }
 }
 
-function renderResult(d) {
-  const box = document.getElementById('result-box');
-  box.style.display = 'block';
-
-  if (d.status === 'found') {
-    const produkHtml = (d.produk_list||[]).map(p => {
-      if (!p.url) return `<div class="produk-item"><div class="produk-nama">${esc(p.label)}</div><div class="rbox-msg" style="font-size:11px;color:rgba(255,255,255,.5);">Link belum tersedia</div></div>`;
-      return `<div class="produk-item">
-        <div class="produk-nama">${esc(p.label)}</div>
-        <div class="produk-url">${esc(p.url)}</div>
-        <button class="btn-salin" onclick="salin(this,'${escA(p.url)}')">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Salin Link
-        </button>
-      </div>`;
-    }).join('');
-
-    const mailBody = buildMail(d.produk_list||[], d.no_pesanan);
-    const waText   = buildWA(d.produk_list||[], d.no_pesanan);
-
-    box.innerHTML = `<div class="rbox">
-      <div class="rbox-header">
-        <div class="rbox-icon">✅</div>
-        <div><div class="rbox-title">Pesanan Ditemukan</div>
-          <div class="rbox-sub">Halo, ${esc(d.nama_pembeli||'Bapak/Ibu')} 👋</div>
-          <div class="rbox-no">${esc(d.no_pesanan)}</div></div>
-      </div>
-      <div class="rbox-divider"></div>
-      <div class="rbox-body">
-        ${produkHtml}
-        <div class="aksi-btns" style="margin-top:12px;">
-          <a class="btn-aksi btn-aksi-email" onclick="tandaiTerkirim()" href="mailto:?subject=${encodeURIComponent('Link Pesanan PenaDigital — '+d.no_pesanan)}&body=${encodeURIComponent(mailBody)}">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg> Email
-          </a>
-          <a class="btn-aksi btn-aksi-wa" onclick="tandaiTerkirim()" href="https://wa.me/?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> WhatsApp
-          </a>
-        </div>
-      </div>
-    </div>`;
-
-  } else if (d.status === 'not_found') {
-    box.innerHTML = `<div class="rbox">
-      <div class="rbox-header">
-        <div class="rbox-icon">⏳</div>
-        <div><div class="rbox-title">Sedang Diproses</div>
-          <div class="rbox-sub">Tunggu ±1 menit, lalu cek kembali</div></div>
-      </div>
-      <div class="rbox-divider"></div>
-      <div class="rbox-body"><div class="rbox-msg">${esc(d.message||'Nomor pesanan belum diproses.')}</div></div>
-    </div>`;
-
-  } else if (d.status === 'no_link') {
-    const produkLabel = (d.produk_list||[]).filter(p=>!p.url).map(p=>p.label).join(', ') || 'produk yang dipesan';
-    const tmpl = `Halo min, saya belum mendapatkan pesanan saya\nno pesanan: ${d.no_pesanan}\nproduk: ${produkLabel}`;
-    box.innerHTML = `<div class="rbox">
-      <div class="rbox-header">
-        <div class="rbox-icon">🔗</div>
-        <div><div class="rbox-title">Link Belum Tersedia</div>
-          <div class="rbox-sub">Halo, ${esc(d.nama_pembeli||'Bapak/Ibu')} 👋</div>
-          <div class="rbox-no">${esc(d.no_pesanan)}</div></div>
-      </div>
-      <div class="rbox-divider"></div>
-      <div class="rbox-body">
-        <div class="rbox-msg">Mohon maaf, link harus dikirim oleh admin. Silakan hubungi admin kami.</div>
-        <a class="btn-wa-admin" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(tmpl)}" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          Hubungi Admin via WhatsApp
-        </a>
-      </div>
-    </div>`;
-
-  } else if (d.status === 'not_paid') {
-    box.innerHTML = `<div class="rbox">
-      <div class="rbox-header">
-        <div class="rbox-icon">⏳</div>
-        <div><div class="rbox-title">Menunggu Pembayaran</div>
-          <div class="rbox-no">${esc(d.no_pesanan)}</div></div>
-      </div>
-      <div class="rbox-divider"></div>
-      <div class="rbox-body">
-        <div class="rbox-msg">${esc(d.message||'Pesanan ditemukan tapi belum dibayar/dikonfirmasi.')}</div>
-        <a class="btn-wa-admin" href="pending.html" style="background:var(--navy2);">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          Cek & Lanjutkan Pembayaran
-        </a>
-      </div>
-    </div>`;
-
-  } else if (d.status === 'blocked') {
-    box.innerHTML = `<div class="rbox">
-      <div class="rbox-header">
-        <div class="rbox-icon">🚫</div>
-        <div><div class="rbox-title">Akun Diblokir</div>
-          <div class="rbox-sub">Tidak dapat mengakses link pesanan ini</div></div>
-      </div>
-      <div class="rbox-divider"></div>
-      <div class="rbox-body">
-        <div class="rbox-msg">${esc(d.message||'Akun ini telah diblokir dan tidak dapat mengakses link produk.')}</div>
-        <a class="btn-wa-admin" href="https://wa.me/${ADMIN_WA}" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          Hubungi Admin via WhatsApp
-        </a>
-      </div>
-    </div>`;
-
-  } else {
-    box.innerHTML = `<div class="rbox">
-      <div class="rbox-header"><div class="rbox-icon">❌</div>
-        <div><div class="rbox-title">Terjadi Kesalahan</div>
-          <div class="rbox-sub">${esc(d.message||'Coba lagi.')}</div></div>
-      </div>
-    </div>`;
-  }
+/* Tandai pesanan Shopee sudah diambil. Pesanan Website tidak punya status ini
+   — statusnya mengikuti pembayaran Midtrans. */
+async function tandaiTerkirim(){
+  if (sudahDitandai || !noPesananAktif || sumberAktif !== 'shopee') return;
+  sudahDitandai = true;
+  try { await fetch(`${API}/pesanan/${encodeURIComponent(noPesananAktif)}/ambil`, { method:'PATCH' }); } catch {}
 }
 
-// ════════════════════════════════════════
-// TANDAI TERKIRIM — dipanggil otomatis
-// ════════════════════════════════════════
-let sudahTandai = false;
-let currentSumber = null;
-async function tandaiTerkirim() {
-  // Cuma berlaku untuk pesanan Shopee -- pesanan Website (Midtrans) tidak
-  // punya konsep status "TERKIRIM" yang perlu ditandai di sini, statusnya
-  // sudah dilacak lewat status pembayaran Midtrans sendiri.
-  if (sudahTandai || !currentNoPesanan || currentSumber !== 'shopee') return;
-  sudahTandai = true;
+async function copyLink(btn, url){
+  try { await navigator.clipboard.writeText(url); }
+  catch {
+    const t = document.createElement('textarea');
+    t.value = url; t.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); } catch {}
+    document.body.removeChild(t);
+  }
+  tandaiTerkirim();
+  const original = btn.textContent;
+  btn.textContent = 'Tersalin!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+}
+
+function kirimEmail(){
+  tandaiTerkirim();
+  location.href = 'mailto:?subject=' + encodeURIComponent('Link Pesanan PenaDigital — ' + hasilTerakhir.no) +
+                  '&body=' + encodeURIComponent(teksEmail(hasilTerakhir.list, hasilTerakhir.no));
+}
+function kirimWA(){
+  tandaiTerkirim();
+  window.open('https://wa.me/?text=' + encodeURIComponent(teksWA(hasilTerakhir.list, hasilTerakhir.no)), '_blank', 'noopener');
+}
+
+document.getElementById('lookupForm').addEventListener('submit', e => { e.preventDefault(); cekPesanan(); });
+document.getElementById('orderInput').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase().replace(/\s/g,'');
+});
+
+/* ── Banner pesanan belum dibayar ────────────────────────────── */
+async function cekPesananTertunda(){
+  const last = localStorage.getItem('pd_last_order');
+  const banner = document.getElementById('pendingBanner');
+  if (!last) { banner.style.display = 'none'; return; }
   try {
-    await fetch(`${API}/pesanan/${encodeURIComponent(currentNoPesanan)}/ambil`, {
-      method: 'PATCH'
-    });
-  } catch { /* silent fail — tidak ganggu UX */ }
-}
-
-// ════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════
-function setLoad(on) {
-  document.getElementById('btn-cek').disabled = on;
-  document.getElementById('spin').style.display = on ? 'block' : 'none';
-  document.getElementById('btn-icon').style.display = on ? 'none' : 'block';
-  document.getElementById('btn-txt').textContent = on ? '' : 'Cek';
-}
-
-async function salin(btn, url) {
-  try { await navigator.clipboard.writeText(url); } catch {
-    const t=document.createElement('textarea'); t.value=url;
-    t.style.cssText='position:fixed;opacity:0;'; document.body.appendChild(t); t.select();
-    document.execCommand('copy'); document.body.removeChild(t);
-  }
-  tandaiTerkirim(); // ← otomatis tandai terkirim
-  const o=btn.innerHTML; btn.classList.add('copied');
-  btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Tersalin!';
-  setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML=o; },2000);
-}
-
-function buildMail(list, no) {
-  let b=`Halo,\n\nBerikut link pesanan PenaDigital Anda:\nNo. Pesanan: ${no}\n\n`;
-  list.forEach((p,i)=>{ b+=`${i+1}. ${p.label}\n`; b+=p.url?`   ${p.url}\n\n`:`   (Link belum tersedia)\n\n`; });
-  b+=`Salam,\nPenaDigital Store | WA: 0822-2822-5791`;
-  return b;
-}
-
-function buildWA(list, no) {
-  let t=`*Link Pesanan PenaDigital*\nNo: ${no}\n\n`;
-  list.forEach((p,i)=>{ t+=`*${i+1}. ${p.label}*\n`; t+=p.url?`${p.url}\n\n`:`(Link belum tersedia)\n\n`; });
-  return t;
-}
-
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
-
-// Init
-loadKatalog();
-cekPendingOrder();
-
-// ════════════════════════════════════════
-// CEK PEMBAYARAN TERTUNDA
-// ════════════════════════════════════════
-async function cekPendingOrder() {
-  const lastOrder = localStorage.getItem('pd_last_order');
-  if (!lastOrder) return;
-
-  try {
-    const r = await fetch(`${API}/midtrans/order/${lastOrder}`);
+    const r = await fetch(`${API}/midtrans/order/${encodeURIComponent(last)}`);
     const d = await r.json();
-    if (d.status !== 'ok') return;
+    if (d.status !== 'ok') { banner.style.display = 'none'; return; }
 
     if (d.payment_status === 'pending') {
-      // Tampilan sengaja dibuat seperti ALERT transaksi (bukan promo):
-      // ikon peringatan + label tegas + sebut "pembayaran pesanan" supaya
-      // user baru tidak mengira ini banner promo.
-      document.getElementById('pending-banner').innerHTML = `
-        <div style="background:#FEF3C7;border-bottom:2px solid #F59E0B;padding:11px 16px;">
-          <a href="pending.html" style="display:flex;align-items:center;gap:10px;max-width:600px;margin:0 auto;text-decoration:none;color:#92400E;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span style="flex:1;font-size:13px;font-weight:600;line-height:1.4;">
-              <strong style="font-weight:800;">Transaksi belum selesai</strong> — pembayaran pesanan Anda masih menunggu. Ketuk untuk melanjutkan atau membatalkan.
-            </span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-        </div>`;
+      const dibuat  = new Date(d.created_at).getTime();
+      const habis   = dibuat + 3*60*60*1000;   // batas bayar 3 jam
+      const wrap    = banner.querySelector('.wrap span:nth-child(2)');
+      banner.style.display = 'block';
+
+      const tick = () => {
+        const sisa = habis - Date.now();
+        if (sisa <= 0) { banner.style.display = 'none'; clearInterval(timer); return; }
+        const j = String(Math.floor(sisa/3600000)).padStart(2,'0');
+        const m = String(Math.floor(sisa%3600000/60000)).padStart(2,'0');
+        const dt= String(Math.floor(sisa%60000/1000)).padStart(2,'0');
+        if (wrap) wrap.innerHTML = `Ada pesanan <strong>belum dibayar</strong> · sisa waktu ${j}:${m}:${dt}`;
+      };
+      tick();
+      const timer = setInterval(tick, 1000);
     } else {
+      banner.style.display = 'none';
       localStorage.removeItem('pd_last_order');
     }
-  } catch {}
+  } catch { banner.style.display = 'none'; }
 }
 
-// Update cart badge
-(function(){
+/* ── Badge keranjang ─────────────────────────────────────────── */
+function updateCartBadge(){
+  let total = 0;
   try {
-    const cart = JSON.parse(localStorage.getItem('pd_cart')||'[]');
-    const total = cart.reduce((s,i)=>s+(i.qty||1),0);
-    const el = document.getElementById('cart-count');
-    if (el && total > 0) { el.textContent=total; el.style.display='flex'; }
+    const cart = JSON.parse(localStorage.getItem('pd_cart') || '[]');
+    total = cart.reduce((s,i) => s + (i.qty||1), 0);
   } catch {}
-})();
-
-// Register Service Worker (PWA)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  document.querySelectorAll('#headerCartBadge, .cart-badge').forEach(b => {
+    b.textContent = total;
+    b.style.display = total > 0 ? 'block' : 'none';
   });
 }
-//q
+
+/* ── Menu samping & kartu cek pesanan ───────────────────────── */
+function toggleSidebar(){
+  const panel   = document.getElementById('sidebarPanel');
+  const overlay = document.getElementById('sidebarOverlay');
+  const open = panel.classList.toggle('open');
+  overlay.classList.toggle('open', open);
+  panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+function toggleLookup(){
+  const card = document.getElementById('lookupCard');
+  const btn  = document.getElementById('lookupToggle');
+  const expanded = card.classList.toggle('expanded');
+  btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+}
+function expandLookup(){
+  const card = document.getElementById('lookupCard');
+  if(!card.classList.contains('expanded')){
+    card.classList.add('expanded');
+    document.getElementById('lookupToggle').setAttribute('aria-expanded','true');
+  }
+}
+
+/* ── Init ────────────────────────────────────────────────────── */
+renderLookupState('idle');
+loadKatalog();
+cekPesananTertunda();
+updateCartBadge();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
 </script>
+<!-- Statistik pengunjung (lihat lacak.js) -->
+<script src="lacak.js" data-jenis="kunjungan"></script>
 </body>
 </html>

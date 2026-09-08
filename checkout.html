@@ -3,348 +3,630 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout — PenaDigital</title>
-<link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#1B3A6B">
+<title>Checkout — Pena Digital</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#1B3A6B;--orange:#E07B2A;--cream:#F5EFE6;--cream2:#EDE4D6;--white:#fff;--g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;--g500:#64748B;--g700:#334155;--green:#16A34A;--red:#DC2626;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;}
-header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.2);}
-.logo-box{width:38px;height:38px;background:var(--cream);border-radius:8px;display:flex;align-items:center;justify-content:center;}
-.logo-box svg{width:24px;height:24px;}
-.brand-name{font-size:16px;font-weight:800;color:#fff;}
-.main{max-width:560px;margin:0 auto;padding:20px 16px 40px;}
-.section-card{background:var(--white);border-radius:14px;border:1px solid var(--cream2);padding:20px;margin-bottom:16px;}
-.sec-title{font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
-.sec-title::before{content:'';width:3px;height:14px;background:var(--orange);border-radius:2px;display:inline-block;}
-.form-group{margin-bottom:14px;}
-.form-label{font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px;}
-.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--g700);background:var(--g50);outline:none;transition:border-color .2s,box-shadow .2s;}
-.form-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(224,123,42,.1);}
-.form-hint{font-size:11px;color:var(--g500);margin-top:4px;}
+  :root{
+    --navy: #1B3A6B;
+    --navy-dark: #12294D;
+    --navy-tint: #E8EDF5;
+    --orange: #E07B2A;
+    --orange-dark: #B9631E;
+    --cream: #F5EFE6;
+    --paper: #FFFFFF;
+    --surface-alt: #FAF7F1;
+    --line: #E4DBC9;
+    --ink: #24211B;
+    --ink-soft: #6B6459;
+    --ink-faint: #96907F;
+    --wa: #25D366;
+    --wa-dark: #1DA851;
+    --amber: #A9670F;
+    --amber-bg: #FBF0DD;
+    --red: #B3392C;
+    --red-bg: #FAEBE8;
+    --success: #1E7A4C;
+    --success-bg: #E6F3EC;
+    --radius-s: 8px;
+    --radius-m: 14px;
+    --radius-l: 20px;
+    --shadow: 0 1px 2px rgba(27,58,107,0.06), 0 6px 20px rgba(27,58,107,0.07);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  /* Footer dijaga tetap di dasar layar walau isi halaman pendek — lihat
+     catatan yang sama di cart.html. */
+  body{
+    margin:0; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    background:var(--cream); color:var(--ink); -webkit-font-smoothing:antialiased;
+    min-height:100vh; min-height:100dvh;
+    display:flex; flex-direction:column;
+  }
+  .checkout-section{flex:1;}
+  button{font-family:inherit;}
+  a{color:inherit;}
+  :focus-visible{outline:2.5px solid var(--orange); outline-offset:2px;}
+  .tabular{font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 20px;}
 
-/* Order summary items */
-.order-item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--cream2);}
-.order-item:last-child{border-bottom:none;}
-.order-item-foto{width:48px;height:48px;border-radius:7px;overflow:hidden;background:var(--g100);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.order-item-foto img{width:100%;height:100%;object-fit:cover;}
-.order-item-info{flex:1;min-width:0;}
-.order-item-nama{font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.order-item-var{font-size:11px;color:var(--g500);}
-.order-item-harga{font-size:13px;font-weight:800;color:var(--orange);flex-shrink:0;}
+  /* ---------- Header (shared) ---------- */
+  .site-header{position:sticky; top:0; z-index:40; background:var(--paper); border-bottom:1px solid var(--line);}
+  .site-header .wrap{display:flex; align-items:center; justify-content:space-between; height:64px;}
+  .menu-btn{margin-right:auto;}
+  .logo-mark{width:32px; height:32px; border-radius:9px; background:var(--navy); display:flex; align-items:center; justify-content:center; color:var(--cream); font-weight:800; font-size:15px; flex-shrink:0;}
+  .header-actions{display:flex; align-items:center; gap:6px;}
+  .icon-btn{position:relative; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid transparent; background:none; color:var(--navy); cursor:pointer;}
+  .icon-btn:hover{background:var(--navy-tint);}
+  .icon-btn.wa-header{color:var(--wa-dark);}
+  .icon-btn.wa-header:hover{background:#E7FAEF;}
+  .cart-badge{position:absolute; top:2px; right:2px; min-width:16px; height:16px; padding:0 3px; border-radius:8px; background:var(--orange); color:#fff; font-size:10px; font-weight:700; line-height:16px; text-align:center;}
 
-/* Total */
-.total-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;}
-.total-row.final{font-size:16px;font-weight:800;color:var(--navy);padding-top:12px;border-top:2px solid var(--cream2);margin-top:4px;}
-.total-row.final span:last-child{color:var(--orange);}
+  /* ---------- Sidebar (shared) ---------- */
+  .sidebar-overlay{position:fixed; inset:0; background:rgba(18,41,77,0.45); opacity:0; pointer-events:none; transition:opacity .22s ease; z-index:60;}
+  .sidebar-overlay.open{opacity:1; pointer-events:auto;}
+  .sidebar-panel{position:fixed; top:0; left:0; height:100%; width:280px; max-width:82vw; background:#fff; z-index:70; transform:translateX(-100%); transition:transform .25s ease; box-shadow:8px 0 24px rgba(18,41,77,0.18); display:flex; flex-direction:column;}
+  .sidebar-panel.open{transform:translateX(0);}
+  .sidebar-head{display:flex; align-items:center; gap:10px; padding:16px 14px; border-bottom:1px solid var(--line);}
+  .sidebar-title{flex:1; font-weight:800; font-size:15px; color:var(--navy); letter-spacing:-0.01em;}
+  .sidebar-nav{display:flex; flex-direction:column; padding:8px;}
+  .sidebar-nav a{display:block; padding:12px 12px; border-radius:9px; font-size:14px; font-weight:600; color:var(--ink); text-decoration:none;}
+  .sidebar-nav a:hover{background:var(--navy-tint); color:var(--navy);}
+  .sidebar-divider{height:1px; background:var(--line); margin:8px 4px;}
 
-/* TnC */
-.tnc-check{display:flex;align-items:flex-start;gap:10px;margin-top:4px;}
-.tnc-check input{margin-top:2px;accent-color:var(--orange);width:16px;height:16px;flex-shrink:0;}
-.tnc-check label{font-size:12px;color:var(--g500);line-height:1.5;}
-.tnc-check a{color:var(--orange);font-weight:600;text-decoration:none;}
+  /* ---------- Breadcrumb / back ---------- */
+  .back-row{display:flex; align-items:center; gap:8px; margin-bottom:14px;}
+  .back-link{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--ink-soft); text-decoration:none;}
+  .back-link:hover{color:var(--navy);}
+  .page-title{margin:0 0 18px; font-size:21px; font-weight:800; letter-spacing:-0.01em; color:var(--navy-dark);}
 
-/* Btn Bayar */
-.btn-bayar{width:100%;padding:16px;border-radius:12px;background:var(--orange);color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 14px rgba(224,123,42,.4);transition:background .15s;margin-top:16px;}
-.btn-bayar:hover{background:#C96E1F;}
-.btn-bayar:disabled{background:var(--g300);cursor:not-allowed;box-shadow:none;}
-.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;}
-@keyframes spin{to{transform:rotate(360deg)}}
+  .checkout-section{padding:20px 0 60px;}
+  .checkout-grid{display:grid; grid-template-columns:1fr; gap:16px;}
 
-/* Keamanan */
-.security-note{text-align:center;font-size:11px;color:var(--g500);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:5px;}
+  /* ---------- Cards ---------- */
+  .co-card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px;}
+  .co-card h2{margin:0 0 12px; font-size:13.5px; font-weight:800; color:var(--navy-dark);}
 
-/* Error */
-.err-msg{background:#FEE2E2;border:1px solid #FECACA;color:var(--red);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;}
+  /* ---------- Order summary ---------- */
+  .summary-item{display:flex; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line);}
+  .summary-item:last-child{border-bottom:none;}
+  .si-thumb{width:44px; height:44px; border-radius:8px; overflow:hidden; flex-shrink:0; background:var(--navy-tint);}
+  /* img ikut diatur, bukan cuma svg — lihat catatan yang sama di cart.html. */
+  .si-thumb img, .si-thumb svg{width:100%; height:100%; object-fit:contain; display:block;}
+  .si-body{flex:1; min-width:0;}
+  .si-name{font-size:12.5px; font-weight:700; line-height:1.35; margin:0 0 2px;
+    display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .si-variant{font-size:11px; color:var(--ink-faint); margin:0;}
+  .si-price{font-size:12.5px; font-weight:700; color:var(--ink); flex-shrink:0;}
+
+  /* ---------- Referral ---------- */
+  .referral-row{display:flex; gap:8px;}
+  .referral-row input{
+    flex:1; min-width:0; height:40px; padding:0 12px; border-radius:var(--radius-s);
+    border:1.5px solid var(--line); background:var(--surface-alt); font-size:13px; font-family:inherit; color:var(--ink);
+    text-transform:uppercase;
+  }
+  .referral-row input:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .referral-row input::placeholder{text-transform:none;}
+  .btn-apply{
+    flex-shrink:0; height:40px; padding:0 16px; border-radius:var(--radius-s); border:1.5px solid var(--navy);
+    background:#fff; color:var(--navy); font-weight:700; font-size:12.5px; cursor:pointer;
+  }
+  .btn-apply:hover{background:var(--navy); color:#fff;}
+  .btn-apply:disabled{opacity:0.5; cursor:not-allowed;}
+  .referral-msg{font-size:12px; margin-top:8px; display:flex; align-items:center; gap:6px;}
+  .referral-msg.ok{color:var(--success);}
+  .referral-msg.err{color:var(--red);}
+  .referral-msg.loading{color:var(--ink-soft);}
+
+  /* ---------- Cost breakdown ---------- */
+  .cost-row{display:flex; justify-content:space-between; font-size:13px; padding:5px 0; color:var(--ink-soft);}
+  .cost-row.discount{color:var(--success);}
+  .cost-row.total{
+    border-top:1px dashed var(--line); margin-top:6px; padding-top:11px;
+    font-size:15px; font-weight:800; color:var(--navy-dark);
+  }
+  .cost-row.total span:last-child{color:var(--orange-dark);}
+
+  /* ---------- Form ---------- */
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:6px;}
+  .field input[type=text], .field input[type=email], .field input[type=tel]{
+    width:100%; height:42px; padding:0 12px; border-radius:var(--radius-s);
+    border:1.5px solid var(--line); background:var(--surface-alt); font-size:13.5px; font-family:inherit; color:var(--ink);
+  }
+  .field input:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .field input.err{border-color:#E3A79C; background:var(--red-bg);}
+  .field-err-msg{display:none; font-size:11.5px; color:var(--red); margin-top:5px; font-weight:600;}
+  .field-err-msg.show{display:block;}
+  .field-hint{font-size:11px; color:var(--ink-faint); margin-top:5px;}
+
+  .tnc-row{display:flex; align-items:flex-start; gap:9px; padding:11px 12px; border-radius:var(--radius-s); background:var(--surface-alt); border:1.5px solid var(--line);}
+  .tnc-row.err{border-color:#E3A79C; background:var(--red-bg);}
+  .tnc-row input{width:17px; height:17px; margin-top:1px; accent-color:var(--navy); flex-shrink:0;}
+  .tnc-row label{font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
+  .tnc-row a{color:var(--navy); font-weight:700; text-decoration:underline;}
+
+  /* ---------- Pay button ---------- */
+  .btn-pay{
+    width:100%; height:48px; border-radius:var(--radius-s); border:none;
+    background:var(--orange); color:#fff; font-weight:700; font-size:14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px;
+  }
+  .btn-pay:hover{background:var(--orange-dark);}
+  .btn-pay:disabled{background:#D9C7B4; cursor:not-allowed;}
+  .btn-pay .spinner{width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .form-error-banner{
+    display:flex; align-items:flex-start; gap:9px; background:var(--red-bg); border:1px solid #EBCFC8;
+    border-radius:var(--radius-s); padding:11px 12px; font-size:12.5px; color:var(--red); margin-top:10px;
+  }
+  .form-error-banner svg{flex-shrink:0; margin-top:1px;}
+  .form-error-banner .fe-body b{display:block; margin-bottom:2px;}
+  .retry-link{background:none; border:none; color:var(--red); font-weight:700; text-decoration:underline; cursor:pointer; padding:0; font-size:12.5px;}
+
+  /* ---------- Feature disabled state ---------- */
+  .feature-disabled{
+    background:var(--paper); border:1px dashed var(--line); border-radius:var(--radius-m);
+    padding:48px 20px; text-align:center;
+  }
+  .feature-disabled .ic{color:var(--ink-faint); display:flex; justify-content:center; margin-bottom:12px;}
+  .feature-disabled h3{margin:0 0 5px; font-size:15px; font-weight:800; color:var(--navy-dark);}
+  .feature-disabled p{margin:0 auto 16px; font-size:12.5px; color:var(--ink-soft); max-width:38ch; line-height:1.5;}
+  .btn-wa-outline{
+    display:inline-flex; align-items:center; gap:7px; height:40px; padding:0 16px;
+    border-radius:var(--radius-s); border:1.5px solid var(--wa-dark); color:var(--wa-dark);
+    font-weight:700; font-size:13px; text-decoration:none;
+  }
+  .btn-wa-outline:hover{background:#E7FAEF;}
+
+  /* ---------- Midtrans placeholder overlay ---------- */
+  .midtrans-overlay{
+    position:fixed; inset:0; background:rgba(18,41,77,0.55); z-index:100;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .midtrans-overlay.open{opacity:1; pointer-events:auto;}
+  .midtrans-box{
+    background:#fff; border-radius:var(--radius-l); padding:26px; max-width:360px; width:100%; text-align:center;
+  }
+  .midtrans-box .mt-logo{
+    font-size:11px; font-weight:800; letter-spacing:0.04em; color:var(--ink-faint); margin-bottom:14px; text-transform:uppercase;
+  }
+  .midtrans-box p{font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 18px;}
+  .midtrans-box button{height:38px; padding:0 18px; border-radius:9px; border:1.5px solid var(--line); background:#fff; font-weight:700; font-size:12.5px; cursor:pointer;}
+
+  /* ---------- Preview switcher ---------- */
+
+  /* ---------- Floating WA ---------- */
+  .wa-float{
+    position:fixed; right:16px; bottom:16px; z-index:50;
+    width:54px; height:54px; border-radius:50%;
+    background:var(--wa); color:#fff; border:none;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(37,211,102,0.45); cursor:pointer;
+    animation:pulse 2.6s ease infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 6px 18px rgba(37,211,102,0.45);}
+    50%{box-shadow:0 6px 22px rgba(37,211,102,0.7), 0 0 0 7px rgba(37,211,102,0.12);}
+  }
+  @media (prefers-reduced-motion: reduce){ .wa-float{animation:none;} }
+
+  /* ---------- Footer (shared) ---------- */
+  .site-footer{background:var(--navy-dark); color:#C7D3E8; margin-top:10px;}
+  .site-footer .wrap{padding:26px 20px 24px;}
+  .footer-links{display:flex; flex-wrap:wrap; gap:14px 18px; margin-bottom:16px; font-size:12.5px;}
+  .footer-links a{text-decoration:none; color:#C7D3E8;}
+  .footer-links a:hover{color:#fff; text-decoration:underline;}
+  .footer-bottom{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-top:1px solid rgba(255,255,255,0.12); padding-top:14px; font-size:11.5px; color:#93A3C2;}
+  .footer-bottom a{color:#93A3C2;}
+
+  @media (min-width:900px){
+    .page-title{font-size:26px;}
+    .checkout-grid{grid-template-columns:1.35fr 1fr; align-items:start;}
+    .checkout-right{position:sticky; top:80px;}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <button onclick="goBackOrHome()" style="width:34px;height:34px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-  </button>
-  <div class="logo-box" style="margin-left:8px;">
-    <img src="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg" alt="PenaDigital" style="width:100%;height:100%;object-fit:cover;">
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="wrap">
+    <button class="icon-btn menu-btn" onclick="toggleSidebar()" aria-label="Buka menu" aria-expanded="false" aria-controls="sidebarPanel">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="12" cy="19" r="2.1"/></svg>
+    </button>
+    <div class="header-actions">
+      <a href="https://wa.me/6282228225791" target="_blank" rel="noopener" class="icon-btn wa-header" aria-label="Chat dengan Penjual di WhatsApp" title="Chat dengan Penjual">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.06c-.24.68-1.4 1.3-1.93 1.38-.49.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.72-2.09.98-2.37c.25-.28.55-.35.74-.35h.53c.17 0 .4-.02.61.47.24.57.8 1.97.87 2.11.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.13.07.7-.17 1.38Z"/></svg>
+      </a>
+      <a href="cart.html" class="icon-btn" aria-label="Keranjang">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge">2</span>
+      </a>
+    </div>
   </div>
-  <span class="brand-name">Checkout</span>
-  <div style="flex:1;"></div>
-  <a href="index.html" style="width:34px;height:34px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-  </a>
 </header>
 
-<div class="main">
-
-  <!-- RINGKASAN PESANAN -->
-  <div class="section-card">
-    <div class="sec-title">Ringkasan Pesanan</div>
-    <div id="order-items"></div>
-
-    <!-- KODE REFERRAL -->
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--cream2);">
-      <label class="form-label" style="margin-bottom:6px;display:block;">Punya Kode Referral?</label>
-      <div style="display:flex;gap:8px;">
-        <input id="f-referral" class="form-input" type="text" placeholder="Masukkan kode (opsional)" style="text-transform:uppercase;letter-spacing:.5px;flex:1;">
-        <button type="button" onclick="cekReferral()" id="btn-cek-referral" style="padding:11px 16px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Terapkan</button>
-      </div>
-      <div id="referral-msg" style="font-size:12px;margin-top:6px;display:none;"></div>
-    </div>
-
-    <div style="margin-top:12px;">
-      <div class="total-row"><span>Subtotal</span><span id="subtotal">Rp 0</span></div>
-      <div class="total-row" id="diskon-row" style="display:none;color:var(--green);"><span>Diskon Referral</span><span id="diskon-amount">-Rp 0</span></div>
-      <div class="total-row"><span>Pengiriman</span><span style="color:var(--green);">Gratis (Digital)</span></div>
-      <div class="total-row final"><span>Total Pembayaran</span><span id="total-final">Rp 0</span></div>
-    </div>
-  </div>
-
-  <!-- DATA PEMBELI -->
-  <div class="section-card">
-    <div class="sec-title">Data Penerima</div>
-    <div class="err-msg" id="err-msg"></div>
-
-    <div class="form-group">
-      <label class="form-label" for="f-nama">Nama Lengkap *</label>
-      <input id="f-nama" class="form-input" type="text" placeholder="contoh: Budi Santoso, S.Pd">
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="f-email">Alamat Email *</label>
-      <input id="f-email" class="form-input" type="email" placeholder="email@gmail.com">
-      <div class="form-hint">Link produk akan dikirim ke email ini</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="f-wa">Nomor WhatsApp *</label>
-      <input id="f-wa" class="form-input" type="tel" placeholder="08xxxxxxxxxx">
-      <div class="form-hint">Link produk juga dikirim via WhatsApp</div>
-    </div>
-
-    <div class="tnc-check">
-      <input type="checkbox" id="cb-tnc">
-      <label for="cb-tnc">
-        Saya telah membaca dan menyetujui
-        <a href="tnc.html" target="_blank">Syarat & Ketentuan</a> serta
-        <a href="refund.html" target="_blank">Kebijakan Pengembalian Dana</a> PenaDigital.
-      </label>
-    </div>
-
-    <button class="btn-bayar" id="btn-bayar" onclick="prosesBayar()">
-      <div class="spin" id="spin"></div>
-      <svg id="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      <span id="btn-txt">Bayar Sekarang</span>
+<!-- ============ SIDEBAR MENU ============ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar-panel" id="sidebarPanel" aria-hidden="true">
+  <div class="sidebar-head">
+    <span class="logo-mark">PD</span>
+    <span class="sidebar-title">Pena Digital</span>
+    <button class="icon-btn" onclick="toggleSidebar()" aria-label="Tutup menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="index.html">Beranda</a>
+    <a href="index.html#lookupCard">Ambil Link Pesanan</a>
+    <a href="cart.html">Keranjang</a>
+    <a href="pending.html">Pembayaran Tertunda</a>
+    <a href="contact.html">Kontak</a>
+    <a href="tnc.html">Syarat &amp; Ketentuan</a>
+    <a href="refund.html">Kebijakan Refund</a>
+    <div class="sidebar-divider"></div>
+    <a href="admin.html">Admin</a>
+    <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">Hubungi Admin (WhatsApp)</a>
+  </nav>
+</aside>
 
-    <div class="security-note">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Pembayaran aman diproses oleh Midtrans
+<!-- ============ CHECKOUT CONTENT ============ -->
+<section class="checkout-section">
+  <div class="wrap">
+    <div class="back-row">
+      <a class="back-link" href="cart.html">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Kembali ke Keranjang
+      </a>
+    </div>
+    <h1 class="page-title">Checkout</h1>
+
+
+    <div id="checkoutMain">
+      <div class="checkout-grid">
+        <!-- LEFT COLUMN -->
+        <div class="checkout-left" style="display:flex; flex-direction:column; gap:16px;">
+          <div class="co-card">
+            <h2>Ringkasan Pesanan</h2>
+            <div id="summaryList"><!-- filled by JS --></div>
+          </div>
+
+          <div class="co-card">
+            <h2>Data Pembeli</h2>
+            <p style="font-size:11.5px; color:var(--ink-faint); margin:-6px 0 14px;">Link produk akan dikirim ke email dan nomor WhatsApp ini setelah pembayaran berhasil.</p>
+
+            <div class="field">
+              <label for="fName">Nama Lengkap</label>
+              <input type="text" id="fName" placeholder="Nama lengkapmu">
+              <p class="field-err-msg" id="errName">Nama lengkap wajib diisi.</p>
+            </div>
+            <div class="field">
+              <label for="fEmail">Alamat Email</label>
+              <input type="email" id="fEmail" placeholder="nama@email.com">
+              <p class="field-err-msg" id="errEmail">Masukkan alamat email yang valid.</p>
+            </div>
+            <div class="field">
+              <label for="fWa">Nomor WhatsApp</label>
+              <input type="tel" id="fWa" placeholder="08xxxxxxxxxx">
+              <p class="field-err-msg" id="errWa">Masukkan nomor WhatsApp yang valid.</p>
+            </div>
+
+            <div class="tnc-row" id="tncRow">
+              <input type="checkbox" id="fTnc">
+              <label for="fTnc">Saya menyetujui <a href="tnc.html" target="_blank">Syarat &amp; Ketentuan</a> yang berlaku di Pena Digital.</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="checkout-right" style="display:flex; flex-direction:column; gap:16px;">
+          <div class="co-card">
+            <h2>Kode Referral</h2>
+            <div class="referral-row">
+              <input type="text" id="fReferral" placeholder="Contoh: GURU10" maxlength="15">
+              <button class="btn-apply" id="applyBtn" onclick="applyReferral()">Terapkan</button>
+            </div>
+            <div id="referralMsg"></div>
+          </div>
+
+          <div class="co-card">
+            <h2>Rincian Biaya</h2>
+            <div class="cost-row"><span>Subtotal</span><span class="tabular" id="costSubtotal">Rp47.000</span></div>
+            <div class="cost-row discount tabular" id="costDiscountRow" style="display:none;"><span>Diskon Referral</span><span id="costDiscount">-Rp4.700</span></div>
+            <div class="cost-row total"><span>Total Pembayaran</span><span class="tabular" id="costTotal">Rp47.000</span></div>
+
+            <button class="btn-pay" id="payBtn" onclick="attemptPay()">
+              <span id="payBtnLabel">Bayar Sekarang</span>
+            </button>
+            <div id="payErrorSlot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE DISABLED STATE (hidden by default) -->
+    <div class="feature-disabled" id="disabledState" style="display:none;">
+      <div class="ic">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a1.6 1.6 0 0 0 1.4 2.4h17.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a1.6 1.6 0 0 0-2.8 0Z"/></svg>
+      </div>
+      <h3>Pembelian sedang tidak tersedia</h3>
+      <p>Fitur checkout sedang dimatikan sementara oleh admin untuk pemeliharaan. Silakan coba lagi nanti, atau hubungi admin untuk menyelesaikan pesananmu secara manual.</p>
+      <a class="btn-wa-outline" href="https://wa.me/6282228225791" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.06c-.24.68-1.4 1.3-1.93 1.38-.49.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.72-2.09.98-2.37c.25-.28.55-.35.74-.35h.53c.17 0 .4-.02.61.47.24.57.8 1.97.87 2.11.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.13.07.7-.17 1.38Z"/></svg>
+        Hubungi Admin
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ MIDTRANS PLACEHOLDER (frame only — Snap's own UI is not ours to design) ============ -->
+
+<!-- ============ FLOATING WA ============ -->
+<a href="https://wa.me/6282228225791" target="_blank" rel="noopener" class="wa-float" aria-label="Chat WhatsApp Admin">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.06c-.24.68-1.4 1.3-1.93 1.38-.49.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94s.72-2.09.98-2.37c.25-.28.55-.35.74-.35h.53c.17 0 .4-.02.61.47.24.57.8 1.97.87 2.11.07.14.11.31.02.5-.09.19-.14.31-.27.47-.14.16-.29.36-.41.48-.14.14-.28.29-.12.57.16.28.71 1.18 1.53 1.92 1.05.94 1.94 1.24 2.22 1.38.28.14.44.12.6-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.13.07.7-.17 1.38Z"/></svg>
+</a>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-links">
+      <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">Hubungi Admin (WhatsApp)</a>
+      <a href="pending.html">Pembayaran Tertunda</a>
+      <a href="contact.html">Kontak</a>
+      <a href="tnc.html">Syarat &amp; Ketentuan</a>
+      <a href="refund.html">Kebijakan Refund</a>
+      <a href="admin.html">Admin</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Pena Digital. Perangkat ajar untuk guru se-Indonesia.</span>
+      <a href="https://wa.me/6282228225791" target="_blank" rel="noopener">0822-2822-5791</a>
     </div>
   </div>
+</footer>
 
-</div>
-
-<!-- Midtrans Snap.js -->
+<!-- Midtrans Snap: popup pembayaran resmi -->
 <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-tSZ9jlbMfd4FzuOA"></script>
 
 <script>
+/* ================= Sample data (matches cart.html) ================= */
+const LEVEL_ACCENT = { sd:{fg:'#1B3A6B',bg:'#E8EDF5'}, smp:{fg:'#B9631E',bg:'#FBEADC'}, sma:{fg:'#12294D',bg:'#EAE4D6'} };
+function docThumbSVG(level){
+  const c = LEVEL_ACCENT[level] || LEVEL_ACCENT.sd;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${c.bg}"/><rect x="30" y="14" width="42" height="58" rx="4" fill="#fff" stroke="${c.fg}" stroke-width="1.4"/><rect x="37" y="26" width="28" height="4.5" rx="2.25" fill="${c.fg}" opacity="0.55"/><rect x="37" y="37" width="21" height="3.5" rx="1.75" fill="${c.fg}" opacity="0.3"/><rect x="37" y="45" width="24" height="3.5" rx="1.75" fill="${c.fg}" opacity="0.3"/><rect x="37" y="58" width="28" height="10" rx="3" fill="${c.fg}" opacity="0.12"/></svg>`;
+}
+/* ════════════════════════════════════════════════════════════════
+   SAMBUNGAN KE BACKEND — CHECKOUT
+   Alur asli: validasi form → POST /midtrans/create-transaction →
+   buka popup Midtrans Snap → arahkan ke success.html.
+   ════════════════════════════════════════════════════════════════ */
 const API = 'https://pena-digital-backend.vercel.app/api/public';
 
-function getCart(){ try{ return JSON.parse(localStorage.getItem('pd_cart')||'[]'); }catch{ return []; } }
-function toImgUrl(url){
-  if(!url) return '';
-  if(url.includes('uc?export=view')) return url;
-  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if(m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
-  return url;
-}
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+const fmtRp = n => 'Rp' + Number(n||0).toLocaleString('id-ID');
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
-function goBackOrHome() {
-  if (document.referrer && document.referrer.includes(location.host)) {
-    history.back();
-  } else {
-    location.href = 'cart.html';
-  }
+function getCart(){ try { return JSON.parse(localStorage.getItem('pd_cart') || '[]'); } catch { return []; } }
+
+function tebakJenjang(nama){
+  const n = ' ' + String(nama||'').toUpperCase() + ' ';
+  if (/[^A-Z](SMA|MAK|SMK)[^A-Z]/.test(n) || /[^A-Z]MA[^A-Z]/.test(n)) return 'sma';
+  if (/[^A-Z](SMP|MTS)[^A-Z]/.test(n)) return 'smp';
+  if (/[^A-Z](SD|MI)[^A-Z]/.test(n))  return 'sd';
+  return 'sd';
 }
 
-let referralAktif = null; // {kode, diskon}
+let cartItems = getCart();
+let SUBTOTAL  = cartItems.reduce((s,i) => s + ((parseInt(i.harga)||0) * (i.qty||1)), 0);
+let discount  = 0;
+let referralAktif = null;   // { kode, diskon }
 
-function renderRingkasan() {
-  const cart  = getCart();
-  if (!cart.length) { location.href = 'cart.html'; return; }
-
-  const total = cart.reduce((s,i) => s + (parseInt(i.harga)*(i.qty||1)), 0);
-
-  document.getElementById('order-items').innerHTML = cart.map(item => `
-    <div class="order-item">
-      <div class="order-item-foto">
-        ${item.foto_url
-          ? `<img src="${toImgUrl(esc(item.foto_url))}" alt="${esc(item.nama)}" onerror="this.style.display='none'">`
-          : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`}
+function renderSummary(){
+  document.getElementById('summaryList').innerHTML = cartItems.map(i => {
+    const jenjang = tebakJenjang(i.nama);
+    const qty     = i.qty || 1;
+    const thumb   = i.foto_url
+      ? `<img src="${esc(i.foto_url)}" alt="${esc(i.nama)}" loading="lazy"
+             onerror="this.closest('.si-thumb').innerHTML='${escA(docThumbSVG(jenjang))}'">`
+      : docThumbSVG(jenjang);
+    return `
+    <div class="summary-item">
+      <div class="si-thumb">${thumb}</div>
+      <div class="si-body">
+        <p class="si-name">${esc(i.nama)}</p>
+        <p class="si-variant">${i.variasi ? 'Variasi: ' + esc(i.variasi) : ''}${qty > 1 ? ` · ${qty}×` : ''}</p>
       </div>
-      <div class="order-item-info">
-        <div class="order-item-nama">${esc(item.nama)}</div>
-        ${item.variasi ? `<div class="order-item-var">${esc(item.variasi)} × ${item.qty||1}</div>` : `<div class="order-item-var">× ${item.qty||1}</div>`}
-      </div>
-      <div class="order-item-harga">Rp ${(parseInt(item.harga)*(item.qty||1)).toLocaleString('id-ID')}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('subtotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
-  updateTotalTampil();
+      <span class="si-price tabular">${fmtRp((parseInt(i.harga)||0) * qty)}</span>
+    </div>`;
+  }).join('');
 }
 
-function updateTotalTampil() {
-  const cart     = getCart();
-  const subtotal = cart.reduce((s,i) => s + (parseInt(i.harga)*(i.qty||1)), 0);
-  const diskon   = referralAktif ? referralAktif.diskon : 0;
-  const total    = Math.max(1000, subtotal - diskon);
-
-  document.getElementById('total-final').textContent = `Rp ${total.toLocaleString('id-ID')}`;
-
-  const diskonRow = document.getElementById('diskon-row');
-  if (referralAktif && diskon > 0) {
-    diskonRow.style.display = 'flex';
-    document.getElementById('diskon-amount').textContent = `-Rp ${diskon.toLocaleString('id-ID')}`;
+function updateCost(){
+  document.getElementById('costSubtotal').textContent = fmtRp(SUBTOTAL);
+  const row = document.getElementById('costDiscountRow');
+  if(discount > 0){
+    row.style.display = 'flex';
+    document.getElementById('costDiscount').textContent = '-' + fmtRp(discount);
   } else {
-    diskonRow.style.display = 'none';
+    row.style.display = 'none';
   }
+  /* Backend memaksa total minimal Rp1.000 (batas Midtrans) — tampilkan angka
+     yang sama supaya tidak berbeda dengan yang ditagih. */
+  document.getElementById('costTotal').textContent = fmtRp(Math.max(1000, SUBTOTAL - discount));
 }
 
-async function cekReferral() {
-  const kode = document.getElementById('f-referral').value.trim().toUpperCase();
-  const msgEl = document.getElementById('referral-msg');
+/* ── Kode referral ──────────────────────────────────────────── */
+async function applyReferral(){
+  const code = document.getElementById('fReferral').value.trim().toUpperCase();
+  const msg  = document.getElementById('referralMsg');
+  const btn  = document.getElementById('applyBtn');
 
-  if (!kode) {
-    referralAktif = null;
-    updateTotalTampil();
-    msgEl.style.display = 'none';
+  if(!code){
+    referralAktif = null; discount = 0; updateCost();
+    msg.innerHTML = '';
     return;
   }
 
-  const cart     = getCart();
-  const subtotal = cart.reduce((s,i) => s + (parseInt(i.harga)*(i.qty||1)), 0);
-
-  const btn = document.getElementById('btn-cek-referral');
   btn.disabled = true;
-  btn.textContent = 'Mengecek...';
+  msg.innerHTML = `<p class="referral-msg loading">Memeriksa kode referral...</p>`;
 
   try {
     const r = await fetch(`${API}/referral/validasi`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kode, subtotal })
+      body: JSON.stringify({ kode: code, subtotal: SUBTOTAL })
     });
     const d = await r.json();
 
-    if (d.status === 'ok') {
+    if(d.status === 'ok'){
       referralAktif = { kode: d.kode, diskon: d.diskon };
-      msgEl.style.display = 'block';
-      msgEl.style.color = 'var(--green)';
-      msgEl.textContent = `✅ Kode "${d.kode}" diterapkan! Hemat Rp ${d.diskon.toLocaleString('id-ID')}`;
+      discount = d.diskon;
+      msg.innerHTML = `<p class="referral-msg ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kode "${esc(d.kode)}" berhasil diterapkan — hemat ${fmtRp(d.diskon)}.</p>`;
     } else {
-      referralAktif = null;
-      msgEl.style.display = 'block';
-      msgEl.style.color = 'var(--red)';
-      msgEl.textContent = `❌ ${d.message || 'Kode tidak valid.'}`;
+      referralAktif = null; discount = 0;
+      msg.innerHTML = `<p class="referral-msg err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg> ${esc(d.message || 'Kode referral tidak valid atau kuota sudah habis.')}</p>`;
     }
-    updateTotalTampil();
   } catch {
-    msgEl.style.display = 'block';
-    msgEl.style.color = 'var(--red)';
-    msgEl.textContent = '❌ Gagal memeriksa kode. Coba lagi.';
+    referralAktif = null; discount = 0;
+    msg.innerHTML = `<p class="referral-msg err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg> Gagal memeriksa kode. Periksa koneksi internetmu.</p>`;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Terapkan';
+    updateCost();
   }
 }
 
-function setLoad(on) {
-  document.getElementById('btn-bayar').disabled = on;
-  document.getElementById('spin').style.display = on ? 'block' : 'none';
-  document.getElementById('btn-icon').style.display = on ? 'none' : 'block';
-  document.getElementById('btn-txt').textContent = on ? 'Memproses...' : 'Bayar Sekarang';
+/* ── Validasi form ──────────────────────────────────────────── */
+function validateField(id, errId, test){
+  const el  = document.getElementById(id);
+  const err = document.getElementById(errId);
+  const ok  = test(el.value.trim());
+  el.classList.toggle('err', !ok);
+  err.classList.toggle('show', !ok);
+  return ok;
 }
 
-function tampilErr(msg) {
-  const el = document.getElementById('err-msg');
-  el.textContent = msg;
-  el.style.display = 'block';
-  el.scrollIntoView({ behavior:'smooth', block:'center' });
+function tampilGagalTransaksi(pesan){
+  document.getElementById('payErrorSlot').innerHTML = `
+    <div class="form-error-banner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <div class="fe-body"><b>Gagal membuat transaksi</b>${esc(pesan)}</div>
+    </div>`;
 }
 
-async function prosesBayar() {
-  document.getElementById('err-msg').style.display = 'none';
+function setTombolBayar(sedangProses){
+  const btn   = document.getElementById('payBtn');
+  const label = document.getElementById('payBtnLabel');
+  btn.disabled = sedangProses;
+  label.innerHTML = sedangProses
+    ? `<span class="spinner" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span>Menyiapkan pembayaran...`
+    : 'Bayar Sekarang';
+}
 
-  const nama  = document.getElementById('f-nama').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const wa    = document.getElementById('f-wa').value.trim();
-  const tnc   = document.getElementById('cb-tnc').checked;
+async function attemptPay(){
+  let ok = true;
+  ok = validateField('fName','errName', v => v.length > 0) && ok;
+  ok = validateField('fEmail','errEmail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) && ok;
+  ok = validateField('fWa','errWa', v => /^0[0-9]{9,13}$/.test(v.replace(/[\s-]/g,''))) && ok;
 
-  if (!nama)  return tampilErr('Nama lengkap wajib diisi.');
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return tampilErr('Format email tidak valid.');
-  if (!wa || wa.length < 10) return tampilErr('Nomor WhatsApp tidak valid.');
-  if (!tnc) return tampilErr('Anda harus menyetujui Syarat & Ketentuan terlebih dahulu.');
+  const tncChecked = document.getElementById('fTnc').checked;
+  document.getElementById('tncRow').classList.toggle('err', !tncChecked);
+  ok = tncChecked && ok;
 
-  const cart = getCart();
-  if (!cart.length) return tampilErr('Keranjang kosong.');
+  document.getElementById('payErrorSlot').innerHTML = '';
+  if(!ok) return;
 
-  setLoad(true);
+  if(!cartItems.length){ location.href = 'cart.html'; return; }
+
+  const nama  = document.getElementById('fName').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  const wa    = document.getElementById('fWa').value.trim();
+
+  setTombolBayar(true);
   try {
-    // Buat transaksi di backend
     const r = await fetch(`${API}/midtrans/create-transaction`, {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         customer_name:  nama,
         customer_email: email,
         customer_wa:    wa,
         kode_referral:  referralAktif ? referralAktif.kode : '',
-        items: cart.map(i => ({
+        items: cartItems.map(i => ({
           produk_id: i.produk_id,
           nama:      i.nama,
           variasi:   i.variasi || '',
-          harga:     parseInt(i.harga),
+          harga:     parseInt(i.harga) || 0,
           qty:       i.qty || 1
         }))
       })
     });
     const d = await r.json();
-    if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=beli'; return; }
-    if (d.status !== 'ok') { tampilErr(d.message || 'Gagal membuat transaksi.'); setLoad(false); return; }
 
-    // Simpan order_id untuk halaman sukses
+    if(d.status === 'maintenance'){ location.href = 'maintenance.html?fitur=beli'; return; }
+    if(d.status !== 'ok'){ tampilGagalTransaksi(d.message || 'Silakan coba lagi.'); setTombolBayar(false); return; }
+
     localStorage.setItem('pd_last_order', d.order_id);
     localStorage.setItem('pd_customer_wa', wa);
 
-    // Buka Midtrans Snap
+    if(!window.snap){ tampilGagalTransaksi('Modul pembayaran gagal dimuat. Muat ulang halaman ini.'); setTombolBayar(false); return; }
+
     window.snap.pay(d.snap_token, {
-      onSuccess: function(result) {
-        localStorage.removeItem('pd_cart');
-        location.href = `success.html?order_id=${d.order_id}&status=success`;
-      },
-      onPending: function(result) {
-        location.href = `success.html?order_id=${d.order_id}&status=pending`;
-      },
-      onError: function(result) {
-        tampilErr('Pembayaran gagal. Silakan coba lagi.');
-        setLoad(false);
-      },
-      onClose: function() {
-        setLoad(false);
-      }
+      onSuccess: () => { localStorage.removeItem('pd_cart'); location.href = `success.html?order_id=${d.order_id}&status=success`; },
+      onPending: () => { location.href = `success.html?order_id=${d.order_id}&status=pending`; },
+      onError:   () => { tampilGagalTransaksi('Pembayaran gagal diproses. Silakan coba lagi.'); setTombolBayar(false); },
+      onClose:   () => { setTombolBayar(false); }
     });
 
-  } catch(e) {
-    tampilErr('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
-    setLoad(false);
+  } catch {
+    tampilGagalTransaksi('Periksa koneksi internetmu, lalu coba lagi.');
+    setTombolBayar(false);
   }
 }
 
-renderRingkasan();
+/* ── Mode pemeliharaan ──────────────────────────────────────── */
+async function cekMaintenance(){
+  try {
+    const r = await fetch(`${API}/maintenance`);
+    const d = await r.json();
+    if(d.beli){
+      document.getElementById('checkoutMain').style.display  = 'none';
+      document.getElementById('disabledState').style.display = 'block';
+    }
+  } catch { /* gagal cek -> anggap normal, jangan halangi pembeli */ }
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+function toggleSidebar(){
+  const panel = document.getElementById('sidebarPanel');
+  const overlay = document.getElementById('sidebarOverlay');
+  const open = panel.classList.toggle('open');
+  overlay.classList.toggle('open', open);
+  panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+
+/* ── Init ───────────────────────────────────────────────────── */
+if(!cartItems.length){
+  location.href = 'cart.html';
+} else {
+  renderSummary();
+  updateCost();
+  cekMaintenance();
+  /* Isi ulang nomor WA dari pesanan sebelumnya supaya pembeli lama tidak
+     perlu mengetik ulang. */
+  const waTersimpan = localStorage.getItem('pd_customer_wa');
+  if(waTersimpan) document.getElementById('fWa').value = waTersimpan;
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
 </script>
+<!-- Statistik pengunjung (lihat lacak.js) -->
+<script src="lacak.js" data-jenis="kunjungan"></script>
 </body>
 </html>

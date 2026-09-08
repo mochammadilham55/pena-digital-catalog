@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insight — Admin Pena Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #1B3A6B;
+    --navy-dark: #12294D;
+    --navy-tint: #E8EDF5;
+    --orange: #E07B2A;
+    --orange-dark: #B9631E;
+    --orange-tint: #FBEADC;
+    --cream: #F5EFE6;
+    --surface: #FFFFFF;
+    --surface-alt: #FAF7F1;
+    --line: #E7E1D3;
+    --ink: #24211B;
+    --ink-soft: #6B6459;
+    --ink-faint: #96907F;
+    --success: #1E7A4C;
+    --success-bg: #E6F3EC;
+    --amber: #A9670F;
+    --amber-bg: #FBF0DD;
+    --red: #B3392C;
+    --red-bg: #FAEBE8;
+    --radius-s: 8px;
+    --radius-m: 12px;
+    --radius-l: 18px;
+    --shadow: 0 1px 2px rgba(27,58,107,0.05), 0 6px 20px rgba(27,58,107,0.08);
+    --sidebar-w: 232px;
+  }
+
+  /* ── Layar login ── halaman ini menampilkan omzet, wajib terkunci. */
+  #loginScreen{position:fixed; inset:0; z-index:200; background:var(--cream); display:flex; align-items:center; justify-content:center; padding:20px;}
+  #loginScreen.hidden{display:none;}
+  .login-card{width:100%; max-width:340px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-l); padding:26px 22px; box-shadow:var(--shadow);}
+  .login-mark{width:40px; height:40px; border-radius:11px; background:var(--navy); display:flex; align-items:center; justify-content:center; color:var(--cream); font-weight:800; font-size:15px; margin:0 auto 14px;}
+  .login-card h1{margin:0 0 4px; font-size:17px; font-weight:800; color:var(--navy-dark); text-align:center;}
+  .login-card p{margin:0 0 18px; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+  .login-card input{width:100%; height:42px; padding:0 12px; margin-bottom:10px; border:1.5px solid var(--line); border-radius:var(--radius-s); background:var(--surface-alt); font-family:inherit; font-size:13.5px; color:var(--ink);}
+  .login-card input:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .login-card input.err{border-color:#E3A79C; background:var(--red-bg);}
+  .login-err{font-size:12px; color:var(--red); margin:0 0 10px; display:none;}
+  .login-err.show{display:block;}
+  .btn-primary{display:inline-flex; align-items:center; justify-content:center; gap:7px; height:38px; padding:0 15px; background:var(--orange); color:#fff; border:none; border-radius:var(--radius-s); font-weight:700; font-size:13px; cursor:pointer;}
+  .btn-primary:hover{background:var(--orange-dark);}
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    background:var(--cream); color:var(--ink); -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  a{color:inherit;}
+  :focus-visible{outline:2.5px solid var(--orange); outline-offset:2px;}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  /* ================= Layout shell (shared) ================= */
+  .app{display:flex; min-height:100vh;}
+  .admin-sidebar{
+    width:var(--sidebar-w); flex-shrink:0; background:var(--navy-dark); color:#fff;
+    display:flex; flex-direction:column; position:fixed; top:0; bottom:0; left:0;
+    transform:translateX(-100%); transition:transform .22s ease; z-index:80;
+  }
+  .admin-sidebar.open{transform:translateX(0);}
+  .sb-brand{display:flex; align-items:center; gap:10px; padding:18px 18px 16px; border-bottom:1px solid rgba(255,255,255,0.1);}
+  .sb-brand .mark{width:32px; height:32px; border-radius:9px; background:var(--orange); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0;}
+  .sb-brand .txt strong{display:block; font-size:13.5px; font-weight:700;}
+  .sb-brand .txt span{display:block; font-size:11px; color:#9FB0CC;}
+  .sb-nav{flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px;}
+  .sb-link{display:flex; align-items:center; gap:10px; padding:10px 11px; border-radius:9px; font-size:13.5px; font-weight:600; color:#C7D3E8; text-decoration:none;}
+  .sb-link svg{flex-shrink:0; opacity:0.85;}
+  .sb-link:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .sb-link.active{background:rgba(255,255,255,0.1); color:#fff;}
+  .sb-link.active svg{opacity:1;}
+  .sb-foot{padding:12px 10px 16px; border-top:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:2px;}
+  .sidebar-overlay{position:fixed; inset:0; background:rgba(18,41,77,0.4); z-index:70; opacity:0; pointer-events:none; transition:opacity .2s ease;}
+  .sidebar-overlay.open{opacity:1; pointer-events:auto;}
+
+  .admin-main{flex:1; min-width:0;}
+  .admin-topbar{
+    position:sticky; top:0; z-index:30; background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:12px; padding:0 18px; height:58px;
+  }
+  .sb-toggle{width:36px; height:36px; border-radius:9px; border:none; background:none; color:var(--navy); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;}
+  .sb-toggle:hover{background:var(--navy-tint);}
+  .topbar-title{font-size:14.5px; font-weight:700; color:var(--navy-dark);}
+  .admin-content{padding:20px 18px 60px; max-width:1180px;}
+
+  .page-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
+  .page-head h1{margin:0 0 3px; font-size:19px; font-weight:800; letter-spacing:-0.01em; color:var(--navy-dark);}
+  .page-head p{margin:0; font-size:12.5px; color:var(--ink-soft);}
+
+  .range-tabs{display:flex; gap:6px;}
+  .rtab{height:34px; padding:0 13px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:12.5px; font-weight:600; cursor:pointer;}
+  .rtab.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .rtab:hover:not(.active){border-color:var(--navy);}
+
+  /* ---- Live visitor banner ---- */
+
+  /* ---- KPI grid ---- */
+  .kpi-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px;}
+  .kpi-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 15px;}
+  .kpi-label{font-size:11.5px; color:var(--ink-soft); font-weight:600; margin:0 0 7px; display:flex; align-items:center; gap:6px;}
+  .kpi-label svg{color:var(--ink-faint); flex-shrink:0;}
+  .kpi-value{font-size:22px; font-weight:800; color:var(--navy-dark); margin:0 0 4px;}
+  .kpi-delta{font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:3px;}
+  .kpi-delta.up{color:var(--success);}
+  .kpi-delta.down{color:var(--red);}
+
+  /* ---- Pengunjung aktif (realtime) ---- */
+  .live-card{display:flex; align-items:center; gap:13px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px; margin-bottom:16px;}
+  .live-dot{width:9px; height:9px; border-radius:50%; background:var(--success); flex-shrink:0; position:relative;}
+  .live-dot::after{content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid var(--success); opacity:.55; animation:livePulse 1.8s ease-out infinite;}
+  .live-dot.sepi{background:var(--ink-faint);}
+  .live-dot.sepi::after{display:none;}
+  @keyframes livePulse{0%{transform:scale(.6); opacity:.6;} 100%{transform:scale(1.5); opacity:0;}}
+  .live-num{font-size:26px; font-weight:800; color:var(--navy-dark); line-height:1;}
+  .live-txt{font-size:12.5px; color:var(--ink-soft); margin:3px 0 0;}
+  .stat-note{display:none; background:#FDF6E6; border:1px solid #EBD9A8; color:#7A5B12; border-radius:var(--radius-m); padding:11px 14px; font-size:12px; line-height:1.55; margin-bottom:16px;}
+  .stat-note.show{display:block;}
+  @media (prefers-reduced-motion: reduce){ .live-dot::after{animation:none;} }
+
+  /* ---- Chart card ---- */
+  .chart-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px; margin-bottom:16px;}
+  .chart-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;}
+  .chart-head h2{margin:0; font-size:13.5px; font-weight:800; color:var(--navy-dark);}
+  .chart-legend{display:flex; gap:14px; font-size:11.5px; color:var(--ink-soft);}
+  .chart-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .legend-dot{width:8px; height:8px; border-radius:2px; display:inline-block;}
+  .chart-wrap{width:100%; overflow-x:auto;}
+  .chart-wrap svg{display:block; width:100%; height:auto;}
+
+  /* ---- Funnel ---- */
+  .funnel-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px; margin-bottom:16px;}
+  .funnel-card h2{margin:0 0 14px; font-size:13.5px; font-weight:800; color:var(--navy-dark);}
+  .funnel-row{margin-bottom:12px;}
+  .funnel-row:last-child{margin-bottom:0;}
+  .funnel-label-row{display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;}
+  .funnel-label-row .fl-name{font-weight:700; color:var(--ink);}
+  .funnel-label-row .fl-val{color:var(--ink-soft); font-weight:600;}
+  .funnel-track{height:10px; background:var(--surface-alt); border-radius:999px; overflow:hidden;}
+  .funnel-fill{height:100%; border-radius:999px; background:var(--navy);}
+  .funnel-sub{font-size:11px; color:var(--ink-faint); margin-top:4px;}
+
+  /* ---- Two-column area ---- */
+  .split-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+
+  /* ---- Top products table ---- */
+  .table-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
+  .table-card h2{margin:0; padding:16px 16px 0; font-size:13.5px; font-weight:800; color:var(--navy-dark);}
+  table.ins-table{width:100%; border-collapse:collapse; margin-top:12px;}
+  .ins-table thead th{text-align:left; font-size:11px; font-weight:700; color:var(--ink-faint); padding:9px 16px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  .ins-table tbody td{padding:10px 16px; border-bottom:1px solid var(--line); font-size:12.5px; vertical-align:middle;}
+  .ins-table tbody tr:last-child td{border-bottom:none;}
+  .rank-num{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:6px; background:var(--navy-tint); color:var(--navy); font-size:11px; font-weight:800; margin-right:8px;}
+  .prod-name{font-weight:700; font-size:12.5px;
+    display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; max-width:260px;}
+  .conv-bar-track{width:60px; height:6px; border-radius:999px; background:var(--surface-alt); display:inline-block; vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .conv-bar-fill{height:100%; background:var(--success);}
+
+  /* ---- Traffic source ---- */
+  .source-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px;}
+  .source-card h2{margin:0 0 14px; font-size:13.5px; font-weight:800; color:var(--navy-dark);}
+  .source-row{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+  .source-row:last-child{margin-bottom:0;}
+  .source-dot{width:9px; height:9px; border-radius:2px; flex-shrink:0;}
+  .source-name{font-size:12.5px; font-weight:600; width:88px; flex-shrink:0;}
+  .source-track{flex:1; height:8px; border-radius:999px; background:var(--surface-alt); overflow:hidden;}
+  .source-fill{height:100%; border-radius:999px;}
+  .source-pct{font-size:12px; font-weight:700; color:var(--ink-soft); width:38px; text-align:right; flex-shrink:0;}
+
+  @media (min-width:900px){
+    .admin-sidebar{transform:translateX(0);}
+    .admin-main{margin-left:var(--sidebar-w);}
+    .sb-toggle{display:none;}
+    .sidebar-overlay{display:none;}
+    .admin-content{padding:26px 30px 60px;}
+    .page-head h1{font-size:22px;}
+    .kpi-grid{grid-template-columns:repeat(4,1fr);}
+    .split-grid{grid-template-columns:1.4fr 1fr; align-items:start;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-mark">PD</div>
+    <h1>Panel Admin</h1>
+    <p>Masukkan kata sandi admin untuk melanjutkan.</p>
+    <input type="password" id="loginPw" placeholder="Kata sandi admin" autocomplete="current-password">
+    <p class="login-err" id="loginErr">Kata sandi salah. Coba lagi.</p>
+    <button class="btn-primary" style="width:100%;" onclick="doLogin()">Masuk</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <div class="sidebar-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sb-brand">
+      <span class="mark">PD</span>
+      <span class="txt"><strong>Pena Digital</strong><span>Panel Admin</span></span>
+    </div>
+    <nav class="sb-nav">
+      <a class="sb-link active" href="insight.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8 13 13.7l-3-3L6.3 14.4"/></svg>
+        Insight
+      </a>
+      <a class="sb-link" href="admin.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        Produk
+      </a>
+      <a class="sb-link" href="orders.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        Pesanan
+      </a>
+      <a class="sb-link" href="referral.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7"/><path d="M22 7H2v5h20V7Z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C10 2 12 7 12 7Z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C14 2 12 7 12 7Z"/></svg>
+        Referral
+      </a>
+    </nav>
+    <div class="sb-foot">
+      <a class="sb-link" href="index.html">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        Lihat Toko
+      </a>
+      <button class="sb-link" style="background:none; border:none; cursor:pointer; text-align:left; width:100%;" onclick="logout()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+        Keluar
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <button class="sb-toggle" onclick="toggleSidebar()" aria-label="Buka menu">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="topbar-title">Panel Admin</span>
+    </div>
+
+    <div class="admin-content">
+      <div class="page-head">
+        <div>
+          <h1>Insight Website</h1>
+          <p>Pengunjung toko &amp; penjualan website, dari data sungguhan</p>
+        </div>
+        <div class="range-tabs" id="rangeTabs">
+          <button class="rtab active" data-r="7d">7 Hari</button>
+          <button class="rtab" data-r="30d">30 Hari</button>
+        </div>
+      </div>
+
+
+      <div class="live-card">
+        <span class="live-dot" id="liveDot"></span>
+        <div>
+          <span class="live-num tabular" id="liveNum">–</span>
+          <p class="live-txt" id="liveTxt">Sedang menghitung pengunjung yang aktif…</p>
+        </div>
+      </div>
+
+      <p class="stat-note" id="statNote"></p>
+
+      <div class="kpi-grid" id="kpiGrid"><!-- filled by JS --></div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <h2 id="chartTitle">Pengunjung — 7 Hari Terakhir</h2>
+          <div class="chart-legend"><span><span class="legend-dot" style="background:var(--navy);"></span>Omzet per hari</span></div>
+        </div>
+        <div class="chart-wrap" id="chartWrap"><!-- filled by JS --></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <h2 id="chartTrafikTitle">Kunjungan Toko — 7 Hari Terakhir</h2>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:var(--navy);"></span>Kunjungan</span>
+            <span><span class="legend-dot" style="background:var(--orange);"></span>Produk diklik</span>
+          </div>
+        </div>
+        <div class="chart-wrap" id="chartTrafikWrap"><!-- filled by JS --></div>
+      </div>
+
+      <div class="funnel-card">
+        <h2 id="funnelTitle">Corong Konversi</h2>
+        <div id="funnelBody"><!-- filled by JS --></div>
+      </div>
+
+      <div class="table-card" style="margin-bottom:16px;">
+        <h2>Produk Paling Sering Diklik</h2>
+        <table class="ins-table">
+          <thead><tr><th>Produk</th><th>Dibuka</th></tr></thead>
+          <tbody id="topClickedBody"><!-- filled by JS --></tbody>
+        </table>
+      </div>
+
+      <div class="split-grid">
+        <div class="table-card">
+          <h2>Produk Terpopuler</h2>
+          <table class="ins-table">
+            <thead><tr><th>Produk</th><th>Terjual</th><th>Omzet</th></tr></thead>
+            <tbody id="topProductsBody"><!-- filled by JS --></tbody>
+          </table>
+        </div>
+
+        <div class="source-card">
+          <h2>Status Pesanan</h2>
+          <div id="sourceBody"><!-- filled by JS --></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= Sample data (demo — dev menghubungkan ke analytics asli) ================= */
+const ICON_EYE = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const ICON_CLICK = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 7.2 5 5m0 14 2.2-2.2M17 5l-2.2 2.2M5 12H2m10-10v3"/></svg>`;
+const ICON_CART = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`;
+const ICON_CHECK = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+
+/* ════════════════════════════════════════════════════════════════
+   SAMBUNGAN KE BACKEND — INSIGHT WEBSITE
+
+   Semua angka di halaman ini berasal dari data sungguhan, tidak ada
+   contoh/karangan. Tiga sumbernya:
+     GET /statistik?hari=N  -> pengunjung aktif, kunjungan toko, klik produk
+     GET /midtrans/rekap    -> omzet, omzet per hari, produk terlaris
+     GET /midtrans/orders   -> status pesanan & corong konversi
+
+   Soal pelacakan pengunjung (lacak.js di halaman toko): yang dikirim
+   hanya id acak buatan browser pengunjung + jenis kejadian. TIDAK ada
+   alamat IP, nama, atau data pribadi apa pun. Pengunjung yang memblokir
+   localStorage (mode penyamaran) tidak terhitung sama sekali, jadi angka
+   di sini adalah batas BAWAH -- kenyataannya bisa sedikit lebih tinggi.
+   ════════════════════════════════════════════════════════════════ */
+const API = 'https://pena-digital-backend.vercel.app/api/public';
+const KUNCI_SESI = 'pd_admin_secret';
+let SECRET = sessionStorage.getItem(KUNCI_SESI) || '';
+
+const fmtNum = n => Number(n||0).toLocaleString('id-ID');
+const fmtRp  = n => 'Rp' + Number(n||0).toLocaleString('id-ID');
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function apiAdmin(path, opts){
+  opts = opts || {};
+  opts.headers = { ...(opts.headers||{}), 'x-admin-secret': SECRET };
+  return fetch(`${API}${path}`, opts);
+}
+
+/* ── Login ──────────────────────────────────────────────────── */
+function tampilkanApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  muatSemua();
+}
+async function doLogin(){
+  const inp = document.getElementById('loginPw');
+  const err = document.getElementById('loginErr');
+  const pw  = inp.value.trim();
+  err.classList.remove('show'); inp.classList.remove('err');
+  if(!pw){ inp.classList.add('err'); inp.focus(); return; }
+  try {
+    const r = await fetch(`${API}/midtrans/rekap`, { headers: { 'x-admin-secret': pw } });
+    if(!r.ok){ err.textContent = 'Kata sandi salah. Coba lagi.'; err.classList.add('show'); inp.classList.add('err'); return; }
+    SECRET = pw;
+    sessionStorage.setItem(KUNCI_SESI, pw);
+    tampilkanApp();
+  } catch {
+    err.textContent = 'Tidak bisa terhubung ke server. Periksa koneksi internet.';
+    err.classList.add('show');
+  }
+}
+function logout(){
+  sessionStorage.removeItem(KUNCI_SESI);
+  location.reload();
+}
+document.getElementById('loginPw').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+
+/* ── Data ───────────────────────────────────────────────────── */
+let REKAP  = null;   // { ringkasan, per_hari[], terlaris[] }   <- penjualan
+let ORDERS = [];     // daftar pesanan mentah
+let STAT   = null;   // { aktif_sekarang, ringkasan, per_hari[], produk_terklik[] }  <- pengunjung
+let currentRange = '7d';
+const HARI_RANGE = { '7d': 7, '30d': 30 };
+
+function perHariTerpotong(){
+  const n = HARI_RANGE[currentRange];
+  const semua = REKAP?.per_hari || [];
+  return semua.slice(-n);
+}
+/* Periode sebelum ini, panjang sama — dipakai menghitung selisih persen. */
+function perHariSebelumnya(){
+  const n = HARI_RANGE[currentRange];
+  const semua = REKAP?.per_hari || [];
+  return semua.slice(-2*n, -n);
+}
+function jumlahkan(list, kunci){ return list.reduce((s,x) => s + (Number(x[kunci])||0), 0); }
+
+/* Pelacakan pengunjung dipasang belakangan, jauh setelah pesanan pertama
+   masuk. Selama periode yang dilihat lebih panjang dari umur pelacakan,
+   angka pengunjung TIDAK sebanding dengan angka pesanan -- rasio konversi
+   bisa tembus 100% dan corongnya terbalik. Selama itu terjadi, rasionya
+   tidak ditampilkan dan admin diberi tahu alasannya. */
+function statistikMenutupiPeriode(){
+  if(!STAT || !STAT.mulai_lacak) return false;
+  const mulai = new Date(STAT.mulai_lacak);
+  if(isNaN(mulai)) return false;
+  const awalPeriode = new Date(Date.now() - HARI_RANGE[currentRange]*24*3600*1000);
+  return mulai <= awalPeriode;
+}
+
+function renderCatatan(){
+  const el = document.getElementById('statNote');
+  if(!STAT){
+    el.className = 'stat-note show';
+    el.textContent = 'Data pengunjung belum bisa dimuat. Angka penjualan di bawah tetap benar.';
+    return;
+  }
+  if(!STAT.mulai_lacak){
+    el.className = 'stat-note show';
+    el.textContent = 'Pelacakan pengunjung sudah aktif, tetapi belum ada kunjungan yang tercatat. '
+      + 'Angka pengunjung akan mulai terisi begitu ada yang membuka toko.';
+    return;
+  }
+  if(!statistikMenutupiPeriode()){
+    const mulai = new Date(STAT.mulai_lacak).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    el.className = 'stat-note show';
+    el.textContent = 'Pelacakan pengunjung baru berjalan sejak ' + mulai + ', sedangkan pesanan sudah ada sebelum itu. '
+      + 'Jadi untuk sementara angka pengunjung belum sebanding dengan angka pesanan, dan rasio "Pengunjung → Bayar" belum ditampilkan. '
+      + 'Perbandingannya akan otomatis benar setelah pelacakan berjalan sepanjang periode ini.';
+    return;
+  }
+  el.className = 'stat-note';
+  el.textContent = '';
+}
+function selisihPersen(sekarang, sebelum){
+  if(!sebelum) return sekarang > 0 ? 100 : 0;
+  return Math.round(((sekarang - sebelum) / sebelum) * 100);
+}
+
+/* ── KPI ─────────────────────────────────
+   Empat kartu pertama soal pengunjung (dari /statistik), empat
+   berikutnya soal penjualan (dari /midtrans/rekap + /orders). */
+function renderKPIs(){
+  const kini   = perHariTerpotong();
+  const lalu   = perHariSebelumnya();
+  const omzet  = jumlahkan(kini, 'omzet');
+  const trx    = jumlahkan(kini, 'jumlah');
+  const omzetL = jumlahkan(lalu, 'omzet');
+  const trxL   = jumlahkan(lalu, 'jumlah');
+
+  /* Pesanan dibuat = semua pesanan pada rentang ini, apa pun statusnya. */
+  const batas = new Date(Date.now() - HARI_RANGE[currentRange]*24*3600*1000);
+  const dibuat = ORDERS.filter(o => new Date(o.created_at) >= batas).length;
+  const rata   = trx ? Math.round(omzet / trx) : 0;
+
+  /* Angka pengunjung diambil dari ringkasan server, BUKAN dijumlah dari
+     per_hari -- "pengunjung unik" tidak boleh dijumlahkan antar hari,
+     karena orang yang datang 3 hari berturut-turut tetap satu orang. */
+  const st       = (STAT && STAT.ringkasan) || {};
+  const adaStat  = !!STAT;
+  const konversi = (st.pengunjung && statistikMenutupiPeriode())
+    ? Math.round((trx / st.pengunjung) * 1000)/10
+    : null;
+
+  const kartu = [
+    { label:'Pengunjung Unik',       icon:ICON_EYE,   value: adaStat ? fmtNum(st.pengunjung)  : '–' },
+    { label:'Kunjungan Toko',        icon:ICON_EYE,   value: adaStat ? fmtNum(st.kunjungan)   : '–' },
+    { label:'Produk Diklik',         icon:ICON_CLICK, value: adaStat ? fmtNum(st.klik_produk) : '–' },
+    { label:'Pesanan Dibuat',        icon:ICON_CART,  value: fmtNum(dibuat) },
+    { label:'Pembayaran Berhasil',   icon:ICON_CHECK, value: fmtNum(trx),  delta:selisihPersen(trx, trxL) },
+    { label:'Omzet',                 icon:ICON_CHECK, value: fmtRp(omzet), delta:selisihPersen(omzet, omzetL) },
+    { label:'Rata-rata / Transaksi', icon:ICON_CART,  value: fmtRp(rata) },
+    { label:'Pengunjung → Bayar',    icon:ICON_CLICK,
+      value: (adaStat && konversi !== null) ? String(konversi).replace('.',',') + '%' : '–' },
+  ];
+
+  document.getElementById('kpiGrid').innerHTML = kartu.map(k => `
+    <div class="kpi-card">
+      <p class="kpi-label">${k.icon} ${k.label}</p>
+      <p class="kpi-value tabular">${k.value}</p>
+      ${(k.delta === null || k.delta === undefined)
+        ? `<span class="kpi-delta" style="color:var(--ink-faint); background:none;">pada periode ini</span>`
+        : `<span class="kpi-delta ${k.delta >= 0 ? 'up' : 'down'}">
+             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${k.delta >= 0 ? '<path d="M12 19V5M5 12l7-7 7 7"/>' : '<path d="M12 5v14M19 12l-7 7-7-7"/>'}</svg>
+             ${Math.abs(k.delta)}% dari periode sebelumnya
+           </span>`}
+    </div>`).join('');
+}
+
+/* ── Grafik omzet per hari ──────────────────────────────────
+   Satu seri saja, dengan sumbu Y berlabel. Jumlah transaksi TIDAK
+   digambar di sumbu yang sama karena skalanya jauh berbeda (ratusan
+   ribu vs satuan) — angkanya sudah ada di kartu KPI di atas. */
+function renderChart(){
+  const data = perHariTerpotong();
+  document.getElementById('chartTitle').textContent =
+    currentRange === '7d' ? 'Omzet — 7 Hari Terakhir' : 'Omzet — 30 Hari Terakhir';
+
+  const wrap = document.getElementById('chartWrap');
+  if(!data.length){ wrap.innerHTML = `<p style="padding:26px; text-align:center; font-size:12.5px; color:var(--ink-faint);">Belum ada data penjualan pada periode ini.</p>`; return; }
+
+  const w=720, h=220, padL=62, padR=12, padT=14, padB=26;
+  const innerW=w-padL-padR, innerH=h-padT-padB;
+  const maxAsli = Math.max(...data.map(d => d.omzet), 0);
+  const maxVal  = maxAsli > 0 ? maxAsli * 1.15 : 1;
+  const n = data.length;
+  const stepX = n > 1 ? innerW/(n-1) : 0;
+
+  const xy = i => [ padL + stepX*i, padT + innerH - (data[i].omzet/maxVal)*innerH ];
+  const garis = data.map((_,i) => { const [x,y]=xy(i); return `${i===0?'M':'L'}${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ');
+  const area  = n > 1
+    ? `${garis} L${xy(n-1)[0].toFixed(1)},${(padT+innerH).toFixed(1)} L${xy(0)[0].toFixed(1)},${(padT+innerH).toFixed(1)} Z`
+    : '';
+
+  /* Garis bantu + label nilainya, supaya skala grafik benar-benar terbaca. */
+  const grid = [0,0.25,0.5,0.75,1].map(f => {
+    const y = padT + innerH*f;
+    const nilai = Math.round(maxVal*(1-f));
+    return `<line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="#E7E1D3" stroke-width="1"/>` +
+           `<text x="${padL-8}" y="${y+3.5}" font-size="9.5" fill="#96907F" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif">${nilai >= 1000 ? Math.round(nilai/1000)+'rb' : nilai}</text>`;
+  }).join('');
+
+  /* Label tanggal — untuk 30 hari hanya sebagian supaya tidak bertumpuk. */
+  const setiap = n > 12 ? Math.ceil(n/7) : 1;
+  const label = data.map((d,i) => {
+    if(i % setiap !== 0 && i !== n-1) return '';
+    const [x] = xy(i);
+    const t = new Date(d.tanggal);
+    const teks = isNaN(t) ? d.tanggal : t.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    return `<text x="${x}" y="${h-6}" font-size="9.5" fill="#96907F" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif">${teks}</text>`;
+  }).join('');
+
+  const titik = data.map((d,i) => { const [x,y]=xy(i); return `<circle cx="${x}" cy="${y}" r="${n>12?2:3}" fill="#1B3A6B"><title>${d.tanggal}: ${fmtRp(d.omzet)} · ${d.jumlah} transaksi</title></circle>`; }).join('');
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grafik omzet per hari">
+      ${grid}
+      ${area ? `<path d="${area}" fill="#1B3A6B" opacity="0.08"/>` : ''}
+      <path d="${garis}" fill="none" stroke="#1B3A6B" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${titik}${label}
+    </svg>`;
+}
+
+/* ── Grafik kunjungan & klik produk per hari ──────────
+   Dua seri di satu sumbu -- di sini aman karena skalanya sejenis
+   (sama-sama hitungan kejadian), beda dengan grafik omzet di atas. */
+function renderTrafik(){
+  const n = HARI_RANGE[currentRange];
+  const data = (STAT && STAT.per_hari ? STAT.per_hari : []).slice(-n);
+  document.getElementById('chartTrafikTitle').textContent =
+    'Kunjungan Toko — ' + n + ' Hari Terakhir';
+
+  const wrap = document.getElementById('chartTrafikWrap');
+  if(!STAT){
+    wrap.innerHTML = `<p style="padding:26px; text-align:center; font-size:12.5px; color:var(--ink-faint);">Data pengunjung belum bisa dimuat.</p>`;
+    return;
+  }
+  const totalSemua = data.reduce((a,d) => a + d.kunjungan + d.klik_produk, 0);
+  if(!data.length || !totalSemua){
+    wrap.innerHTML = `<p style="padding:26px; text-align:center; font-size:12.5px; color:var(--ink-faint);">Belum ada kunjungan tercatat pada periode ini.</p>`;
+    return;
+  }
+
+  const w=720, h=220, padL=48, padR=12, padT=14, padB=26;
+  const innerW=w-padL-padR, innerH=h-padT-padB;
+  const maxAsli = Math.max(...data.map(d => Math.max(d.kunjungan, d.klik_produk)), 0);
+  const maxVal  = maxAsli > 0 ? maxAsli * 1.15 : 1;
+  const jml = data.length;
+  const stepX = jml > 1 ? innerW/(jml-1) : 0;
+  const xy = (i, v) => [ padL + stepX*i, padT + innerH - (v/maxVal)*innerH ];
+
+  function seri(kunci, warna){
+    const garis = data.map((d,i) => { const [x,y]=xy(i, d[kunci]); return (i===0?'M':'L')+x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    const titik = data.map((d,i) => {
+      const [x,y]=xy(i, d[kunci]);
+      return `<circle cx="${x}" cy="${y}" r="${jml>12?2:3}" fill="${warna}"><title>${d.tanggal}: ${fmtNum(d[kunci])}</title></circle>`;
+    }).join('');
+    return `<path d="${garis}" fill="none" stroke="${warna}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>${titik}`;
+  }
+
+  const grid = [0,0.25,0.5,0.75,1].map(fr => {
+    const y = padT + innerH*fr;
+    const nilai = Math.round(maxVal*(1-fr));
+    return `<line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="#E7E1D3" stroke-width="1"/>` +
+           `<text x="${padL-8}" y="${y+3.5}" font-size="9.5" fill="#96907F" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif">${nilai}</text>`;
+  }).join('');
+
+  const setiap = jml > 12 ? Math.ceil(jml/7) : 1;
+  const label = data.map((d,i) => {
+    if(i % setiap !== 0 && i !== jml-1) return '';
+    const [x] = xy(i, 0);
+    const t = new Date(d.tanggal);
+    const teks = isNaN(t) ? d.tanggal : t.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    return `<text x="${x}" y="${h-6}" font-size="9.5" fill="#96907F" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif">${teks}</text>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grafik kunjungan toko dan klik produk per hari">
+      ${grid}
+      ${seri('kunjungan', '#1B3A6B')}
+      ${seri('klik_produk', '#E07B2A')}
+      ${label}
+    </svg>`;
+}
+
+/* ── Produk paling sering diklik ───────────────────── */
+function renderTopClicked(){
+  const body = document.getElementById('topClickedBody');
+  const list = (STAT && STAT.produk_terklik ? STAT.produk_terklik : []).slice(0, 8);
+  if(!list.length){
+    body.innerHTML = `<tr><td colspan="2" style="padding:18px; text-align:center; color:var(--ink-faint); font-size:12.5px;">Belum ada produk yang dibuka pada periode ini.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map((p,i) => `
+    <tr>
+      <td><span class="rank-num">${i+1}</span><span class="prod-name">${esc(p.nama)}</span></td>
+      <td class="tabular">${fmtNum(p.klik)}</td>
+    </tr>`).join('');
+}
+
+/* ── Pengunjung aktif sekarang (realtime) ──────────────
+   Diperbarui sendiri tiap 25 detik selama tab dibuka. Dihitung dari
+   detak yang dikirim halaman toko tiap menit, jadi angkanya berarti
+   "pengunjung yang tabnya terbuka & terlihat dalam beberapa menit
+   terakhir" -- bukan jumlah orang yang sedang mengetik detik ini. */
+let timerLive = null;
+async function muatLive(){
+  try {
+    const r = await apiAdmin('/statistik?hari=1');
+    if(!r.ok) return;
+    const d = await r.json();
+    if(d.status !== 'ok') return;
+    const n = d.aktif_sekarang || 0;
+    document.getElementById('liveNum').textContent = fmtNum(n);
+    document.getElementById('liveDot').className = 'live-dot' + (n ? '' : ' sepi');
+    document.getElementById('liveTxt').textContent = n
+      ? 'pengunjung sedang membuka toko (aktif ≤ ' + (d.menit_aktif || 5) + ' menit terakhir)'
+      : 'Belum ada pengunjung yang aktif saat ini.';
+  } catch { /* diamkan -- angka lama tetap ditampilkan */ }
+}
+function mulaiLive(){
+  muatLive();
+  if(timerLive) clearInterval(timerLive);
+  timerLive = setInterval(() => { if(document.visibilityState === 'visible') muatLive(); }, 25000);
+}
+
+/* ── Corong konversi: pengunjung → klik produk → pesanan → bayar → link
+   Dua tahap pertama dari /statistik, tiga sisanya dari data pesanan.
+   Persentase dihitung terhadap tahap PALING ATAS yang datanya ada,
+   supaya tetap masuk akal kalau pelacakan pengunjung belum berjalan. */
+function renderFunnel(){
+  const n = HARI_RANGE[currentRange];
+  document.getElementById('funnelTitle').textContent = 'Corong Konversi (' + n + ' Hari)';
+
+  const batas = new Date(Date.now() - n*24*3600*1000);
+  const dalamRentang = ORDERS.filter(o => new Date(o.created_at) >= batas);
+  const dibuat  = dalamRentang.length;
+  const dibayar = dalamRentang.filter(o => ['paid','settlement','capture'].includes(o.status));
+  const lengkap = dibayar.filter(o => {
+    const link = (o.link_shortlink && o.link_shortlink.length) ? o.link_shortlink : (o.link_produk || []);
+    return link.length > 0 && link.every(l => l && l.url);
+  });
+
+  const st = (STAT && STAT.ringkasan) || null;
+  const tahap = [];
+  if(st){
+    tahap.push({ name:'Pengunjung Toko', value: st.pengunjung });
+    tahap.push({ name:'Membuka Produk',  value: st.klik_produk });
+  }
+  tahap.push({ name:'Pesanan Dibuat',        value: dibuat });
+  tahap.push({ name:'Pembayaran Berhasil',   value: dibayar.length });
+  tahap.push({ name:'Link Terkirim Lengkap', value: lengkap.length });
+
+  const el = document.getElementById('funnelBody');
+  const puncak = Math.max(...tahap.map(t => t.value));
+  const namaPuncak = (tahap.find(t => t.value === puncak) || tahap[0]).name;
+  if(!puncak){
+    el.innerHTML = `<p class="funnel-sub">Belum ada aktivitas pada periode ini.</p>`;
+    return;
+  }
+
+  el.innerHTML = tahap.map(t => {
+    const pct = Math.min(100, Math.round((t.value/puncak)*100));
+    return `
+    <div class="funnel-row">
+      <div class="funnel-label-row"><span class="fl-name">${t.name}</span><span class="fl-val tabular">${fmtNum(t.value)}</span></div>
+      <div class="funnel-track"><div class="funnel-fill" style="width:${pct}%;"></div></div>
+    </div>`;
+  }).join('') + `<p class="funnel-sub">Persentase dihitung terhadap "${namaPuncak}" pada periode ini.</p>`;
+}
+
+/* ── Produk terlaris ────────────────────────────────────────── */
+function renderTopProducts(){
+  const list = (REKAP?.terlaris || []).slice(0, 8);
+  const body = document.getElementById('topProductsBody');
+  if(!list.length){ body.innerHTML = `<tr><td colspan="3" style="padding:18px; text-align:center; color:var(--ink-faint); font-size:12.5px;">Belum ada produk terjual.</td></tr>`; return; }
+  body.innerHTML = list.map((p,i) => `
+    <tr>
+      <td><span class="rank-num">${i+1}</span><span class="prod-name">${esc(p.nama)}</span></td>
+      <td class="tabular">${fmtNum(p.jumlah)}</td>
+      <td class="tabular">${fmtRp(p.omzet)}</td>
+    </tr>`).join('');
+}
+
+/* ── Status pesanan (menggantikan "Sumber Kunjungan") ───────── */
+function renderStatus(){
+  const batas = new Date(Date.now() - HARI_RANGE[currentRange]*24*3600*1000);
+  const list  = ORDERS.filter(o => new Date(o.created_at) >= batas);
+  const el    = document.getElementById('sourceBody');
+  if(!list.length){ el.innerHTML = `<p style="font-size:12.5px; color:var(--ink-faint);">Belum ada pesanan pada periode ini.</p>`; return; }
+
+  const kelompok = [
+    { name:'Lunas',       warna:'#1E7A4C', cek:s => ['paid','settlement','capture'].includes(s) },
+    { name:'Menunggu',    warna:'#A9670F', cek:s => s === 'pending' },
+    { name:'Kedaluwarsa', warna:'#96907F', cek:s => s === 'expire' },
+    { name:'Dibatalkan',  warna:'#B3392C', cek:s => ['cancel','deny','fraud'].includes(s) },
+  ];
+  el.innerHTML = kelompok.map(k => {
+    const n   = list.filter(o => k.cek(o.status)).length;
+    const pct = Math.round((n/list.length)*100);
+    return `
+    <div class="source-row">
+      <span class="source-dot" style="background:${k.warna};"></span>
+      <span class="source-name">${k.name}</span>
+      <span class="source-track"><span class="source-fill" style="width:${pct}%; background:${k.warna};"></span></span>
+      <span class="source-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+/* ── Rentang waktu ──────────────────────────────────────────── */
+document.getElementById('rangeTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.rtab');
+  if(!btn) return;
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentRange = btn.dataset.r;
+  renderSemua();
+  muatStatistik();   // ringkasan pengunjung dihitung server per rentang, jadi ambil ulang
+});
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+function toggleSidebar(){
+  document.getElementById('adminSidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('open');
+}
+
+/* ── Muat & render ──────────────────────────────────────────── */
+function renderSemua(){ renderKPIs(); renderChart(); renderTrafik(); renderFunnel(); renderTopClicked(); renderTopProducts(); renderStatus(); }
+
+/* Statistik pengunjung diambil terpisah dari data penjualan supaya
+   kegagalannya (mis. tabel pelacakan belum dibuat di database) tidak
+   ikut menjatuhkan seluruh halaman -- angka penjualan tetap tampil. */
+async function muatStatistik(){
+  try {
+    const r = await apiAdmin('/statistik?hari=' + HARI_RANGE[currentRange]);
+    if(!r.ok) throw new Error('gagal');
+    const d = await r.json();
+    STAT = d.status === 'ok' ? d : null;
+  } catch { STAT = null; }
+  renderCatatan(); renderKPIs(); renderTrafik(); renderFunnel(); renderTopClicked();
+}
+
+async function muatSemua(){
+  document.getElementById('chartWrap').innerHTML =
+    `<p style="padding:26px; text-align:center; font-size:12.5px; color:var(--ink-faint);">Memuat data…</p>`;
+  try {
+    const [rRekap, rOrders] = await Promise.all([
+      apiAdmin('/midtrans/rekap'),
+      apiAdmin('/midtrans/orders?limit=500')
+    ]);
+    if(rRekap.status === 401 || rOrders.status === 401){ sessionStorage.removeItem(KUNCI_SESI); location.reload(); return; }
+    const dRekap  = await rRekap.json();
+    const dOrders = await rOrders.json();
+    REKAP  = dRekap.status  === 'ok' ? dRekap : { ringkasan:{}, per_hari:[], terlaris:[] };
+    ORDERS = dOrders.status === 'ok' ? (dOrders.data || []) : [];
+    renderSemua();
+    muatStatistik();
+    mulaiLive();
+  } catch {
+    document.getElementById('chartWrap').innerHTML =
+      `<p style="padding:26px; text-align:center; font-size:12.5px; color:var(--red);">Gagal memuat data. Periksa koneksi internetmu, lalu muat ulang halaman.</p>`;
+  }
+}
+
+/* ── Init ───────────────────────────────────────────────────── */
+if(SECRET) tampilkanApp();
+else document.getElementById('loginPw').focus();
+</script>
+</body>
+</html>

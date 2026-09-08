@@ -10,7 +10,9 @@
 <style>
 :root{--navy:#1B3A6B;--orange:#E07B2A;--cream:#F5EFE6;--cream2:#EDE4D6;--white:#fff;--g200:#E2E8F0;--g500:#64748B;--g700:#334155;--green:#16A34A;--green-bg:#DCFCE7;--red:#DC2626;--red-bg:#FEE2E2;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+/* .main memanjang supaya footer tetap di dasar layar walau isinya pendek */
+.main{flex:1;}
 header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.2);}
 .logo-box{width:38px;height:38px;background:var(--cream);border-radius:8px;display:flex;align-items:center;justify-content:center;}
 .logo-box svg{width:24px;height:24px;}
