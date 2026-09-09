@@ -127,6 +127,7 @@ const API = 'https://pena-digital-backend.vercel.app/api/public';
 | GET | `/midtrans/orders` | Daftar semua pesanan (support filter) |
 | GET | `/midtrans/rekap` | Rekap keuangan + grafik 30 hari + terlaris |
 | POST | `/midtrans/kirim-link` | Kirim link manual ke email + WA pembeli |
+| POST | `/midtrans/order/:id/sinkron` | Paksa cek status bayar ke Midtrans (tombol "Cek Bayar ke Midtrans" di `orders.html`) |
 | GET | `/referral` | Daftar kode referral |
 | POST | `/referral` | Buat kode referral baru |
 | PUT | `/referral/:id` | Edit kode referral |

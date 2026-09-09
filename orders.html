@@ -382,6 +382,8 @@
   <div class="drawer-body" id="drawerBody"><!-- filled by JS --></div>
   <div class="drawer-foot">
     <button class="btn-ghost" onclick="closeDrawer()">Tutup</button>
+    <button class="btn-ghost" id="btnSinkron" onclick="sinkronPesanan()" hidden
+            title="Tanya langsung ke Midtrans apakah pesanan ini sudah dibayar">Cek Bayar ke Midtrans</button>
     <span style="flex:1;"></span>
     <button class="btn-primary" onclick="saveOrder()">Simpan &amp; Kirim Ulang</button>
   </div>
@@ -615,6 +617,11 @@ let currentOrderId = null;
 
 function openDrawer(id){
   currentOrderId = id;
+  /* Tombol "Cek Bayar ke Midtrans" hanya relevan untuk pesanan yang menurut
+     kita belum lunas -- yang lunas tidak ada yang perlu diperiksa lagi. */
+  const oSink = ORDERS.find(x => x.id === id);
+  const btnSink = document.getElementById('btnSinkron');
+  if(btnSink) btnSink.hidden = !oSink || oSink.pay === 'paid';
   const o = ORDERS.find(x => x.id === id);
   if(!o) return;
   document.getElementById('drawerTitle').textContent = 'Pesanan ' + o.id;
@@ -695,6 +702,42 @@ async function saveOrder(){
     showToast(d.wa_terkirim === false ? 'Email terkirim, tapi WhatsApp GAGAL — hubungi pembeli manual' : 'Link terkirim ke pembeli');
     await muatPesanan();
   } catch { showToast('Gagal mengirim link'); }
+}
+
+/* Tanya langsung ke Midtrans status pembayaran pesanan ini, lalu perbarui
+   database kalau ternyata sudah dibayar.
+
+   Gunanya: status pembayaran kita bergantung pada notifikasi (webhook) yang
+   dikirim Midtrans. Sesekali notifikasi itu tidak pernah sampai, sehingga
+   pesanan yang SUDAH dibayar tetap terlihat "menunggu" di sini. Tombol ini
+   memaksa pemeriksaan ulang -- kalau memang sudah dibayar, link produk
+   otomatis dibuat dan email + WA langsung dikirim ke pembeli. */
+async function sinkronPesanan(){
+  if(!currentOrderId) return;
+  showToast('Menanyakan status ke Midtrans…');
+  try {
+    const r = await apiAdmin(`/midtrans/order/${encodeURIComponent(currentOrderId)}/sinkron`, { method:'POST' });
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message || '');
+
+    if(d.status_sesudah !== d.status_sebelum){
+      showToast(d.status_sesudah === 'paid'
+        ? 'Ternyata SUDAH dibayar — link sudah dikirim ke pembeli'
+        : `Status diperbarui jadi "${d.status_sesudah}"`);
+      closeDrawer();
+      await muatPesanan();
+      return;
+    }
+
+    const h = d.hasil || {};
+    if(h.ada === false){
+      showToast('Midtrans tidak punya transaksi untuk pesanan ini — pembeli belum memilih metode pembayaran');
+    } else if(h.status_midtrans){
+      showToast(`Midtrans juga bilang belum lunas (status: ${h.status_midtrans})`);
+    } else {
+      showToast('Belum ada perubahan status');
+    }
+  } catch { showToast('Gagal menanyakan status ke Midtrans'); }
 }
 
 /* ── Toast ──────────────────────────────────────────────────── */
