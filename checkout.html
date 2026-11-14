@@ -321,6 +321,39 @@
               <label for="fTnc">Saya menyetujui <a href="tnc.html" target="_blank">Syarat &amp; Ketentuan</a> yang berlaku di Pena Digital.</label>
             </div>
           </div>
+
+          <!-- Identitas guru: hanya tampil bila keranjang berisi produk PAG/KBC (dokumen dicetak dengan identitas ini) -->
+          <div class="co-card" id="identitasCard" style="display:none;">
+            <h2>Identitas pada Dokumen</h2>
+            <p style="font-size:11.5px; color:var(--ink-faint); margin:-6px 0 14px;">Perangkat ajar akan dicetak otomatis dengan data ini (cover, pengesahan, dan tanda tangan). Periksa ejaannya, karena dokumen dibuat sesuai isian.</p>
+            <div class="field">
+              <label for="fSekolah">Nama Sekolah / Madrasah</label>
+              <input type="text" id="fSekolah" maxlength="120" placeholder="Contoh: MI Nurul Huda">
+              <p class="field-err-msg" id="errSekolah">Nama sekolah/madrasah wajib diisi.</p>
+            </div>
+            <div class="field">
+              <label for="fGuru">Nama Guru (beserta gelar)</label>
+              <input type="text" id="fGuru" maxlength="120" placeholder="Contoh: Siti Aminah, S.Pd.">
+              <p class="field-err-msg" id="errGuru">Nama guru wajib diisi.</p>
+            </div>
+            <div class="field">
+              <label for="fNipGuru">NIP Guru <span style="font-weight:400;color:var(--ink-faint);">(opsional)</span></label>
+              <input type="text" id="fNipGuru" maxlength="40" placeholder="Kosongkan bila tidak ada">
+            </div>
+            <div class="field">
+              <label for="fKepsek">Nama Kepala Sekolah / Madrasah <span style="font-weight:400;color:var(--ink-faint);">(opsional)</span></label>
+              <input type="text" id="fKepsek" maxlength="120" placeholder="Contoh: Ahmad Fauzi, M.Pd.">
+            </div>
+            <div class="field">
+              <label for="fNipKepsek">NIP Kepala <span style="font-weight:400;color:var(--ink-faint);">(opsional)</span></label>
+              <input type="text" id="fNipKepsek" maxlength="40" placeholder="Kosongkan bila tidak ada">
+            </div>
+            <div class="field">
+              <label for="fKota">Kota / Kabupaten</label>
+              <input type="text" id="fKota" maxlength="80" placeholder="Contoh: Malang">
+              <p class="field-err-msg" id="errKota">Kota wajib diisi.</p>
+            </div>
+          </div>
         </div>
 
         <!-- RIGHT COLUMN -->
@@ -518,6 +551,35 @@ function tampilGagalTransaksi(pesan){
     </div>`;
 }
 
+/* ── Identitas guru untuk produk PAG/KBC ─────────────────────────
+   Cermin sederhana aturan backend (lib/generator.js uraiItem): item PAG/KBC dengan satu kelas.
+   Backend tetap yang memutuskan; di sini hanya menentukan apakah kartu identitas ditampilkan. */
+function itemPerluIdentitas(i){
+  const variasi = String(i.variasi || '').trim();
+  if(!variasi) return false;
+  const adaKategori = /^(PAG|KBC)\s+/i.test(variasi) || /\b(PAG|KBC)\b/i.test(String(i.nama || ''));
+  if(!adaKategori) return false;
+  const sisa = variasi.replace(/^(PAG|KBC)\s+/i, '');
+  if(/^(.+?),\s*(\d+(?:\s+\d+)+)$/.test(sisa) || /^(.+?)[,\s]+kelas\s+(\d+(?:\s+\d+)+)$/i.test(sisa)) return false;
+  return /^(.+?)[,\s]+kelas\s+(\d+)$/i.test(sisa) || /^(.+?),\s*(\d+)$/.test(sisa);
+}
+const perluIdentitas = cartItems.some(itemPerluIdentitas);
+function ambilIdentitas(){
+  const v = id => document.getElementById(id).value.trim();
+  return { sekolah: v('fSekolah'), guru: v('fGuru'), nip_guru: v('fNipGuru'), kepsek: v('fKepsek'), nip_kepsek: v('fNipKepsek'), kota: v('fKota') };
+}
+function siapkanIdentitas(){
+  if(!perluIdentitas) return;
+  document.getElementById('identitasCard').style.display = '';
+  try {
+    const t = JSON.parse(localStorage.getItem('pd_identitas') || 'null');
+    if(t) {
+      const isi = (id, k) => { if(t[k]) document.getElementById(id).value = t[k]; };
+      isi('fSekolah','sekolah'); isi('fGuru','guru'); isi('fNipGuru','nip_guru'); isi('fKepsek','kepsek'); isi('fNipKepsek','nip_kepsek'); isi('fKota','kota');
+    }
+  } catch {}
+}
+
 function setTombolBayar(sedangProses){
   const btn   = document.getElementById('payBtn');
   const label = document.getElementById('payBtnLabel');
@@ -532,6 +594,11 @@ async function attemptPay(){
   ok = validateField('fName','errName', v => v.length > 0) && ok;
   ok = validateField('fEmail','errEmail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) && ok;
   ok = validateField('fWa','errWa', v => /^0[0-9]{9,13}$/.test(v.replace(/[\s-]/g,''))) && ok;
+  if(perluIdentitas){
+    ok = validateField('fSekolah','errSekolah', v => v.length > 0) && ok;
+    ok = validateField('fGuru','errGuru', v => v.length > 0) && ok;
+    ok = validateField('fKota','errKota', v => v.length > 0) && ok;
+  }
 
   const tncChecked = document.getElementById('fTnc').checked;
   document.getElementById('tncRow').classList.toggle('err', !tncChecked);
@@ -556,6 +623,7 @@ async function attemptPay(){
         customer_email: email,
         customer_wa:    wa,
         kode_referral:  referralAktif ? referralAktif.kode : '',
+        identitas:      perluIdentitas ? ambilIdentitas() : undefined,
         items: cartItems.map(i => ({
           produk_id: i.produk_id,
           nama:      i.nama,
@@ -572,6 +640,7 @@ async function attemptPay(){
 
     localStorage.setItem('pd_last_order', d.order_id);
     localStorage.setItem('pd_customer_wa', wa);
+    if(perluIdentitas){ try { localStorage.setItem('pd_identitas', JSON.stringify(ambilIdentitas())); } catch {} }
 
     if(!window.snap){ tampilGagalTransaksi('Modul pembayaran gagal dimuat. Muat ulang halaman ini.'); setTombolBayar(false); return; }
 
@@ -615,6 +684,7 @@ if(!cartItems.length){
 } else {
   renderSummary();
   updateCost();
+  siapkanIdentitas();
   cekMaintenance();
   /* Isi ulang nomor WA dari pesanan sebelumnya supaya pembeli lama tidak
      perlu mengetik ulang. */

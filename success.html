@@ -171,6 +171,7 @@ function renderHasil(order, urlStatus) {
               ${esc(l.label)}
             </div>
             <div class="link-url">${esc(l.url)}</div>
+            ${tombolUnduh(l)}
             <button class="btn-salin" onclick="salin(this,'${escA(l.url)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
               Salin Link
@@ -197,6 +198,7 @@ function renderHasil(order, urlStatus) {
           <div class="link-item">
             <div class="link-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${esc(l.label)}</div>
             <div class="link-url">${esc(l.url)}</div>
+            ${tombolUnduh(l)}
             <button class="btn-salin" onclick="salin(this,'${escA(l.url)}')">Salin Link</button>
           </div>` : `
           <div class="link-item" style="border-color:#FECACA;background:#FEF2F2;">
@@ -238,6 +240,20 @@ function renderHasil(order, urlStatus) {
   </a>`;
 
   document.getElementById('main').innerHTML = html;
+}
+
+// Item yang dikirim lewat generator (l.unduh): tombol unduh langsung + ringkasan cara mengekstrak ZIP.
+// Petunjuk lengkap (HP dan laptop) ada di halaman unduh yang dibuka tombol ini.
+function tombolUnduh(l) {
+  if (!l.unduh || !l.url) return '';
+  return `<a href="${esc(l.url)}" target="_blank" rel="noopener"
+      style="display:flex;align-items:center;justify-content:center;gap:7px;padding:12px;background:#16A34A;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;margin:8px 0;">
+      ⬇️ Unduh Perangkat Ajar (ZIP)</a>
+    <div style="font-size:12px;color:#475569;line-height:1.6;margin-bottom:8px;">
+      Dokumen sudah berisi identitas Anda. Berkas berformat <b>ZIP</b>: di laptop klik kanan &rarr; <i>Extract All</i>; di HP Android buka lewat
+      <i>Files by Google</i> lalu pilih <i>Ekstrak</i> (atau pakai ZArchiver); di iPhone ketuk berkas ZIP di aplikasi <i>Files</i>.
+      Petunjuk lengkap ada di halaman unduh.
+    </div>`;
 }
 
 function renderError(msg) {
