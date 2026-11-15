@@ -114,7 +114,37 @@ async function loadOrder() {
   }
 
   if (!order) { renderError('Gagal memuat data pesanan.'); return; }
+  // Pesanan "Perangkat Ajar Custom": tidak ada tautan langsung, tampilkan tahap pengerjaan + tombol hubungi penjual.
+  if (['paid','settlement','capture'].includes(order.payment_status)) {
+    try {
+      const k = await (await fetch(`${API}/khusus/status/${encodeURIComponent(orderId)}`)).json();
+      if (k.khusus && k.lunas) { renderKhusus(order, k); return; }
+    } catch {}
+  }
   renderHasil(order, status);
+}
+
+function renderKhusus(order, k) {
+  const T = {
+    menunggu: ['⏳', 'Pesanan diterima', `Pembayaran sudah kami terima. Pesanan sedang menunggu diproses admin (maksimal 24 jam${k.sisa_jam ? `, sisa sekitar ${k.sisa_jam} jam` : ''}). Tautan unduh dikirim ke email Anda setelah perangkat selesai dibuat.`],
+    dibuat:   ['⚙️', 'Perangkat sedang dibuat', 'Perangkat ajar Anda sedang dibuat sesuai daftar bab yang Anda isi. Tautan unduh akan dikirim ke email Anda otomatis setelah selesai.'],
+    selesai:  ['🎉', 'Perangkat sudah jadi', 'Tautan unduh sudah dikirim ke email Anda. Periksa juga folder Spam/Promosi. Tidak menerima? Hubungi penjual.'],
+    gagal:    ['⚠️', 'Ada kendala saat membuat', 'Mohon maaf, pembuatan perangkat mengalami kendala. Admin akan memprosesnya ulang. Anda bisa menghubungi penjual untuk menanyakannya.'],
+    batal:    ['⛔', 'Pesanan dibatalkan', 'Mohon maaf, pesanan tidak dapat kami proses dalam 24 jam sehingga dibatalkan. Hubungi penjual untuk pengembalian dana atau memesan ulang.']
+  };
+  const [ikon, judul, teks] = T[k.tahap] || T.menunggu;
+  const pesanWA = encodeURIComponent(`Halo, saya ingin menanyakan pesanan Perangkat Ajar Custom No. ${order.order_id}.`);
+  document.getElementById('main').innerHTML = `
+    <div class="status-banner ${k.tahap === 'batal' || k.tahap === 'gagal' ? 'error' : 'sukses'}">
+      <span class="status-ikon">${ikon}</span>
+      <div class="status-judul">${judul}</div>
+      <div class="status-sub">${esc(teks)}</div>
+      <div class="order-id-box">No. Pesanan: ${esc(order.order_id)}</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px;">
+      <a href="https://wa.me/${esc(k.wa)}?text=${pesanWA}" target="_blank" rel="noopener" style="background:#16a34a;color:#fff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:10px;">💬 Hubungi penjual (WhatsApp)</a>
+      <button onclick="location.reload()" style="background:#fff;border:1px solid #cbd5e1;font-weight:700;padding:12px 18px;border-radius:10px;cursor:pointer;">🔄 Perbarui status</button>
+    </div>`;
 }
 
 function renderHasil(order, urlStatus) {

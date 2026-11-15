@@ -554,14 +554,10 @@ function tampilGagalTransaksi(pesan){
 /* ── Identitas guru untuk produk PAG/KBC ─────────────────────────
    Cermin sederhana aturan backend (lib/generator.js uraiItem): item PAG/KBC dengan satu kelas.
    Backend tetap yang memutuskan; di sini hanya menentukan apakah kartu identitas ditampilkan. */
+/* Hanya dua produk generator yang memakai identitas: "Perangkat Ajar Siap Pakai" (jenis siap) dan
+   "Perangkat Ajar Custom" (jenis khusus). Produk PAG/KBC lama tetap link Drive tanpa identitas. */
 function itemPerluIdentitas(i){
-  const variasi = String(i.variasi || '').trim();
-  if(!variasi) return false;
-  const adaKategori = /^(PAG|KBC)\s+/i.test(variasi) || /\b(PAG|KBC)\b/i.test(String(i.nama || ''));
-  if(!adaKategori) return false;
-  const sisa = variasi.replace(/^(PAG|KBC)\s+/i, '');
-  if(/^(.+?),\s*(\d+(?:\s+\d+)+)$/.test(sisa) || /^(.+?)[,\s]+kelas\s+(\d+(?:\s+\d+)+)$/i.test(sisa)) return false;
-  return /^(.+?)[,\s]+kelas\s+(\d+)$/i.test(sisa) || /^(.+?),\s*(\d+)$/.test(sisa);
+  return i.jenis === 'siap' || i.jenis === 'khusus';
 }
 const perluIdentitas = cartItems.some(itemPerluIdentitas);
 function ambilIdentitas(){
@@ -629,7 +625,9 @@ async function attemptPay(){
           nama:      i.nama,
           variasi:   i.variasi || '',
           harga:     parseInt(i.harga) || 0,
-          qty:       i.qty || 1
+          qty:       i.qty || 1,
+          jenis:     i.jenis || undefined,          // siap | khusus (produk generator); backend memeriksa ulang dan memakai harga dari database
+          perangkat: i.perangkat || undefined
         }))
       })
     });

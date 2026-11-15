@@ -336,6 +336,11 @@ async function loadProduk() {
       return;
     }
     produk = d.data;
+    // Dua produk perangkat ajar generator punya alur sendiri (pilih mapel / isi bab): halaman perangkat.html
+    if (['perangkat ajar siap pakai', 'perangkat ajar custom'].includes(String(produk.nama || '').trim().toLowerCase())) {
+      location.replace('perangkat.html?id=' + encodeURIComponent(produk.id));
+      return;
+    }
     renderProduk(produk);
   } catch(e) {
     // Cek apakah benar-benar tidak bisa connect atau error lain

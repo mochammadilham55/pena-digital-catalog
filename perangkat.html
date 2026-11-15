@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perangkat Ajar dengan Identitas Anda | Pena Digital Store</title>
+<link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dnksb0xpy/image/upload/v1782532301/6e9671ed-082b-4fe0-a7a0-6cec31b30e92_ruxq3l.jpg">
+<meta name="theme-color" content="#1B3A6B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1B3A6B;--orange:#E07B2A;--orange2:#F5A040;--cream:#F5EFE6;--white:#fff;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;--g500:#64748B;--g700:#334155;--green:#16A34A;--red:#DC2626;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--g700);min-height:100vh;}
+header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+header a.brand{color:#fff;text-decoration:none;font-size:16px;font-weight:800;}
+.hspacer{flex:1;}
+header a.keranjang{color:#fff;text-decoration:none;font-size:13px;font-weight:700;background:rgba(255,255,255,.14);padding:8px 12px;border-radius:8px;}
+main{max-width:640px;margin:0 auto;padding:18px 16px 60px;}
+.kartu{background:var(--white);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+h1{font-size:20px;color:var(--navy);margin-bottom:6px;}
+h2{font-size:14px;color:var(--navy);margin-bottom:10px;}
+.harga{font-size:22px;font-weight:800;color:var(--orange);margin:6px 0 10px;}
+.deskripsi{font-size:13px;line-height:1.65;color:var(--g500);}
+label{display:block;font-size:12px;font-weight:700;margin:12px 0 5px;}
+select,input[type=text],textarea{width:100%;font:inherit;font-size:14px;padding:11px 12px;border:1.5px solid var(--g300);border-radius:10px;background:#fff;color:var(--g700);}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--navy);}
+textarea{min-height:76px;resize:vertical;}
+.baris2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mapel{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.mapel label{display:flex;gap:10px;align-items:center;margin:0;padding:11px 12px;border:1.5px solid var(--g200);border-radius:10px;font-weight:600;font-size:13.5px;cursor:pointer;}
+.mapel input{width:auto;}
+.mapel label.pilih{border-color:var(--navy);background:#eef3fb;}
+.catatan{font-size:12px;color:var(--g500);margin-top:8px;line-height:1.55;}
+.galat{color:var(--red);font-size:12.5px;font-weight:600;margin-top:8px;display:none;}
+.btn{width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:800;color:#fff;background:var(--orange);cursor:pointer;margin-top:14px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn.kecil{background:var(--g100);color:var(--navy);width:auto;padding:9px 14px;font-size:13px;margin-top:8px;}
+.bab{border:1.5px solid var(--g200);border-radius:12px;padding:12px;margin-top:10px;background:#fafbfd;}
+.bab .kepala{display:flex;gap:8px;align-items:center;}
+.bab .kepala b{font-size:13px;color:var(--navy);white-space:nowrap;}
+.bab button.hapus{background:none;border:0;color:var(--red);font-size:18px;cursor:pointer;padding:4px 8px;}
+.muat{font-size:13px;color:var(--g500);padding:10px 0;}
+</style>
+</head>
+<body>
+<header><a class="brand" href="index.html">Pena Digital</a><span class="hspacer"></span><a class="keranjang" href="cart.html">🛒 Keranjang</a></header>
+<main>
+  <div class="kartu" id="info"><div class="muat">Memuat produk…</div></div>
+  <div id="form"></div>
+</main>
+<script>
+const API = 'https://pena-digital-backend.vercel.app/api/public';
+const id = new URLSearchParams(location.search).get('id');
+const JENJANG = { PAG: ['SD', 'SMP', 'SMA'], KBC: ['MI', 'MTs', 'MA'] };
+let produk = null, jenis = null, mapelTerpilih = null;
+const $ = (x) => document.getElementById(x);
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const rp = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+const opsiKelas = '<option value="">Pilih kelas</option>' + Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">Kelas ${i + 1}</option>`).join('');
+const opsiVersi = '<option value="">Pilih versi</option><option value="PAG">PAG — Deep Learning (SD/SMP/SMA)</option><option value="KBC">KBC (MI/MTs/MA)</option>';
+
+async function muat() {
+  if (!id) { location.href = 'index.html'; return; }
+  try {
+    const d = await (await fetch(`${API}/katalog/${encodeURIComponent(id)}`)).json();
+    if (d.status !== 'ok') throw new Error(d.message || 'Produk tidak ditemukan');
+    produk = d.data;
+  } catch (e) { $('info').innerHTML = `<div class="galat" style="display:block">Gagal memuat produk: ${esc(e.message)}</div>`; return; }
+  const nama = String(produk.nama || '').trim().toLowerCase();
+  jenis = nama === 'perangkat ajar siap pakai' ? 'siap' : nama === 'perangkat ajar custom' ? 'khusus' : null;
+  if (!jenis) { location.replace('produk.html?id=' + encodeURIComponent(id)); return; }
+  $('info').innerHTML = `<h1>${esc(produk.nama)}</h1><div class="harga">${rp(produk.harga)}</div><p class="deskripsi">${esc(produk.deskripsi || '')}</p>`;
+  jenis === 'siap' ? formSiap() : formKhusus();
+}
+
+/* ── Siap pakai: pilih versi + kelas → daftar mapel yang sudah ada ── */
+function formSiap() {
+  $('form').innerHTML = `<div class="kartu"><h2>1. Pilih versi dan kelas</h2>
+    <div class="baris2"><div><label for="versi">Versi</label><select id="versi">${opsiVersi}</select></div>
+    <div><label for="kelas">Kelas</label><select id="kelas">${opsiKelas}</select></div></div>
+    <h2 style="margin-top:18px">2. Pilih mata pelajaran</h2><div id="mapel"><div class="muat">Pilih versi dan kelas dulu.</div></div>
+    <p class="catatan">Nama sekolah dan nama guru Anda diisi pada langkah berikutnya, lalu tercetak otomatis di semua dokumen.</p>
+    <div class="galat" id="galat"></div><button class="btn" id="beli" disabled>Lanjut ke pembayaran</button></div>`;
+  $('versi').onchange = $('kelas').onchange = cariMapel;
+  $('beli').onclick = beliSiap;
+}
+async function cariMapel() {
+  mapelTerpilih = null; $('beli').disabled = true;
+  const v = $('versi').value, k = $('kelas').value;
+  if (!v || !k) { $('mapel').innerHTML = '<div class="muat">Pilih versi dan kelas dulu.</div>'; return; }
+  $('mapel').innerHTML = '<div class="muat">Mencari mapel yang tersedia…</div>';
+  try {
+    const d = await (await fetch(`${API}/perangkat/mapel?kategori=${v}&kelas=${k}`)).json();
+    if (d.status !== 'ok') throw new Error(d.message);
+    if (!d.mapel.length) { $('mapel').innerHTML = '<div class="muat">Belum ada mapel yang tersedia untuk kelas dan versi ini. Coba kelas atau versi lain, atau pilih <b>Perangkat Ajar Custom</b>.</div>'; return; }
+    $('mapel').innerHTML = '<div class="mapel">' + d.mapel.map((m, i) =>
+      `<label><input type="radio" name="mapel" value="${i}"> ${esc(m.mapel)} <span style="color:var(--g500);font-weight:500">· ${esc(m.jenjang)}</span></label>`).join('') + '</div>';
+    document.querySelectorAll('input[name=mapel]').forEach(r => r.onchange = () => {
+      mapelTerpilih = d.mapel[+r.value]; $('beli').disabled = false;
+      document.querySelectorAll('.mapel label').forEach(l => l.classList.toggle('pilih', l.contains(r) && r.checked));
+    });
+  } catch (e) { $('mapel').innerHTML = `<div class="galat" style="display:block">${esc(e.message || 'Gagal memuat mapel. Coba lagi.')}</div>`; }
+}
+function beliSiap() {
+  const v = $('versi').value, k = $('kelas').value;
+  if (!mapelTerpilih) return;
+  tambah({ key: `${produk.id}-${v}-${mapelTerpilih.mapel}-${k}`, produk_id: produk.id, nama: produk.nama, variasi: `${v} ${mapelTerpilih.mapel}, ${k}`,
+           harga: parseInt(produk.harga) || 0, foto_url: '', qty: 1, jenis: 'siap', perangkat: { kategori: v, kelas: k, mapel: mapelTerpilih.mapel } });
+}
+
+/* ── Custom: bab dan sub bab diisi sendiri ── */
+function formKhusus() {
+  $('form').innerHTML = `<div class="kartu"><h2>1. Perangkat yang dibuat</h2>
+    <div class="baris2"><div><label for="versi">Versi</label><select id="versi">${opsiVersi}</select></div>
+    <div><label for="jenjang">Jenjang</label><select id="jenjang"><option value="">Pilih versi dulu</option></select></div></div>
+    <div class="baris2"><div><label for="kelas">Kelas</label><select id="kelas">${opsiKelas}</select></div>
+    <div><label for="mapelK">Mata pelajaran</label><input type="text" id="mapelK" maxlength="120" placeholder="Contoh: Matematika"></div></div>
+    <p class="catatan">Tulis nama mapel sesuai Kurikulum Merdeka (mis. Matematika, Bahasa Indonesia, IPAS, PAI dan Budi Pekerti).</p></div>
+    <div class="kartu"><h2>2. Isi bab dan sub bab</h2>
+    <p class="catatan" style="margin:0 0 4px">Salin dari daftar isi buku Anda. Satu sub bab menjadi satu tujuan pembelajaran; bab tanpa sub bab menjadi satu tujuan. Maksimal 40 bab.</p>
+    <div id="daftarBab"></div><button type="button" class="btn kecil" id="tambahBab">+ Tambah bab</button></div>
+    <div class="kartu"><div class="catatan" style="margin:0">Pesanan dibayar dulu, lalu dibuat oleh admin (maksimal 24 jam). Tautan unduh dikirim ke email Anda. Bila tidak diproses dalam 24 jam, pesanan dibatalkan dan Anda dapat menghubungi penjual untuk pengembalian dana.</div>
+    <div class="galat" id="galat"></div><button class="btn" id="beli">Lanjut ke pembayaran</button></div>`;
+  $('versi').onchange = () => { const v = $('versi').value; $('jenjang').innerHTML = v ? '<option value="">Pilih jenjang</option>' + JENJANG[v].map(j => `<option>${j}</option>`).join('') : '<option value="">Pilih versi dulu</option>'; };
+  $('tambahBab').onclick = () => tambahBab();
+  $('beli').onclick = beliKhusus;
+  tambahBab();
+}
+function tambahBab() {
+  const wadah = $('daftarBab');
+  if (wadah.children.length >= 40) return;
+  const d = document.createElement('div'); d.className = 'bab';
+  d.innerHTML = `<div class="kepala"><b></b><input type="text" class="judul" maxlength="120" placeholder="Judul bab"><button type="button" class="hapus" aria-label="Hapus bab">✕</button></div>
+    <label>Sub bab (satu per baris, boleh dikosongkan)</label><textarea class="sub" placeholder="Contoh:&#10;Pecahan senilai&#10;Menjumlah pecahan"></textarea>`;
+  d.querySelector('.hapus').onclick = () => { if (wadah.children.length > 1) { d.remove(); beriNomor(); } };
+  wadah.appendChild(d); beriNomor();
+}
+function beriNomor() { [...$('daftarBab').children].forEach((b, i) => b.querySelector('b').textContent = 'Bab ' + (i + 1)); }
+function galat(t) { const g = $('galat'); g.textContent = t; g.style.display = t ? 'block' : 'none'; if (t) g.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+function beliKhusus() {
+  const v = $('versi').value, j = $('jenjang').value, k = $('kelas').value, m = $('mapelK').value.trim();
+  if (!v || !j || !k || !m) return galat('Lengkapi versi, jenjang, kelas, dan mata pelajaran.');
+  const bab = [...$('daftarBab').children].map(b => ({
+    judul: b.querySelector('.judul').value.trim(),
+    subbab: b.querySelector('.sub').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 15)
+  })).filter(b => b.judul);
+  if (!bab.length) return galat('Isi minimal satu judul bab.');
+  if (bab.length !== [...$('daftarBab').children].length && !confirm('Ada bab tanpa judul. Bab itu akan diabaikan. Lanjutkan?')) return;
+  tambah({ key: `${produk.id}-khusus-${Date.now()}`, produk_id: produk.id, nama: produk.nama, variasi: `${v} ${m} - ${j} kelas ${k} (${bab.length} bab)`,
+           harga: parseInt(produk.harga) || 0, foto_url: '', qty: 1, jenis: 'khusus', perangkat: { kategori: v, kelas: k, mapel: m, jenjang: j, bab } });
+}
+
+/* ── Keranjang: pesanan custom dibeli sendirian; siap pakai menggantikan pilihan siap/custom sebelumnya ── */
+function tambah(item) {
+  let cart = [];
+  try { cart = JSON.parse(localStorage.getItem('pd_cart') || '[]'); } catch {}
+  cart = item.jenis === 'khusus' ? [] : cart.filter(i => i.jenis !== 'khusus' && i.key !== item.key);
+  cart.push(item);
+  localStorage.setItem('pd_cart', JSON.stringify(cart));
+  location.href = 'checkout.html';
+}
+muat();
+</script>
+</body>
+</html>
