@@ -95,7 +95,7 @@ async function cariMapel() {
     if (d.status !== 'ok') throw new Error(d.message);
     if (!d.mapel.length) { $('mapel').innerHTML = '<div class="muat">Belum ada mapel yang tersedia untuk kelas dan versi ini. Coba kelas atau versi lain, atau pilih <b>Perangkat Ajar Custom</b>.</div>'; return; }
     $('mapel').innerHTML = '<div class="mapel">' + d.mapel.map((m, i) =>
-      `<label><input type="radio" name="mapel" value="${i}"> ${esc(m.mapel)} <span style="color:var(--g500);font-weight:500">· ${esc(m.jenjang)}</span></label>`).join('') + '</div>';
+      `<label><input type="radio" name="mapel" value="${i}"> ${esc(m.mapel)}</label>`).join('') + '</div>';
     document.querySelectorAll('input[name=mapel]').forEach(r => r.onchange = () => {
       mapelTerpilih = d.mapel[+r.value]; $('beli').disabled = false;
       document.querySelectorAll('.mapel label').forEach(l => l.classList.toggle('pilih', l.contains(r) && r.checked));
