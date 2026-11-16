@@ -862,14 +862,24 @@ function renderLookupState(state, d){
         <a class="cta-outline" style="background:var(--orange);" href="pending.html">Lanjutkan Pembayaran</a>
       </div>`,
 
-    blocked: () => `
+    blocked: () => {
+      /* Pesan WA siap kirim berisi daftar pesanan milik akun yang terblokir (dari server).
+         Admin yang memutuskan apakah link dikirim; alurnya berhenti di sini. */
+      const ps = Array.isArray(d.pesanan) ? d.pesanan : [];
+      const teks = ps.length
+        ? 'Halo kak saya belum mendapatkan perangkat ajar saya karena akun terblokir\n' +
+          ps.map((p, i) => `${i + 1}. ${p.no_pesanan}${p.produk ? ' (' + p.produk + ')' : ''}`).join('\n')
+        : '';
+      const href = `https://wa.me/${ADMIN_WA}` + (teks ? `?text=${encodeURIComponent(teks)}` : '');
+      return `
       <div class="result-card">
         <div class="status-row">
           <div class="status-icon bad">${ICON_X}</div>
           <div><p class="status-title">Akun tidak dapat memproses permintaan ini</p><p class="status-desc">${esc(d.message || 'Hubungi admin untuk bantuan lebih lanjut.')}</p></div>
         </div>
-        <a class="cta-outline" href="https://wa.me/${ADMIN_WA}" target="_blank" rel="noopener">${ICON_CHAT} Hubungi Admin</a>
-      </div>`,
+        <a class="cta-outline" href="${href}" target="_blank" rel="noopener">${ICON_CHAT} Hubungi Admin</a>
+      </div>`;
+    },
 
     offline: () => `
       <div class="result-card">
@@ -897,7 +907,7 @@ async function cekPesanan(){
   renderLookupState('loading');
 
   try {
-    const r = await fetch(`${API}/pesanan/${encodeURIComponent(no)}`);
+    const r = await fetch(`${API}/pesanan/${encodeURIComponent(no)}${await jejakQuery()}`);
     const d = await r.json();
 
     if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=cari'; return; }
@@ -916,7 +926,7 @@ async function cekPesanan(){
     else if (d.status === 'not_found') renderLookupState('processing', d);
     else if (d.status === 'no_link')   renderLookupState('manual', d);
     else if (d.status === 'not_paid')  renderLookupState('unpaid', d);
-    else if (d.status === 'blocked')   renderLookupState('blocked', d);
+    else if (d.status === 'blocked' || d.status === 'cancelled') renderLookupState('blocked', d);
     else renderLookupState('offline', d);
 
   } catch {
@@ -929,7 +939,40 @@ async function cekPesanan(){
 async function tandaiTerkirim(){
   if (sudahDitandai || !noPesananAktif || sumberAktif !== 'shopee') return;
   sudahDitandai = true;
-  try { await fetch(`${API}/pesanan/${encodeURIComponent(noPesananAktif)}/ambil`, { method:'PATCH' }); } catch {}
+  try { await fetch(`${API}/pesanan/${encodeURIComponent(noPesananAktif)}/ambil${await jejakQuery()}`, { method:'PATCH' }); } catch {}
+}
+
+/* Penanda perangkat untuk pencegahan penyalahgunaan (pesanan dibatalkan setelah link
+   diambil): ID acak di browser + sidik jari ringan (hash, bukan data mentah). Dikirim
+   hanya saat cek pesanan / ambil link. Lihat Kebijakan Privasi di tnc.html. Kegagalan
+   apa pun diabaikan -- pembeli sah tidak boleh terganggu. */
+let _jejakCache = null;
+async function jejakQuery(){
+  if (_jejakCache !== null) return _jejakCache;
+  let q = '';
+  try {
+    const hex = (buf) => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    const sha = async (s) => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))).slice(0, 32);
+    let id = null;
+    try { id = localStorage.getItem('pd_device_id'); } catch {}
+    if (!id) { const m = document.cookie.match(/(?:^|;\s*)pd_dev=([A-Za-z0-9_-]{16,64})/); id = m ? m[1] : null; }
+    if (!id) id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()).replace(/[^A-Za-z0-9]/g, '').slice(0, 40).padEnd(16, '0');
+    try { localStorage.setItem('pd_device_id', id); } catch {}
+    try { document.cookie = `pd_dev=${id}; max-age=31536000; path=/; SameSite=Lax; Secure`; } catch {}
+    let gpu = '';
+    try {
+      const gl = document.createElement('canvas').getContext('webgl');
+      const ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
+      gpu = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : '';
+    } catch {}
+    const fp = await sha([
+      navigator.userAgent, navigator.platform, (navigator.languages || []).join(','),
+      screen.width + 'x' + screen.height + 'x' + screen.colorDepth, devicePixelRatio,
+      Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.hardwareConcurrency, navigator.deviceMemory, gpu
+    ].join('|'));
+    q = `?d=${encodeURIComponent(id)}&f=${fp}`;
+  } catch {}
+  return (_jejakCache = q);
 }
 
 async function copyLink(btn, url){
