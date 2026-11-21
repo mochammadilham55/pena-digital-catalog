@@ -58,7 +58,8 @@ const $ = (x) => document.getElementById(x);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const rp = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 const opsiKelas = '<option value="">Pilih kelas</option>' + Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">Kelas ${i + 1}</option>`).join('');
-const opsiVersi = '<option value="">Pilih versi</option><option value="PAG">PAG — Deep Learning (SD/SMP/SMA)</option><option value="KBC">KBC (MI/MTs/MA)</option>';
+const opsiTahun = [2026, 2027, 2028, 2029].map(t => `<option value="${t}">${t} (tahun ajaran ${t}/${t + 1})</option>`).join('');
+const opsiVersi ='<option value="">Pilih versi</option><option value="PAG">PAG — Deep Learning (SD/SMP/SMA)</option><option value="KBC">KBC (MI/MTs/MA)</option>';
 
 async function muat() {
   if (!id) { location.href = 'index.html'; return; }
@@ -116,7 +117,8 @@ function formKhusus() {
     <div><label for="jenjang">Jenjang</label><select id="jenjang"><option value="">Pilih versi dulu</option></select></div></div>
     <div class="baris2"><div><label for="kelas">Kelas</label><select id="kelas">${opsiKelas}</select></div>
     <div><label for="mapelK">Mata pelajaran</label><input type="text" id="mapelK" maxlength="120" placeholder="Contoh: Matematika"></div></div>
-    <p class="catatan">Tulis nama mapel sesuai Kurikulum Merdeka (mis. Matematika, Bahasa Indonesia, IPAS, PAI dan Budi Pekerti).</p></div>
+    <div class="baris2"><div><label for="tahunK">Tahun mulai ajaran</label><select id="tahunK">${opsiTahun}</select></div><div></div></div>
+    <p class="catatan">Tulis nama mapel sesuai Kurikulum Merdeka (mis. Matematika, Bahasa Indonesia, IPAS, PAI dan Budi Pekerti). Tahun mulai ajaran menentukan kalender dan jadwal di dokumen (mis. 2026 berarti tahun ajaran 2026/2027).</p></div>
     <div class="kartu"><h2>2. Isi bab dan sub bab</h2>
     <p class="catatan" style="margin:0 0 4px">Salin dari daftar isi buku Anda. Satu sub bab menjadi satu tujuan pembelajaran; bab tanpa sub bab menjadi satu tujuan. Maksimal 40 bab.</p>
     <div id="daftarBab"></div><button type="button" class="btn kecil" id="tambahBab">+ Tambah bab</button></div>
@@ -148,7 +150,7 @@ function beliKhusus() {
   if (!bab.length) return galat('Isi minimal satu judul bab.');
   if (bab.length !== [...$('daftarBab').children].length && !confirm('Ada bab tanpa judul. Bab itu akan diabaikan. Lanjutkan?')) return;
   tambah({ key: `${produk.id}-khusus-${Date.now()}`, produk_id: produk.id, nama: produk.nama, variasi: `${v} ${m} - ${j} kelas ${k} (${bab.length} bab)`,
-           harga: parseInt(produk.harga) || 0, foto_url: '', qty: 1, jenis: 'khusus', perangkat: { kategori: v, kelas: k, mapel: m, jenjang: j, bab } });
+           harga: parseInt(produk.harga) || 0, foto_url: '', qty: 1, jenis: 'khusus', perangkat: { kategori: v, kelas: k, mapel: m, jenjang: j, bab, tahun: parseInt($('tahunK').value, 10) || 2026 } });
 }
 
 /* ── Keranjang: pesanan custom dibeli sendirian; siap pakai menggantikan pilihan siap/custom sebelumnya ── */
