@@ -42,7 +42,8 @@ window.PdAkses = (() => {
     .akses-form .akses-galat:empty{display:none}
     .akses-form button{width:100%;min-height:44px;margin-top:12px;border:0;border-radius:10px;background:#B45309;color:#fff;font:inherit;font-weight:700;cursor:pointer}
     .akses-form button:disabled{opacity:.7;cursor:wait}
-    .akses-form input:focus-visible,.akses-form button:focus-visible{outline:3px solid #F5A040;outline-offset:2px}
+    .akses-form input:focus-visible,.akses-form button:focus-visible{outline:3px solid #1B3A6B;outline-offset:2px}
+    .akses-form.gelap input:focus-visible,.akses-form.gelap button:focus-visible{outline-color:#F5A040}
     .akses-form.gelap{background:transparent;border-color:rgba(255,255,255,.3);color:#fff;margin:0}
     .akses-form.gelap .akses-judul{color:#fff}
     .akses-form.gelap .akses-galat{color:#FECACA}
