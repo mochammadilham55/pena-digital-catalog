@@ -84,6 +84,7 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 
 <div id="toast"></div>
 
+<script src="akses.js"></script>
 <script>
 const API      = 'https://pena-digital-backend.vercel.app/api/public';
 const ADMIN_WA = '6282228225791';
@@ -96,15 +97,29 @@ const custWA   = localStorage.getItem('pd_customer_wa') || '';
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escA(s){ return String(s||'').replace(/'/g,"\\'"); }
 
-async function loadOrder() {
+function mintaVerifikasi(galat, nilai) {
+  const main = document.getElementById('main');
+  PdAkses.formulir(main, { galat, nilai, kirim: loadOrder });
+  const beranda = document.createElement('a');
+  beranda.href = 'index.html';
+  beranda.textContent = 'Kembali ke Beranda';
+  beranda.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:44px;color:var(--navy);font-weight:700;';
+  main.append(beranda);
+}
+
+async function loadOrder(kontak) {
   if (!orderId) { renderError('Order ID tidak ditemukan.'); return; }
 
   // Polling — tunggu webhook Midtrans (maks 10x, setiap 2 detik)
   let order = null;
   for (let i = 0; i < 10; i++) {
     try {
-      const r = await fetch(`${API}/midtrans/order/${orderId}`);
-      const d = await r.json();
+      const d = await PdAkses.ambil(`${API}/midtrans/order/${encodeURIComponent(orderId)}`, orderId, { kontak });
+      if (d.status === 'verification_required') { mintaVerifikasi(d.reason === 'missing' ? '' : d.message, kontak); return; }
+      if (d.status === 'rate_limited') {
+        if (kontak) mintaVerifikasi(d.message, kontak); else renderError(d.message);
+        return;
+      }
       if (d.status === 'ok') {
         order = d;
         if (['paid','settlement','capture'].includes(d.payment_status)) break;
@@ -117,7 +132,7 @@ async function loadOrder() {
   // Pesanan "Perangkat Ajar Custom": tidak ada tautan langsung, tampilkan tahap pengerjaan + tombol hubungi penjual.
   if (['paid','settlement','capture'].includes(order.payment_status)) {
     try {
-      const k = await (await fetch(`${API}/khusus/status/${encodeURIComponent(orderId)}`)).json();
+      const k = await PdAkses.ambil(`${API}/khusus/status/${encodeURIComponent(orderId)}`, orderId, { kontak });
       if (k.khusus && k.lunas) { renderKhusus(order, k); return; }
     } catch {}
   }

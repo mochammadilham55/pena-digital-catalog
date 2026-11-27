@@ -144,6 +144,7 @@ header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;
 <!-- Midtrans Snap.js -->
 <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-tSZ9jlbMfd4FzuOA"></script>
 
+<script src="akses.js"></script>
 <script>
 const API = 'https://pena-digital-backend.vercel.app/api/public';
 
@@ -194,8 +195,7 @@ async function cekAutoDetected() {
   if (!lastOrder) return;
 
   try {
-    const r = await fetch(`${API}/midtrans/order/${lastOrder}`);
-    const d = await r.json();
+    const d = await PdAkses.ambil(`${API}/midtrans/order/${encodeURIComponent(lastOrder)}`, lastOrder);
     if (d.status !== 'ok') return;
 
     // Hanya tampilkan banner kalau masih pending
@@ -220,15 +220,20 @@ async function cekAutoDetected() {
 // ════════════════════════════════════════
 // CARI MANUAL
 // ════════════════════════════════════════
-async function cariManual() {
+async function cariManual(kontak) {
   const orderId = document.getElementById('input-order-id').value.trim().toUpperCase();
   if (!orderId) return;
 
-  document.getElementById('result-area').innerHTML = '<div class="empty-state"><div class="spin" style="display:block;border-top-color:var(--orange);border-color:var(--cream2);margin:0 auto;"></div></div>';
+  if (!kontak) document.getElementById('result-area').innerHTML = '<div class="empty-state"><div class="spin" style="display:block;border-top-color:var(--orange);border-color:var(--cream2);margin:0 auto;"></div></div>';
 
   try {
-    const r = await fetch(`${API}/midtrans/order/${encodeURIComponent(orderId)}`);
-    const d = await r.json();
+    const d = await PdAkses.ambil(`${API}/midtrans/order/${encodeURIComponent(orderId)}`, orderId, { kontak });
+    if (d.status === 'verification_required' || (d.status === 'rate_limited' && kontak)) {
+      PdAkses.formulir(document.getElementById('result-area'),
+        { galat: d.reason === 'missing' ? '' : d.message, nilai: kontak, kirim: cariManual });
+      return;
+    }
+    if (d.status === 'rate_limited') { tampilkanError(d.message); return; }
     if (d.status !== 'ok') {
       tampilkanError('Nomor pesanan tidak ditemukan. Periksa kembali nomor pesanan Anda.');
       return;
@@ -388,7 +393,7 @@ function mulaiCountdown(expiredAt, orderId) {
 
 async function expireOrderOtomatis(orderId) {
   try {
-    await fetch(`${API}/midtrans/order/${orderId}/cancel`, { method: 'POST' });
+    await fetch(`${API}/midtrans/order/${orderId}/cancel`, { method: 'POST', headers: PdAkses.kepala(orderId) });
   } catch {}
   localStorage.removeItem('pd_last_order');
 }
@@ -408,7 +413,7 @@ async function batalkanPesanan(orderId) {
   if (txt) txt.textContent = 'Membatalkan...';
 
   try {
-    const r = await fetch(`${API}/midtrans/order/${orderId}/cancel`, { method: 'POST' });
+    const r = await fetch(`${API}/midtrans/order/${orderId}/cancel`, { method: 'POST', headers: PdAkses.kepala(orderId) });
     const d = await r.json();
 
     if (d.status === 'ok') {
@@ -474,7 +479,7 @@ async function lanjutkanBayar(orderId, existingToken) {
 
 async function generateTokenBaru(orderId, btn, spin, icon, txt) {
   try {
-    const r = await fetch(`${API}/midtrans/order/${orderId}/regenerate-token`, { method: 'POST' });
+    const r = await fetch(`${API}/midtrans/order/${orderId}/regenerate-token`, { method: 'POST', headers: PdAkses.kepala(orderId) });
     const d = await r.json();
     if (d.status !== 'ok') {
       await tampilkanInfo(d.message || 'Gagal membuat ulang link pembayaran.', {icon:'❌'});

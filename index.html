@@ -588,6 +588,7 @@
   </div>
 </footer>
 
+<script src="akses.js"></script>
 <script>
 /* ================= Sample data — shaped like real production data, per brief §07 ================= */
 
@@ -896,7 +897,7 @@ function renderLookupState(state, d){
 
 let hasilTerakhir = { list: [], no: '' };
 
-async function cekPesanan(){
+async function cekPesanan(kontak){
   const input = document.getElementById('orderInput');
   const no = input.value.trim().toUpperCase().replace(/\s+/g,'');
   expandLookup();
@@ -904,13 +905,18 @@ async function cekPesanan(){
 
   noPesananAktif = no;
   sudahDitandai  = false;
-  renderLookupState('loading');
+  if (!kontak) renderLookupState('loading');
 
   try {
-    const r = await fetch(`${API}/pesanan/${encodeURIComponent(no)}${await jejakQuery()}`);
-    const d = await r.json();
+    const d = await PdAkses.ambil(`${API}/pesanan/${encodeURIComponent(no)}${await jejakQuery()}`, no, { kontak });
 
     if (d.status === 'maintenance') { location.href = 'maintenance.html?fitur=cari'; return; }
+    // Pesanan website: nomor saja tidak cukup, minta email atau nomor WhatsApp pemesan.
+    if (d.status === 'verify' || (d.status === 'rate_limited' && kontak)) {
+      PdAkses.formulir(document.getElementById('lookupResult'),
+        { gelap: true, galat: d.reason === 'missing' ? '' : d.message, nilai: kontak, kirim: cekPesanan });
+      return;
+    }
     if (d.status === 'rate_limited') {
       renderLookupState('processing', { message: d.message || 'Terlalu banyak percobaan. Coba lagi sebentar.' });
       return;
@@ -1012,8 +1018,7 @@ async function cekPesananTertunda(){
   const banner = document.getElementById('pendingBanner');
   if (!last) { banner.style.display = 'none'; return; }
   try {
-    const r = await fetch(`${API}/midtrans/order/${encodeURIComponent(last)}`);
-    const d = await r.json();
+    const d = await PdAkses.ambil(`${API}/midtrans/order/${encodeURIComponent(last)}`, last);
     if (d.status !== 'ok') { banner.style.display = 'none'; return; }
 
     if (d.payment_status === 'pending') {

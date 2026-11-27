@@ -425,6 +425,7 @@
 
 <!-- Midtrans Snap: popup pembayaran resmi -->
 <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-tSZ9jlbMfd4FzuOA"></script>
+<script src="akses.js"></script>
 
 <script>
 /* ================= Sample data (matches cart.html) ================= */
@@ -637,6 +638,7 @@ async function attemptPay(){
     if(d.status !== 'ok'){ tampilGagalTransaksi(d.message || 'Silakan coba lagi.'); setTombolBayar(false); return; }
 
     localStorage.setItem('pd_last_order', d.order_id);
+    window.PdAkses?.simpan(d.order_id, d.access_code);
     localStorage.setItem('pd_customer_wa', wa);
     if(perluIdentitas){ try { localStorage.setItem('pd_identitas', JSON.stringify(ambilIdentitas())); } catch {} }
 

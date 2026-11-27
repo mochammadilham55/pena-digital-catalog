@@ -324,6 +324,10 @@ Semua `confirm()`/`alert()` bawaan Chrome (10 titik `confirm()` + 4 titik `alert
 
 `orders.html` → `bukaModalKirim()` (tab "Kirim Link Manual" & tombol kirim di tab "Riwayat Pesanan") tidak lagi auto-mencari link lewat `POST /cari-link` saat modal dibuka — sekarang langsung memakai `tautanSiap(o)` (helper baru: prioritas `o.link_shortlink`, fallback `o.link_produk`) yang datang dari `GET /midtrans/orders`. Link yang dikirim ke pembeli sekarang berupa shortlink (`penadigital.xyz/s/<slug>`), bukan link Drive asli. Detail lengkap arsitekturnya (kolom DB baru, fungsi backend, titik-titik yang berubah, status migrasi yang **belum dijalankan**) ada di `CLAUDE.md` (root, satu folder di atas) §1.17 — baca di sana sebelum menyentuh alur pengiriman link di file ini.
 
+## 🔐 Verifikasi Pesanan Website (branch V2, belum dirilis)
+
+`akses.js` (dipakai bersama seperti `lacak.js`) menyimpan kode pesanan di `localStorage['pd_akses']` dan mengirimnya sebagai header. Tanpa kode, pembeli mengisi email atau nomor WhatsApp pemesan. Semua panggilan baru ke endpoint pesanan website harus lewat `PdAkses.ambil()` atau `PdAkses.kepala()`. Nomor pesanan baru: tanggal + 10 angka acak.
+
 ## ⚠️ Bug Diketahui
 
 ### ✅ Sudah Diperbaiki
